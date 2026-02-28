@@ -1,0 +1,6 @@
+spring:
+  application:
+    name: kek_hookah
+  web:
+    error:
+      include-binding-errors: always

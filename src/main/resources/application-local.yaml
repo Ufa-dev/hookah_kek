@@ -1,0 +1,62 @@
+spring:
+  # R2DBC configuration for reactive repository
+  r2dbc:
+    url: r2dbc:postgresql://localhost:5432/hookah
+    username: hookah
+    password: hookah_dev_password
+    pool:
+      initial-size: 10
+      max-size: 20
+      max-idle-time: 30m
+
+  # Flyway configuration for migrations
+  flyway:
+    enabled: true
+    url: jdbc:postgresql://localhost:5432/hookah
+    user: hookah
+    password: hookah_dev_password
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+    validate-on-migrate: true
+
+  # WebFlux configuration
+  webflux:
+    base-path: /
+app:
+  security:
+    jwt:
+      access-token-expiration-ms: 1800000
+      refresh-token-expiration-ms: 86400000
+      secret: "YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkw"
+# Server configuration
+server:
+  port: 8080
+  shutdown: graceful
+# Management endpoints for actuator
+management:
+  otlp:
+    metrics:
+      export:
+        enabled: false
+  endpoints:
+    web:
+      exposure:
+        include: health,info,metrics,prometheus
+  endpoint:
+    health:
+      show-details: always
+  metrics:
+    export:
+      prometheus:
+        enabled: true
+
+# Logging configuration
+logging:
+  level:
+    root: INFO
+    org.springframework.r2dbc: DEBUG
+    org.springframework.data.r2dbc: DEBUG
+    org.flywaydb: INFO
+    org:
+      springframework:
+        security: DEBUG
