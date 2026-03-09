@@ -1,7 +1,7 @@
 spring:
   # R2DBC configuration for reactive repository
   r2dbc:
-    url: r2dbc:postgresql://localhost:5432/hookah
+    url: r2dbc:postgresql://localhost:6432/hookah
     username: hookah
     password: hookah_dev_password
     pool:
@@ -12,7 +12,7 @@ spring:
   # Flyway configuration for migrations
   flyway:
     enabled: true
-    url: jdbc:postgresql://localhost:5432/hookah
+    url: jdbc:postgresql://localhost:6432/hookah
     user: hookah
     password: hookah_dev_password
     locations: classpath:db/migration
