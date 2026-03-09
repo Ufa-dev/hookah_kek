@@ -8,7 +8,6 @@ data class TabacoBrand(
     val name: String,
     val description: String,
     val strength: Long,
-    val warehouseProductId: String,
     val createdAt: OffsetDateTime,
     val updatedAt: OffsetDateTime,
     val updatedBy: UserId
