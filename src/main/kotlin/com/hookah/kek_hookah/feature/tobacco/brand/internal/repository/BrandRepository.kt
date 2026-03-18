@@ -1,4 +1,4 @@
-package com.hookah.kek_hookah.feature.tobacco.brand.internal
+package com.hookah.kek_hookah.feature.tobacco.brand.internal.repository
 
 import com.hookah.kek_hookah.feature.tobacco.brand.model.BrandId
 import com.hookah.kek_hookah.feature.tobacco.brand.model.TabacoBrand
@@ -27,6 +27,7 @@ class BrandRepository(
                     where("id").`is`(id.id)
                 )
             ).awaitOneOrNull()?.toBrand()
+
     }
 
     suspend fun findAllByName(name: String): List<TabacoBrand> {
