@@ -3,6 +3,7 @@ plugins {
     kotlin("plugin.spring") version "2.2.21"
     id("org.springframework.boot") version "4.0.0"
     id("io.spring.dependency-management") version "1.1.7"
+    id("com.vaadin") version "25.0.7"
 }
 
 group = "com.hookah.kek_hookah"
@@ -74,7 +75,15 @@ dependencies {
     implementation("org.opensearch.client:opensearch-java:3.4.0")
     implementation("org.apache.httpcomponents.client5:httpclient5:5.3.1")
 
+    // Vaadin
+    implementation("com.vaadin:vaadin-spring-boot-starter:25.0.7")
+    implementation("org.jetbrains.kotlinx:kotlinx-coroutines-reactor")
+}
 
+dependencyManagement {
+    imports {
+        mavenBom("com.vaadin:vaadin-bom:25.0.7")
+    }
 }
 
 kotlin {
