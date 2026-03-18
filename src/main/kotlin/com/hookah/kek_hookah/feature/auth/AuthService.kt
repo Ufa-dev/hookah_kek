@@ -50,7 +50,8 @@ class AuthService(
             accessToken = accessToken,
             refreshToken = refreshToken,
             expiresIn = accessTokenExpiration,
-            refreshExpiresIn = refreshTokenExpiration
+            refreshExpiresIn = refreshTokenExpiration,
+            userId = user.id
         )
     }
 
@@ -67,7 +68,8 @@ class AuthService(
             accessToken = accessToken,
             refreshToken = refreshToken,
             expiresIn = accessTokenExpiration,
-            refreshExpiresIn = refreshTokenExpiration
+            refreshExpiresIn = refreshTokenExpiration,
+            userId = user.id
         )
     }
 
@@ -77,6 +79,9 @@ class AuthService(
 
         val storedToken = refreshTokenRepository.findByJti(jti)
             ?: throw BadCredentialsException("Refresh token has been revoked")
+
+        val user = userService.findById(storedToken.userId)
+            ?: throw BadCredentialsException("User not found")
 
         val newAccessToken = jwtProvider.generateNewAccessToken(request.token)
             ?: throw BadCredentialsException("Failed to generate new access token")
@@ -94,7 +99,8 @@ class AuthService(
             accessToken = newAccessToken,
             refreshToken = newRefreshToken,
             expiresIn = accessTokenExpiration,
-            refreshExpiresIn = refreshTokenExpiration
+            refreshExpiresIn = refreshTokenExpiration,
+            userId = user.id
         )
     }
 
