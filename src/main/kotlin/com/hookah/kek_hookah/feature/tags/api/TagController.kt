@@ -15,7 +15,7 @@ import java.util.*
 
 
 @RestController
-@RequestMapping("/api/v1/tags")
+@RequestMapping("/api/v1/tag")
 class TagController(
     private val service: TagService
 ) {

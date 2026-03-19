@@ -30,6 +30,15 @@ class BrandRepository(
 
     }
 
+    suspend fun findByName(name: String): TabacoBrand? {
+        return template.select(BrandEntity::class.java)
+            .matching(
+                Query.query(
+                    where("name").`is`(name)
+                )
+            ).awaitOneOrNull()?.toBrand()
+    }
+
     suspend fun findAllByName(name: String): List<TabacoBrand> {
         return template.select(BrandEntity::class.java)
             .matching(
@@ -79,7 +88,7 @@ class BrandRepository(
         val name: String,
 
         @Column("name")
-        val description: String,
+        val description: String?,
 
         @Column("created_at")
         val createdAt: OffsetDateTime,

@@ -7,7 +7,7 @@ import java.time.OffsetDateTime
 data class TabacoBrand(
     val id: BrandId,
     val name: String,
-    val description: String,
+    val description: String?,
     val tags: List<Tag> = emptyList(),
     val createdAt: OffsetDateTime,
     val updatedAt: OffsetDateTime,
