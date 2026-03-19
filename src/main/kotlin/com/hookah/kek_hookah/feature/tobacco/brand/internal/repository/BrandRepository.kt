@@ -13,21 +13,39 @@ import org.springframework.data.relational.core.query.Criteria.where
 import org.springframework.data.relational.core.query.Query
 import org.springframework.stereotype.Component
 import java.time.OffsetDateTime
-import java.util.UUID
+import java.util.*
 
 @Component
 class BrandRepository(
     private val template: R2dbcEntityTemplate
 ) {
+
     suspend fun findById(id: BrandId): TabacoBrand? {
-        return template.select(TabacoBrandEntity::class.java)
-            .matching(Query.query(where("id").`is`(id.id)))
-            .awaitOneOrNull()
-            ?.toBrand()
+        return template.select(BrandEntity::class.java)
+            .matching(
+                Query.query(
+                    where("id").`is`(id.id)
+                )
+            ).awaitOneOrNull()?.toBrand()
+
     }
 
-    suspend fun findAll(): List<TabacoBrand> {
-        return template.select(TabacoBrandEntity::class.java)
+    suspend fun findByName(name: String): TabacoBrand? {
+        return template.select(BrandEntity::class.java)
+            .matching(
+                Query.query(
+                    where("name").`is`(name)
+                )
+            ).awaitOneOrNull()?.toBrand()
+    }
+
+    suspend fun findAllByName(name: String): List<TabacoBrand> {
+        return template.select(BrandEntity::class.java)
+            .matching(
+                Query.query(
+                    where("LOWER(name)").like("%${name.lowercase()}%")
+                )
+            )
             .all()
             .collectList()
             .awaitSingle()
@@ -42,46 +60,35 @@ class BrandRepository(
         return template.update(brand.toEntity()).awaitSingle().toBrand()
     }
 
-    suspend fun findByName(name: String): TabacoBrand? {
-        return template.select(TabacoBrandEntity::class.java)
-            .matching(Query.query(where("name").`is`(name)))
-            .awaitOneOrNull()
-            ?.toBrand()
-    }
-
-    private fun TabacoBrandEntity.toBrand() = TabacoBrand(
+    private fun BrandEntity.toBrand() = TabacoBrand(
         id = BrandId(id),
         name = name,
         description = description,
-        strength = strength,
         createdAt = createdAt,
         updatedAt = updatedAt,
         updatedBy = UserId(updatedBy)
     )
 
-    private fun TabacoBrand.toEntity() = TabacoBrandEntity(
+    private fun TabacoBrand.toEntity() = BrandEntity(
         id = id.id,
         name = name,
         description = description,
-        strength = strength,
         createdAt = createdAt,
         updatedAt = updatedAt,
-        updatedBy = updatedBy.id
+        updatedBy = updatedBy.id,
     )
 
-    @Table("tabacoo_brand")
-    data class TabacoBrandEntity(
+
+    @Table("brands")
+    data class BrandEntity(
         @Id
         val id: UUID,
 
         @Column("name")
         val name: String,
 
-        @Column("description")
-        val description: String,
-
-        @Column("strength")
-        val strength: Long,
+        @Column("name")
+        val description: String?,
 
         @Column("created_at")
         val createdAt: OffsetDateTime,
@@ -90,6 +97,7 @@ class BrandRepository(
         val updatedAt: OffsetDateTime,
 
         @Column("updated_by")
-        val updatedBy: UUID
+        val updatedBy: UUID,
     )
+
 }

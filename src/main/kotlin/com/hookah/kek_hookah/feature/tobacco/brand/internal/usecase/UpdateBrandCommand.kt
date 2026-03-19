@@ -16,32 +16,27 @@ class UpdateBrandCommand(
     private val eventPublisher: EventPublisher,
     private val tx: TransactionalOperator,
 ) {
-    suspend fun execute(request: BrandForUpdate): TabacoBrand {
-        val existing = repository.findById(request.brandId)
-            ?: throw IllegalArgumentException("Brand not found")
 
-        // Проверка уникальности имени, если оно изменилось
-        if (existing.name != request.name) {
-            repository.findByName(request.name)?.let {
-                throw IllegalArgumentException("Brand with name '${request.name}' already exists")
-            }
-        }
+    suspend fun execute(request: BrandForUpdate): TabacoBrand {
+        val existing = repository.findById(request.id)
+            ?: throw IllegalArgumentException("Brand not found!")
 
         val updated = existing.copy(
             name = request.name,
             description = request.description,
-            strength = request.strength,
             updatedAt = OffsetDateTime.now(),
-            updatedBy = request.userId
+            updatedBy = request.updatedBy
         )
+
         return tx.executeAndAwait {
             repository.update(updated)
-        }.also {
+        }.also { brand ->
             eventPublisher + BrandUpdatedEvent(
                 before = existing,
-                after = it,
+                after = brand,
                 publishedAt = OffsetDateTime.now()
             )
         }
     }
+
 }

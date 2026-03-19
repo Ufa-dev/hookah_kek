@@ -16,28 +16,26 @@ class CreateBrandCommand(
     private val repository: BrandRepository,
     private val eventPublisher: EventPublisher,
     private val tx: TransactionalOperator,
-) {
+    ) {
     suspend fun execute(request: BrandForCreate): TabacoBrand {
-        repository.findByName(request.name)?.let {
-            throw IllegalArgumentException("Brand with name '${request.name}' already exists")
-        }
+        repository.findByName(request.name)
+            ?.let { throw IllegalArgumentException("Brand with this name already exist!") }
 
-        val brand = TabacoBrand(
+        return TabacoBrand(
             id = BrandId(),
             name = request.name,
             description = request.description,
-            strength = request.strength,
             createdAt = OffsetDateTime.now(),
             updatedAt = OffsetDateTime.now(),
-            updatedBy = request.userId
-        )
-        return tx.executeAndAwait {
-            repository.insert(brand)
-        }.also {
+            updatedBy = request.updatedBy
+        ).let { brand ->
+            tx.executeAndAwait { repository.insert(brand) }
+        }.also { brand ->
             eventPublisher + BrandCreatedEvent(
-                brand = it,
+                brand = brand,
                 publishedAt = OffsetDateTime.now()
             )
         }
     }
+
 }
