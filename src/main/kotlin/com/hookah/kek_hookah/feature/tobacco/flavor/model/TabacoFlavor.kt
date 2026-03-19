@@ -10,6 +10,7 @@ data class TabacoFlavor(
     val name: String,
     val description: String,
     val warehouseProductId: String,
+    val strength: Long,
     val createdAt: OffsetDateTime,
     val updatedAt: OffsetDateTime,
     val updatedBy: UserId
