@@ -142,4 +142,42 @@ class FlavorController(
             .header("X-Next-Cursor", nextCursor)
             .body(flavors)
     }
+
+    @GetMapping
+    suspend fun list(
+        @RequestParam(required = false) cursor: UUID?,
+        @RequestParam(defaultValue = "20") limit: Int
+    ): ResponseEntity<List<TabacoFlavor>> {
+        val limited = limit.coerceIn(1, 100)
+        val flavors = service.findAll(cursor?.let { FlavorId(it) }, limited)
+        val nextCursor = flavors.lastOrNull()?.id?.id?.toString() ?: ""
+        return ResponseEntity.ok()
+            .header("X-Next-Cursor", nextCursor)
+            .body(flavors)
+    }
+
+    @GetMapping("/search")
+    suspend fun search(
+        @RequestParam(required = false) brandId: UUID?,
+        @RequestParam(required = false) name: String?,
+        @RequestParam(required = false) cursor: UUID?,
+        @RequestParam(defaultValue = "20") limit: Int
+    ): ResponseEntity<List<TabacoFlavor>> {
+        val limited = limit.coerceIn(1, 100)
+        val cur = cursor?.let { FlavorId(it) }
+        val flavors = when {
+            brandId != null && !name.isNullOrBlank() ->
+                service.findByBrandIdAndNameContaining(BrandId(brandId), name, cur, limited)
+            brandId != null ->
+                service.findByBrandId(BrandId(brandId), cur, limited)
+            !name.isNullOrBlank() ->
+                service.findAllByName(name, cur, limited)
+            else ->
+                service.findAll(cur, limited)
+        }
+        val nextCursor = flavors.lastOrNull()?.id?.id?.toString() ?: ""
+        return ResponseEntity.ok()
+            .header("X-Next-Cursor", nextCursor)
+            .body(flavors)
+    }
 }
