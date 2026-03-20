@@ -2,7 +2,8 @@ import { useState, useRef, useEffect, type FormEvent } from 'react'
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { packApi, flavorApi } from '@/lib/api'
 import { PackCard } from '@/components/cards'
-import type { FlavorPack, TabacoFlavor } from '@/types'
+import type { FlavorPack, TabacoFlavor, TabacoBrand } from '@/types'
+import { BrandSelector } from '@/components/ui/BrandSelector'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -33,15 +34,30 @@ function WeightBar({ current, total }: { current: number; total: number }) {
 
 // ─── Flavor selector ──────────────────────────────────────────────────────────
 
-function FlavorSelector({ value, onChange }: { value: string; onChange: (id: string, name: string) => void }) {
+function FlavorSelector({ value, onChange, brandId }: {
+  value: string
+  onChange: (id: string, name: string) => void
+  brandId?: string
+}) {
   const [query, setQuery] = useState('')
   const [open, setOpen] = useState(false)
   const [selectedName, setSelectedName] = useState('')
   const ref = useRef<HTMLDivElement>(null)
 
   const { data } = useInfiniteQuery({
-    queryKey: ['flavors-selector', query],
+    queryKey: ['flavors-selector', query, brandId],
     queryFn: async ({ pageParam }) => {
+      if (brandId) {
+        const res = await flavorApi.findByBrandId(brandId, {
+          cursor: pageParam || undefined,
+          limit: 20,
+        })
+        const flavors = res.data
+        const filteredByName = query
+          ? flavors.filter((f: TabacoFlavor) => f.name.toLowerCase().includes(query.toLowerCase()))
+          : flavors
+        return { data: filteredByName, nextCursor: res.headers['x-next-cursor'] || '' }
+      }
       const res = await flavorApi.search({ name: query || undefined, cursor: pageParam || undefined, limit: 20 })
       return { data: res.data, nextCursor: res.headers['x-next-cursor'] || '' }
     },
@@ -127,6 +143,7 @@ function PackFormDialog({
   const [flavorId, setFlavorId] = useState(pack?.flavorId ?? '')
   const [current, setCurrent]   = useState(String(pack?.currentWeightGrams ?? ''))
   const [total, setTotal]       = useState(String(pack?.totalWeightGrams ?? ''))
+  const [selectedBrand, setSelectedBrand] = useState<TabacoBrand | null>(null)
 
   const [synced, setSynced] = useState<FlavorPack | undefined>(pack)
   if (pack !== synced) {
@@ -136,6 +153,7 @@ function PackFormDialog({
     setFlavorId(pack?.flavorId ?? '')
     setCurrent(String(pack?.currentWeightGrams ?? ''))
     setTotal(String(pack?.totalWeightGrams ?? ''))
+    setSelectedBrand(null)
   }
 
   const invalidate = () => qc.invalidateQueries({ queryKey: ['packs-infinite'] })
@@ -212,10 +230,21 @@ function PackFormDialog({
             />
           </div>
           <div>
+            <Label>Бренд (для фильтрации вкусов)</Label>
+            <BrandSelector
+              selected={selectedBrand}
+              onSelect={(b) => {
+                setSelectedBrand(b)
+                setFlavorId('')  // reset flavor when brand changes
+              }}
+            />
+          </div>
+          <div>
             <Label>Вкус (необязательно)</Label>
             <FlavorSelector
               value={flavorId}
               onChange={(id) => setFlavorId(id)}
+              brandId={selectedBrand?.id}
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
