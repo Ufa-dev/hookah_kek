@@ -2,6 +2,10 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
 
+## Claude behavior
+
+- After creating any new file, immediately run `git add <path>` for that file.
+
 ## Commands
 
 ```bash
@@ -11,10 +15,8 @@ docker-compose up -d
 # Run the application
 ./gradlew bootRun
 
-# Build
+# Build / test
 ./gradlew build
-
-# Run tests
 ./gradlew test
 ```
 
@@ -22,7 +24,7 @@ Local dev uses `application-local.yaml`. PostgreSQL runs on port 6432 (mapped fr
 
 ## Project purpose
 
-**hookahPlace** is a hookah business management tool for tracking tobacco usage, purchasing analytics, and eliminating dead stock. The target user is a hookah bar operator or enthusiast who tracks their tobacco inventory by brand, flavor, and physical weight packs (контейнеры). The system supports tagging brands/flavors for search/filtering, and will eventually incorporate market pricing data (market_arc).
+**hookahPlace** is a hookah business management tool for tracking tobacco usage, purchasing analytics, and eliminating dead stock. The target user is a hookah bar operator tracking inventory by brand, flavor, and physical weight packs (контейнеры), with market pricing data via market_arc.
 
 ### Domain overview
 
@@ -32,7 +34,7 @@ Local dev uses `application-local.yaml`. PostgreSQL runs on port 6432 (mapped fr
 | **flavors** | `tabacoo_flavor` | Individual flavors per brand (name, strength 0–10) |
 | **packs** (контейнеры) | `flavor_pack` | Physical containers: tracks `current_weight_grams` vs `total_weight_grams`; `id` is a user-defined label (VARCHAR 100), `flavor_id` is nullable |
 | **tags** | `tags` | Shared label system attached to brands and flavors |
-| **market_arc** | `market_arc` | Market/purchase records per flavor (GTIN, weight, price tracking) — future |
+| **market_arc** | `market_arc` | Каталог рыночных SKU: конкретный продукт (бренд + вкус + граммовка + GTIN), доступный к закупке. Помогает оператору знать что именно искать при пополнении запасов. |
 
 ## Architecture
 
@@ -59,6 +61,8 @@ feature/<feature>/
 - **tobacco/flavor** — Flavors linked to brands (strength 0–10)
 - **tobacco/pack** — Pack weight tracking (current vs total); `PackId` wraps `String` (not UUID) matching the `VARCHAR(100)` PK in `flavor_pack`
 - **tags** — Shared tag system for brands and flavors
+- **market** — Каталог рыночных позиций (SKU): бренд + вкус + название + вес + GTIN (штрих-код). Используется для поиска продукта при закупке. `/api/v1/market`
+- **common** — Shared domain utilities and base types
 
 ### Infrastructure layer (`infrastructure/`)
 - `SecurityConfig` — Spring Security + JWT filter for WebFlux
@@ -75,8 +79,6 @@ feature/<feature>/
 
 React 18 + Vite SPA. Run separately from the Spring Boot backend.
 
-### Commands
-
 ```bash
 cd frontend
 npm install       # first time
@@ -85,21 +87,13 @@ npm run build     # production build → frontend/dist/
 npm run lint      # TypeScript type-check
 ```
 
-### Stack
-- **React 18** + **TypeScript** + **Vite**
-- **React Router v6** — client-side routing
-- **TanStack Query v5** — server state, caching, mutations
-- **Axios** — HTTP client with JWT interceptors (auto-refresh on 401)
-- **Tailwind CSS v3** — utility styling with custom design tokens
-- **shadcn/ui pattern** — hand-rolled components in `src/components/ui/` (no registry CLI used)
-- **Sonner** — toast notifications
-- **Lucide React** — icons
+**Stack**: React 18 + TypeScript + Vite + React Router v6 + TanStack Query v5 + Axios + Tailwind CSS v3 + shadcn/ui pattern (hand-rolled, `src/components/ui/`) + Sonner + Lucide React
 
 ### Key design decisions
-- JWT tokens stored in `localStorage` (`kek_access`, `kek_refresh`). The Axios interceptor in `src/lib/api.ts` handles automatic refresh — a single in-flight refresh promise is shared to prevent race conditions.
-- `AuthContext` wraps the entire app and exposes `login`, `register`, `logout`. Query cache is cleared on logout.
-- `ProtectedRoute` wraps all `/dashboard/*` routes; redirects to `/login` if unauthenticated.
-- Vite dev server proxies `/api/*` to `http://localhost:8080`, so no CORS issues in development.
+- JWT tokens stored in `localStorage` (`kek_access`, `kek_refresh`). Axios interceptor in `src/lib/api.ts` handles auto-refresh — single in-flight promise prevents race conditions.
+- `AuthContext` exposes `login`, `register`, `logout`; clears query cache on logout.
+- `ProtectedRoute` wraps all protected routes; redirects to `/login` if unauthenticated.
+- Vite proxies `/api/*` → `http://localhost:8080` (no CORS issues in dev).
 
 ### Route map
 - `/login` → `LoginPage` (public)
@@ -109,32 +103,16 @@ npm run lint      # TypeScript type-check
 - `/admin/brands` → `BrandsPage` — brand CRUD + tag management per brand
 - `/admin/tags` → `TagsPage` — tag CRUD (create, rename, search)
 - `/admin/packs` → `PacksPage` — pack (контейнер) CRUD with weight progress visualization
+- `/admin/flavors` → `FlavorsPage` — CRUD вкусов с выбором бренда и управлением тегами
+- `/admin/market` → `MarketPage` — каталог рыночных SKU с фильтрацией, сортировкой, CRUD
 
-### Tag management notes
-The API has no "list all tags" endpoint (`GET /tag`). Tags are collected from `GET /brand/brands?tags=` (returns all brands with embedded tags). `TagsPage` derives its list from brands data. Searching uses `GET /tag/name/{name}` (exact match only). When adding a tag to a brand, user searches by exact name first; if not found, they're directed to create it in TagsPage first.
+### Tag management gotcha
+No `GET /tag` (list all) endpoint. Tags are derived from `GET /brand/brands?tags=` (brands with embedded tags). Search uses `GET /tag/name/{name}` (exact match only). To add a tag to a brand: search by exact name first; if not found, create it in TagsPage first.
 
 ### API type notes
-Kotlin value classes (`BrandId`, `UserId`, `TagId`) are expected to serialize as plain UUID strings via the Kotlin Jackson module. If the API returns `{ "id": { "value": "uuid" } }` instead, update `src/types/index.ts` accordingly.
+Kotlin value classes (`BrandId`, `UserId`, `TagId`) serialize as plain UUID strings via Kotlin Jackson module. If API returns `{ "id": { "value": "uuid" } }`, update `src/types/index.ts`.
 
-### Design system — "hookahPlace / Midnight Lounge"
-Custom Tailwind tokens in `tailwind.config.ts`. Key colors:
-- `void` / `deep` / `surface` / `elevated` / `hover` — dark background scale (indigo-tinted midnight)
-- `gold` / `gold-light` / `gold-dim` / `gold-glow` — primary accent (burnished gold `#D4A647`)
-- `crimson` / `crimson-light` — secondary accent (deep red `#9B2335`)
-- `ink` / `ink-dim` / `ink-muted` — text scale (warm cream white)
-- Fonts: **Cinzel** (display headings) + **Outfit** (body/UI) — both from Google Fonts
-- Grain texture overlay via `body::after` in `index.css`
-- `--safe-bottom` / `--safe-top` CSS vars handle iOS notch & home bar via `env(safe-area-inset-*)`
+### Design system
+"Midnight Lounge" — dark indigo scale + gold (`#D4A647`) + crimson (`#9B2335`) accents; Cinzel (headings) + Outfit (body). Full tokens in `tailwind.config.ts`; grain texture + safe-area vars in `index.css`.
 
-### Mobile / responsive patterns
-- `page-root` class applies top + bottom padding accounting for nav bar heights and safe areas
-- Bottom tab bar (`md:hidden`) provides native-app-like navigation on iOS/Android
-- Touch targets minimum `48px` enforced via `.touch-target` utility
-- `min-h-dvh` used instead of `min-h-screen` for correct mobile viewport height
-- `meta viewport-fit=cover` + `apple-mobile-web-app-capable` in `index.html`
-
-### Adding a new page
-1. Create `src/pages/YourPage.tsx`, wrap content with `<div className="page-root">` + `<div className="page-container page-enter">`
-2. Add a `<Route>` in `src/App.tsx` inside the `AppLayout`
-3. Add entry to `NAV_ITEMS` in `src/components/Navbar.tsx` (appears in both desktop nav and mobile bottom tabs)
-4. Add API calls in `src/lib/api.ts` and types in `src/types/index.ts`
+**Mobile**: use `page-root` + `page-container page-enter` wrappers; `min-h-dvh`; bottom tab bar (`md:hidden`); touch targets min 48px (`.touch-target`).
