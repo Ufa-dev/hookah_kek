@@ -26,6 +26,36 @@ class GlobalExceptionHandler {
             )
         )
     }
+
+    @ExceptionHandler(IllegalArgumentException::class)
+    suspend fun handleIllegalArgument(
+        ex: IllegalArgumentException,
+        exchange: ServerWebExchange
+    ): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(
+            ErrorResponse(
+                status = 400,
+                error = "Bad Request",
+                message = ex.message ?: "Invalid request",
+                path = exchange.request.path.value()
+            )
+        )
+    }
+
+    @ExceptionHandler(NoSuchElementException::class)
+    suspend fun handleNotFound(
+        ex: NoSuchElementException,
+        exchange: ServerWebExchange
+    ): ResponseEntity<ErrorResponse> {
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(
+            ErrorResponse(
+                status = 404,
+                error = "Not Found",
+                message = ex.message ?: "Resource not found",
+                path = exchange.request.path.value()
+            )
+        )
+    }
 }
 
 data class ErrorResponse(

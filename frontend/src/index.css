@@ -1,0 +1,124 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    --safe-bottom: env(safe-area-inset-bottom, 0px);
+    --safe-top:    env(safe-area-inset-top,    0px);
+    --nav-h:  60px;
+    --tab-h:  64px;
+  }
+
+  * { box-sizing: border-box; }
+
+  html {
+    scroll-behavior: smooth;
+    overscroll-behavior: none;
+  }
+
+  body {
+    background-color: #F9FAFB;
+    color: #111827;
+    font-family: 'Outfit', system-ui, sans-serif;
+    font-weight: 400;
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+    min-height: 100dvh;
+    overflow-x: hidden;
+  }
+
+  h1, h2, h3, h4, h5 {
+    font-family: 'Cinzel', Georgia, serif;
+    font-weight: 400;
+    letter-spacing: 0.02em;
+  }
+
+  * { -webkit-tap-highlight-color: transparent; }
+
+  ::-webkit-scrollbar        { width: 4px; height: 4px; }
+  ::-webkit-scrollbar-track  { background: #F3F4F6; }
+  ::-webkit-scrollbar-thumb  { background: #DC262640; border-radius: 2px; }
+  ::-webkit-scrollbar-thumb:hover { background: #DC2626; }
+
+  ::selection { background: #FEE2E2; color: #B91C1C; }
+}
+
+@layer components {
+  /* ── Layout ─────────────────────────────────────── */
+  .page-root {
+    padding-top: calc(var(--nav-h) + var(--safe-top));
+    padding-bottom: calc(var(--tab-h) + var(--safe-bottom) + 16px);
+    min-height: 100dvh;
+    background-color: #F9FAFB;
+  }
+  @media (min-width: 768px) {
+    .page-root { padding-bottom: 32px; }
+  }
+
+  .page-container {
+    @apply max-w-5xl mx-auto px-4 sm:px-6 py-6 sm:py-10;
+  }
+
+  /* ── Cards ──────────────────────────────────────── */
+  .card {
+    @apply bg-surface rounded-lg border border-border relative overflow-hidden;
+    box-shadow: 0 1px 3px #0000000D, 0 1px 2px #0000000A;
+  }
+
+  .card-hover {
+    @apply card transition-all duration-150 hover:border-red hover:shadow-card-lg cursor-pointer;
+  }
+
+  /* ── Red accent line ────────────────────────────── */
+  .red-line {
+    height: 2px;
+    background: linear-gradient(90deg, transparent 0%, #DC2626 40%, #DC2626 60%, transparent 100%);
+  }
+
+  /* ── Form fields ────────────────────────────────── */
+  .field {
+    @apply bg-elevated border border-border rounded text-ink placeholder:text-ink-muted
+           font-body text-sm px-4 py-3 w-full outline-none transition-all duration-150;
+    min-height: 48px;
+  }
+  .field:focus {
+    @apply border-red bg-white;
+    box-shadow: 0 0 0 3px #DC262618;
+  }
+  .field:focus-visible { outline: none; }
+
+  /* ── Label ──────────────────────────────────────── */
+  .field-label {
+    @apply block text-xs font-body font-medium uppercase tracking-widest text-ink-muted mb-1.5 select-none;
+    letter-spacing: 0.1em;
+  }
+
+  /* ── Badges ─────────────────────────────────────── */
+  .badge-red {
+    @apply inline-flex items-center gap-1 text-xs font-body px-2.5 py-1 rounded-full
+           bg-red-pale border border-red-glow text-red-dim font-medium;
+  }
+  .badge-outline {
+    @apply inline-flex items-center gap-1 text-xs font-body px-2.5 py-1 rounded-full
+           border border-border text-ink-dim bg-transparent;
+  }
+
+  /* ── Page animation ──────────────────────────────── */
+  .page-enter { animation: slideUp 0.35s cubic-bezier(0.16, 1, 0.3, 1) both; }
+
+  /* ── Skeleton ───────────────────────────────────── */
+  .skeleton {
+    background: linear-gradient(90deg, #F3F4F6 25%, #E9EAEC 50%, #F3F4F6 75%);
+    background-size: 200% 100%;
+    animation: shimmer 1.5s ease-in-out infinite;
+    border-radius: 6px;
+  }
+}
+
+@layer utilities {
+  .font-display { font-family: 'Cinzel', Georgia, serif; }
+  .touch-target { min-height: 48px; min-width: 48px; }
+  .safe-bottom  { padding-bottom: env(safe-area-inset-bottom, 0px); }
+  .safe-top     { padding-top:    env(safe-area-inset-top,    0px); }
+}

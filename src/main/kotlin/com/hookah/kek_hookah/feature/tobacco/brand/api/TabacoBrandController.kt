@@ -11,6 +11,7 @@ import com.hookah.kek_hookah.feature.tobacco.brand.model.BrandForUpdate
 import com.hookah.kek_hookah.feature.tobacco.brand.model.BrandId
 import com.hookah.kek_hookah.feature.tobacco.brand.model.TabacoBrand
 import com.hookah.kek_hookah.feature.tobacco.brand.model.UpdateTagForBrand
+import com.hookah.kek_hookah.utils.crud.Slice
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.validation.annotation.Validated
@@ -103,5 +104,14 @@ class TabacoBrandController(
         return service.findAllByName(name).let { brand ->
             ResponseEntity.ok(brand)
         }
+    }
+
+    @GetMapping
+    suspend fun list(
+        @RequestParam(defaultValue = "20") limit: Int,
+        @RequestParam(required = false) after: UUID?,
+    ): ResponseEntity<Slice<TabacoBrand>> {
+        return service.list(limit.coerceIn(1, 100), after)
+            .let { ResponseEntity.ok(it) }
     }
 }

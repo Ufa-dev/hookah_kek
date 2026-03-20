@@ -19,7 +19,14 @@ class BrandsTagRepository(
 
 ) {
     suspend fun delete(brandTag: BrandTag) {
-        template.delete(brandTag.toEntity())
+        template.delete(BrandTagEntity::class.java)
+            .matching(
+                Query.query(
+                    where("tabacoo_brand_id").`is`(brandTag.brandId.id)
+                        .and(where("tag_id").`is`(brandTag.tagId.id))
+                )
+            )
+            .all()
             .awaitSingle()
     }
 

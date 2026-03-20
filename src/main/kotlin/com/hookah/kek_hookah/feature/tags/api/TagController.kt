@@ -7,6 +7,7 @@ import com.hookah.kek_hookah.feature.tags.model.Tag
 import com.hookah.kek_hookah.feature.tags.model.TagForCreate
 import com.hookah.kek_hookah.feature.tags.model.TagForUpdate
 import com.hookah.kek_hookah.feature.tags.model.TagId
+import com.hookah.kek_hookah.utils.crud.Slice
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.validation.annotation.Validated
@@ -68,6 +69,15 @@ class TagController(
         return service.findByName(name)?.let { tag ->
             ResponseEntity.ok(tag)
         } ?: ResponseEntity.notFound().build()
+    }
+
+    @GetMapping
+    suspend fun list(
+        @RequestParam(defaultValue = "20") limit: Int,
+        @RequestParam(required = false) after: UUID?,
+    ): ResponseEntity<Slice<Tag>> {
+        return service.list(limit.coerceIn(1, 100), after)
+            .let { ResponseEntity.ok(it) }
     }
 
 }
