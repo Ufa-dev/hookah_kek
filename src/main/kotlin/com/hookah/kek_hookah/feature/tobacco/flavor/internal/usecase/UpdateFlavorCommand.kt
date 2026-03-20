@@ -30,7 +30,7 @@ class UpdateFlavorCommand(
             brandId = request.brandId,
             name = request.name,
             description = request.description,
-            warehouseProductId = request.warehouseProductId,
+            //warehouseProductId = request.warehouseProductId,
             updatedAt = OffsetDateTime.now(),
             updatedBy = request.userId
         )

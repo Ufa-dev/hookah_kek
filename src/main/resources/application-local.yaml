@@ -61,7 +61,3 @@ logging:
       springframework:
         security: DEBUG
 
-vaadin:
-  production-mode: false
-  pnpm:
-    enabled: true

@@ -14,12 +14,13 @@ import org.springframework.data.relational.core.query.Criteria.where
 import org.springframework.data.relational.core.query.Query
 import org.springframework.stereotype.Component
 import java.time.OffsetDateTime
-import java.util.UUID
+import java.util.*
 
 @Component
 class FlavorRepository(
     private val template: R2dbcEntityTemplate
 ) {
+
     suspend fun findById(id: FlavorId): TabacoFlavor? {
         return template.select(TabacoFlavorEntity::class.java)
             .matching(Query.query(where("id").`is`(id.id)))
@@ -44,12 +45,31 @@ class FlavorRepository(
             .map { it.toFlavor() }
     }
 
-    suspend fun insert(flavor: TabacoFlavor): TabacoFlavor {
-        return template.insert(flavor.toEntity()).awaitSingle().toFlavor()
+    suspend fun findAllByName(name: String): List<TabacoFlavor> {
+        return template.select(TabacoFlavorEntity::class.java)
+            .matching(
+                Query.query(
+                    where("LOWER(name)").like("%${name.lowercase()}%")
+                )
+            )
+            .all()
+            .collectList()
+            .awaitSingle()
+            .map { it.toFlavor() }
     }
 
-    suspend fun update(flavor: TabacoFlavor): TabacoFlavor {
-        return template.update(flavor.toEntity()).awaitSingle().toFlavor()
+    suspend fun findByBrandIdAndNameContaining(brandId: BrandId, name: String): List<TabacoFlavor> {
+        return template.select(TabacoFlavorEntity::class.java)
+            .matching(
+                Query.query(
+                    where("brand_id").`is`(brandId.id)
+                        .and("LOWER(name)").like("%${name.lowercase()}%")
+                )
+            )
+            .all()
+            .collectList()
+            .awaitSingle()
+            .map { it.toFlavor() }
     }
 
     suspend fun findByBrandAndName(brandId: BrandId, name: String): TabacoFlavor? {
@@ -64,12 +84,32 @@ class FlavorRepository(
             ?.toFlavor()
     }
 
+    suspend fun existsByBrandIdAndName(brandId: BrandId, name: String): Boolean {
+        return template.select(TabacoFlavorEntity::class.java)
+            .matching(
+                Query.query(
+                    where("brand_id").`is`(brandId.id)
+                        .and("name").`is`(name)
+                )
+            )
+            .exists()
+            .awaitSingle()
+    }
+
+    suspend fun insert(flavor: TabacoFlavor): TabacoFlavor {
+        return template.insert(flavor.toEntity()).awaitSingle().toFlavor()
+    }
+
+    suspend fun update(flavor: TabacoFlavor): TabacoFlavor {
+        return template.update(flavor.toEntity()).awaitSingle().toFlavor()
+    }
+
     private fun TabacoFlavorEntity.toFlavor() = TabacoFlavor(
         id = FlavorId(id),
         brandId = BrandId(brandId),
         name = name,
         description = description,
-        warehouseProductId = warehouseProductId,
+        strength = strength,
         createdAt = createdAt,
         updatedAt = updatedAt,
         updatedBy = UserId(updatedBy)
@@ -80,7 +120,7 @@ class FlavorRepository(
         brandId = brandId.id,
         name = name,
         description = description,
-        warehouseProductId = warehouseProductId,
+        strength = strength,
         createdAt = createdAt,
         updatedAt = updatedAt,
         updatedBy = updatedBy.id
@@ -88,8 +128,8 @@ class FlavorRepository(
 
     @Table("tabacoo_flavor")
     data class TabacoFlavorEntity(
-        @Id val
-        id: UUID,
+        @Id
+        val id: UUID,
 
         @Column("brand_id")
         val brandId: UUID,
@@ -98,10 +138,10 @@ class FlavorRepository(
         val name: String,
 
         @Column("description")
-        val description: String,
+        val description: String?,
 
-        @Column("warehouse_product_id")
-        val warehouseProductId: String,
+        @Column("strength")
+        val strength: Short?,
 
         @Column("created_at")
         val createdAt: OffsetDateTime,

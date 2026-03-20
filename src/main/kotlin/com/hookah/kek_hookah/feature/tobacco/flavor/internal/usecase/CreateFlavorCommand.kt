@@ -27,7 +27,8 @@ class CreateFlavorCommand(
             brandId = request.brandId,
             name = request.name,
             description = request.description,
-            warehouseProductId = request.warehouseProductId,
+            strength = request.strength,
+            //warehouseProductId = request.warehouseProductId,
             createdAt = OffsetDateTime.now(),
             updatedAt = OffsetDateTime.now(),
             updatedBy = request.userId

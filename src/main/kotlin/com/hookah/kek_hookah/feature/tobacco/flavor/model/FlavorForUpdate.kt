@@ -7,8 +7,8 @@ data class FlavorForUpdate(
     val flavorId: FlavorId,
     val brandId: BrandId,
     val name: String,
-    val description: String,
-    val warehouseProductId : String,
-    val strength: Int,
+    val description: String?,
+    //val warehouseProductId : String,
+    val strength: Short?,
     val userId: UserId
 )
