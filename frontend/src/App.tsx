@@ -12,6 +12,8 @@ import ProfilePage  from '@/pages/ProfilePage'
 import BrandsPage   from '@/pages/admin/BrandsPage'
 import TagsPage     from '@/pages/admin/TagsPage'
 import PacksPage    from '@/pages/admin/PacksPage'
+import FlavorsPage  from '@/pages/admin/FlavorsPage'
+import MarketPage   from '@/pages/admin/MarketPage'
 
 function AppLayout() {
   return (
@@ -22,8 +24,10 @@ function AppLayout() {
         <Route path="/profile"      element={<ProfilePage />} />
         <Route path="/admin/brands" element={<BrandsPage />} />
         <Route path="/admin/tags"   element={<TagsPage />} />
-        <Route path="/admin/packs"  element={<PacksPage />} />
-        <Route path="*"             element={<Navigate to="/dashboard" replace />} />
+        <Route path="/admin/packs"   element={<PacksPage />} />
+        <Route path="/admin/flavors" element={<FlavorsPage />} />
+        <Route path="/admin/market"  element={<MarketPage />} />
+        <Route path="*"              element={<Navigate to="/dashboard" replace />} />
       </Routes>
     </>
   )

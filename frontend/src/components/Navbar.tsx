@@ -2,11 +2,13 @@ import { useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { toast } from 'sonner'
-import { LayoutDashboard, User, Package, Tag, LogOut, Menu, X, Flame, Archive } from 'lucide-react'
+import { LayoutDashboard, User, Package, Tag, LogOut, Menu, X, Flame, Archive, ShoppingBag } from 'lucide-react'
 
 const NAV_ITEMS = [
   { to: '/dashboard',    label: 'Главная',    icon: LayoutDashboard },
   { to: '/admin/brands', label: 'Бренды',     icon: Package },
+  { to: '/admin/flavors', label: 'Вкусы',     icon: Flame },
+  { to: '/admin/market',  label: 'Рынок',     icon: ShoppingBag },
   { to: '/admin/tags',   label: 'Теги',       icon: Tag },
   { to: '/admin/packs',  label: 'Контейнеры', icon: Archive },
   { to: '/profile',      label: 'Профиль',    icon: User },
