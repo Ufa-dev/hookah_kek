@@ -75,8 +75,8 @@ dependencies {
     implementation("org.opensearch.client:opensearch-java:3.4.0")
     implementation("org.apache.httpcomponents.client5:httpclient5:5.3.1")
 
-
 }
+
 
 kotlin {
     compilerOptions {

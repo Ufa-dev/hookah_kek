@@ -1,5 +1,8 @@
 package com.hookah.kek_hookah.feature.auth.api.dto
 
+import com.hookah.kek_hookah.feature.user.model.UserId
+import java.util.UUID
+
 
 data class AuthResponse(
     val accessToken: String,
