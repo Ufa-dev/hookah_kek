@@ -86,6 +86,39 @@ export interface UpdateTagForBrandRequest {
   tagId: string
 }
 
+// ─── Flavors ──────────────────────────────────────────────────────────────────
+
+export interface TabacoFlavor {
+  id: string
+  brandId: string
+  name: string
+  description?: string
+  strength?: number
+  tags: Tag[]
+  createdAt: string
+  updatedAt: string
+  updatedBy: string
+}
+
+export interface FlavorCreateRequest {
+  brandId: string
+  name: string
+  description?: string
+  strength: number
+}
+
+export interface FlavorUpdateRequest {
+  brandId: string
+  name: string
+  description?: string
+  strength: number
+}
+
+export interface UpdateTagForFlavorRequest {
+  flavorId: string
+  tagId: string
+}
+
 // ─── Packs ────────────────────────────────────────────────────────────────────
 
 export interface FlavorPack {
@@ -112,6 +145,50 @@ export interface PackUpdateRequest {
   flavorId?: string
   currentWeightGrams: number
   totalWeightGrams: number
+}
+
+// ─── Market Arc ───────────────────────────────────────────────────────────────
+
+export interface MarketArcView {
+  id: string
+  brandId: string
+  brandName: string
+  flavorId: string
+  flavorName: string
+  name: string
+  weightGrams: number
+  gtin?: string
+  createdAt: string
+  updatedAt: string
+  updatedBy: string
+}
+
+export interface MarketCreateRequest {
+  brandId: string
+  flavorId: string
+  name: string
+  weightGrams: number
+  gtin?: string
+}
+
+export interface MarketUpdateRequest {
+  brandId: string
+  flavorId: string
+  name: string
+  weightGrams: number
+  gtin?: string
+}
+
+export interface MarketListParams {
+  limit?: number
+  after?: string
+  brandName?: string
+  flavorName?: string
+  name?: string
+  weightMin?: number
+  weightMax?: number
+  sortBy?: string
+  sortDir?: 'asc' | 'desc'
 }
 
 // ─── Pagination ───────────────────────────────────────────────────────────────
