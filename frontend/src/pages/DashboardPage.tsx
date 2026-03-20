@@ -1,21 +1,12 @@
 import { useQuery } from '@tanstack/react-query'
 import { Link } from 'react-router-dom'
-import { userApi, brandApi } from '@/lib/api'
+import { userApi } from '@/lib/api'
 import { formatDate, getInitials } from '@/lib/utils'
-import { ArrowRight, Package, Tag, UserRound, Calendar } from 'lucide-react'
+import { ArrowRight, Package, Tag, Calendar, Flame, Archive, ShoppingBag } from 'lucide-react'
 
 export default function DashboardPage() {
   const { data: user, isLoading: loadingUser } = useQuery({ queryKey: ['me'], queryFn: userApi.getMe })
-  const { data: brandsSlice } = useQuery({
-    queryKey: ['brands-count'],
-    queryFn: () => brandApi.list({ limit: 1 }),
-  })
-  const { data: tagsSlice } = useQuery({
-    queryKey: ['tags-count'],
-    queryFn: () => tagApi_list(),
-  })
 
-  // Use the infinite query cache to derive counts — or show from first page
   return (
     <div className="page-root">
       <div className="page-container page-enter">
@@ -35,9 +26,12 @@ export default function DashboardPage() {
         </div>
 
         {/* Quick nav cards */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 sm:gap-4 mb-6">
+        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4 mb-6">
           <QuickLink to="/admin/brands" label="Управлять брендами" description="Создавать, редактировать, тегировать" icon={<Package className="h-5 w-5 text-red" />} />
           <QuickLink to="/admin/tags"   label="Управлять тегами"   description="Создавать и переименовывать теги"    icon={<Tag className="h-5 w-5 text-red" />} />
+          <QuickLink to="/admin/flavors" label="Вкусы" description="Управление вкусами табака" icon={<Flame className="h-5 w-5 text-red" />} />
+          <QuickLink to="/admin/packs"   label="Контейнеры" description="Учёт табака по весу" icon={<Archive className="h-5 w-5 text-red" />} />
+          <QuickLink to="/admin/market"  label="Каталог рынка" description="SKU для закупок" icon={<ShoppingBag className="h-5 w-5 text-red" />} />
         </div>
 
         {/* User card */}
@@ -66,11 +60,6 @@ export default function DashboardPage() {
       </div>
     </div>
   )
-}
-
-// Stub — avoids importing tagApi directly (already in lib/api)
-function tagApi_list() {
-  return import('@/lib/api').then((m) => m.tagApi.list({ limit: 1 }))
 }
 
 function QuickLink({ to, label, description, icon }: { to: string; label: string; description: string; icon: React.ReactNode }) {

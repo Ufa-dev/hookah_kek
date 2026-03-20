@@ -114,4 +114,12 @@ class TabacoBrandController(
         return service.list(limit.coerceIn(1, 100), after)
             .let { ResponseEntity.ok(it) }
     }
+
+    @DeleteMapping("/{id}")
+    suspend fun delete(
+        @PathVariable id: UUID,
+    ): ResponseEntity<Void> {
+        service.delete(BrandId(id))
+        return ResponseEntity.noContent().build()
+    }
 }

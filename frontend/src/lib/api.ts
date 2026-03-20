@@ -140,6 +140,7 @@ export const brandApi = {
   list:       (params: CursorParams = {})                       => http.get<Slice<TabacoBrand>>('/brand', { params }).then((r) => r.data),
   addTag:     (body: UpdateTagForBrandRequest)                  => http.patch<TabacoBrand>('/brand/add-tag', body).then((r) => r.data),
   removeTag:  (body: UpdateTagForBrandRequest)                  => http.patch<TabacoBrand>('/brand/remove-tag', body).then((r) => r.data),
+  delete:     (id: string)                                      => http.delete(`/brand/${id}`),
 }
 
 // ─── Flavors ──────────────────────────────────────────────────────────────────
@@ -168,6 +169,9 @@ export const flavorApi = {
 
   removeTag: (body: UpdateTagForFlavorRequest) =>
     http.patch<TabacoFlavor>('/flavor/remove-tag', body),
+
+  delete: (id: string) =>
+    http.delete(`/flavor/${id}`),
 }
 
 // ─── Market ───────────────────────────────────────────────────────────────────

@@ -75,6 +75,13 @@ class BrandRepository(
         return template.update(brand.toEntity()).awaitSingle().toBrand()
     }
 
+    suspend fun delete(id: BrandId) {
+        template.delete(BrandEntity::class.java)
+            .matching(Query.query(where("id").`is`(id.id)))
+            .all()
+            .awaitSingle()
+    }
+
     private fun BrandEntity.toBrand() = TabacoBrand(
         id = BrandId(id),
         name = name,

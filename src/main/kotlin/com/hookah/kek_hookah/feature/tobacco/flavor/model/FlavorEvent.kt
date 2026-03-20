@@ -15,3 +15,8 @@ data class FlavorUpdatedEvent(
     val after: TabacoFlavor,
     override val publishedAt: OffsetDateTime
 ) : FlavorEvent
+
+data class FlavorDeletedEvent(
+    val flavor: TabacoFlavor,
+    override val publishedAt: OffsetDateTime
+) : FlavorEvent

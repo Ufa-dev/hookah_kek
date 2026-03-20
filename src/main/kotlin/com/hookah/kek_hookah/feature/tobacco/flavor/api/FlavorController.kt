@@ -156,6 +156,14 @@ class FlavorController(
             .body(flavors)
     }
 
+    @DeleteMapping("/{id}")
+    suspend fun delete(
+        @PathVariable id: UUID,
+    ): ResponseEntity<Void> {
+        service.delete(FlavorId(id))
+        return ResponseEntity.noContent().build()
+    }
+
     @GetMapping("/search")
     suspend fun search(
         @RequestParam(required = false) brandId: UUID?,

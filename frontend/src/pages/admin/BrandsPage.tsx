@@ -1,18 +1,17 @@
 import { useState, useEffect, useRef, type FormEvent } from 'react'
 import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { brandApi, tagApi } from '@/lib/api'
+import { BrandCard } from '@/components/cards'
 import type { TabacoBrand, Tag } from '@/types'
-import { formatDate } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
-import { Badge } from '@/components/ui/badge'
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose,
 } from '@/components/ui/dialog'
 import { toast } from 'sonner'
-import { Plus, Pencil, Search, Package, Tag as TagIcon, Clock, X, Hash, Loader2, Check } from 'lucide-react'
+import { Plus, Search, Package, Tag as TagIcon, X, Hash, Loader2 } from 'lucide-react'
 
 const PAGE_LIMIT = 20
 
@@ -255,54 +254,49 @@ function BrandTagsDialog({ brand, isOpen, onClose }: { brand: TabacoBrand; isOpe
   )
 }
 
-// ─── Brand card ───────────────────────────────────────────────────────────────
+// ─── Delete brand dialog ──────────────────────────────────────────────────────
 
-function BrandCard({ brand, onEdit, onManageTags }: { brand: TabacoBrand; onEdit: () => void; onManageTags: () => void }) {
+function DeleteBrandDialog({ brand, isOpen, onClose }: { brand: TabacoBrand; isOpen: boolean; onClose: () => void }) {
+  const qc = useQueryClient()
+  const deleteMut = useMutation({
+    mutationFn: () => brandApi.delete(String(brand.id)),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['brands-infinite'] })
+      onClose()
+      toast.success('Бренд удалён')
+    },
+    onError: () => toast.error('Не удалось удалить бренд'),
+  })
   return (
-    <div className="card group flex flex-col hover:border-red-light transition-colors duration-150">
-      <div className="p-4 sm:p-5 flex-1">
-        <div className="flex items-start justify-between gap-2 mb-2">
-          <h3 className="font-display text-lg sm:text-xl text-ink leading-snug">{brand.name}</h3>
-          <button
-            onClick={onEdit}
-            className="opacity-0 group-hover:opacity-100 focus:opacity-100 p-1.5 rounded hover:bg-elevated text-ink-muted hover:text-red transition-all touch-target flex items-center justify-center"
-            aria-label="Редактировать"
-          >
-            <Pencil className="h-3.5 w-3.5" />
-          </button>
+    <Dialog open={isOpen} onOpenChange={(o) => !o && onClose()}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Удалить бренд?</DialogTitle>
+          <DialogDescription>
+            Бренд <span className="font-semibold text-ink">{brand.name}</span> будет удалён. Действие необратимо.
+          </DialogDescription>
+        </DialogHeader>
+        <div className="flex gap-2 pt-2">
+          <Button variant="danger" disabled={deleteMut.isPending} onClick={() => deleteMut.mutate()}>
+            {deleteMut.isPending ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Удалить'}
+          </Button>
+          <DialogClose asChild>
+            <Button variant="outline" onClick={onClose}>Отмена</Button>
+          </DialogClose>
         </div>
-        {brand.description && <p className="text-sm text-ink-dim mb-3 line-clamp-2">{brand.description}</p>}
-        <div className="flex flex-wrap gap-1.5 mb-3 min-h-[26px]">
-          {brand.tags.length > 0
-            ? brand.tags.map((tag) => (
-                <Badge key={String(tag.id)}>
-                  <TagIcon className="h-2.5 w-2.5" />{tag.name}
-                </Badge>
-              ))
-            : <span className="text-xs text-ink-muted italic">Нет тегов</span>
-          }
-        </div>
-      </div>
-      <div className="border-t border-border px-4 sm:px-5 py-3 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-1.5 text-xs text-ink-muted min-w-0">
-          <Clock className="h-3 w-3 flex-shrink-0" />
-          <span className="truncate">{formatDate(brand.updatedAt)}</span>
-        </div>
-        <button onClick={onManageTags} className="flex items-center gap-1 text-xs font-body font-medium text-red hover:text-red-dim transition-colors flex-shrink-0 touch-target">
-          <TagIcon className="h-3.5 w-3.5" /> Теги
-        </button>
-      </div>
-    </div>
+      </DialogContent>
+    </Dialog>
   )
 }
 
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function BrandsPage() {
-  const [search, setSearch]       = useState('')
-  const [formOpen, setFormOpen]   = useState(false)
-  const [editBrand, setEditBrand] = useState<TabacoBrand | undefined>()
-  const [tagsBrand, setTagsBrand] = useState<TabacoBrand | undefined>()
+  const [search, setSearch]           = useState('')
+  const [formOpen, setFormOpen]       = useState(false)
+  const [editBrand, setEditBrand]     = useState<TabacoBrand | undefined>()
+  const [tagsBrand, setTagsBrand]     = useState<TabacoBrand | undefined>()
+  const [deleteBrand, setDeleteBrand] = useState<TabacoBrand | undefined>()
   const sentinelRef               = useRef<HTMLDivElement>(null)
 
   const { data: searchResults, isLoading: searchLoading } = useQuery({
@@ -369,6 +363,7 @@ export default function BrandsPage() {
                 key={String(brand.id)} brand={brand}
                 onEdit={() => { setEditBrand(brand); setFormOpen(true) }}
                 onManageTags={() => setTagsBrand(brand)}
+                onDelete={() => setDeleteBrand(brand)}
               />
             ))}
           </div>
@@ -396,6 +391,9 @@ export default function BrandsPage() {
       <BrandFormDialog brand={editBrand} isOpen={formOpen} onClose={() => setFormOpen(false)} />
       {tagsBrand && (
         <BrandTagsDialog brand={tagsBrand} isOpen={!!tagsBrand} onClose={() => setTagsBrand(undefined)} />
+      )}
+      {deleteBrand && (
+        <DeleteBrandDialog brand={deleteBrand} isOpen={!!deleteBrand} onClose={() => setDeleteBrand(undefined)} />
       )}
     </div>
   )

@@ -18,7 +18,8 @@ class FlavorService(
     private val updateFlavorCommand: UpdateFlavorCommand,
     private val addTagToFlavorCommand: AddTagToFlavorCommand,
     private val deleteTagFromFlavorCommand: DeleteTagFromFlavorCommand,
-    private val findFlavorByIdQuery: FindFlavorByIdQuery,    // если есть Query-классы, либо используем repository напрямую
+    private val findFlavorByIdQuery: FindFlavorByIdQuery,
+    private val deleteFlavorCommand: DeleteFlavorCommand,
 ) {
     suspend fun findById(id: FlavorId): TabacoFlavor? {
         return findFlavorByIdQuery.execute(id)
@@ -83,5 +84,9 @@ class FlavorService(
 
         return findById(request.flavorId)
             ?: throw IllegalStateException("Flavor disappeared after deleting tag!")
+    }
+
+    suspend fun delete(id: FlavorId) {
+        deleteFlavorCommand.execute(id)
     }
 }
