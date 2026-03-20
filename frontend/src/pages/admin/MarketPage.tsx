@@ -1,8 +1,9 @@
 import { useState, useRef, useEffect } from 'react'
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { Plus, Search, X, ChevronDown, ShoppingBag, Trash2, ChevronUp } from 'lucide-react'
+import { Plus, Search, X, ChevronDown, ShoppingBag, ChevronUp } from 'lucide-react'
 import { marketApi, brandApi, flavorApi } from '@/lib/api'
+import { MarketCard } from '@/components/cards'
 import type { MarketArcView, MarketCreateRequest, MarketUpdateRequest, TabacoBrand, TabacoFlavor } from '@/types'
 
 const SORT_OPTIONS = [
@@ -272,40 +273,6 @@ function DeleteMarketDialog({ item, onClose }: { item: MarketArcView; onClose: (
           </button>
         </div>
       </div>
-    </div>
-  )
-}
-
-// ── MarketCard ──────────────────────────────────────────────────────────────
-function MarketCard({ item, onEdit, onDelete }: {
-  item: MarketArcView; onEdit: () => void; onDelete: () => void
-}) {
-  return (
-    <div className="group relative bg-surface border border-border rounded-xl p-4 hover:border-gold/40 transition-all">
-      <div className="flex items-start justify-between gap-2 mb-2">
-        <h3 className="font-display text-sm text-ink leading-tight flex-1">{item.name}</h3>
-        <div className="flex gap-1 opacity-0 group-hover:opacity-100 transition-opacity">
-          <button onClick={onEdit} className="text-xs font-body text-ink-muted hover:text-gold transition-colors px-2 py-1 rounded border border-transparent hover:border-border">
-            Изм.
-          </button>
-          <button onClick={onDelete} className="p-1 rounded hover:text-crimson transition-colors">
-            <Trash2 className="h-3.5 w-3.5 text-ink-muted hover:text-crimson" />
-          </button>
-        </div>
-      </div>
-      <div className="flex flex-wrap gap-1.5 mb-3">
-        <span className="px-2 py-0.5 rounded-full bg-gold/10 border border-gold/20 text-xs text-gold">{item.brandName}</span>
-        <span className="px-2 py-0.5 rounded-full bg-elevated border border-border text-xs text-ink-dim">{item.flavorName}</span>
-        <span className="px-2 py-0.5 rounded-full bg-elevated border border-border text-xs text-ink-muted">{item.weightGrams} г</span>
-        {item.gtin && (
-          <span className="px-2 py-0.5 rounded-full bg-elevated border border-border text-xs text-ink-muted font-mono">
-            {item.gtin}
-          </span>
-        )}
-      </div>
-      <p className="text-xs font-body text-ink-muted">
-        {new Date(item.updatedAt).toLocaleDateString('ru-RU')}
-      </p>
     </div>
   )
 }

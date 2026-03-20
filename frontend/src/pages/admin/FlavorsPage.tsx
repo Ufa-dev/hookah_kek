@@ -1,97 +1,11 @@
 import { useState, useRef, useEffect } from 'react'
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { Plus, Search, X, ChevronDown, Flame, Tag as TagIcon } from 'lucide-react'
+import { Plus, Search, X, Flame } from 'lucide-react'
 import { flavorApi, brandApi } from '@/lib/api'
 import type { TabacoFlavor, TabacoBrand, Tag, FlavorCreateRequest, FlavorUpdateRequest } from '@/types'
-
-// ── BrandSelector ──────────────────────────────────────────────────────────
-function BrandSelector({
-  selected, onSelect,
-}: { selected: TabacoBrand | null; onSelect: (b: TabacoBrand | null) => void }) {
-  const [query, setQuery] = useState('')
-  const [open, setOpen] = useState(false)
-  const ref = useRef<HTMLDivElement>(null)
-
-  const { data: brands } = useInfiniteQuery({
-    queryKey: ['brands-selector', query],
-    queryFn: async ({ pageParam }) => {
-      if (query.length >= 2) {
-        const res = await brandApi.findByName(query)
-        return { data: Array.isArray(res) ? res : [res], nextCursor: '' }
-      }
-      const res = await brandApi.list({ limit: 20, after: pageParam || undefined })
-      return { data: res.items, nextCursor: res.nextToken || '' }
-    },
-    getNextPageParam: (last) => last.nextCursor || undefined,
-    initialPageParam: '',
-  })
-
-  const items = brands?.pages.flatMap(p => p.data) ?? []
-
-  useEffect(() => {
-    const handler = (e: MouseEvent) => {
-      if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false)
-    }
-    document.addEventListener('mousedown', handler)
-    return () => document.removeEventListener('mousedown', handler)
-  }, [])
-
-  return (
-    <div ref={ref} className="relative w-full max-w-sm">
-      <div
-        className="flex items-center gap-2 px-3 py-2 rounded-lg border border-border bg-surface cursor-pointer hover:border-gold transition-colors"
-        onClick={() => setOpen(o => !o)}
-      >
-        <Search className="h-4 w-4 text-ink-muted flex-shrink-0" />
-        {selected ? (
-          <span className="text-sm font-body text-ink flex-1">{selected.name}</span>
-        ) : (
-          <input
-            className="bg-transparent text-sm font-body text-ink placeholder-ink-muted outline-none flex-1"
-            placeholder="Выберите бренд..."
-            value={query}
-            onChange={e => { setQuery(e.target.value); setOpen(true) }}
-            onClick={e => { e.stopPropagation(); setOpen(true) }}
-          />
-        )}
-        {selected ? (
-          <button onClick={e => { e.stopPropagation(); onSelect(null); setQuery('') }}>
-            <X className="h-3.5 w-3.5 text-ink-muted hover:text-crimson" />
-          </button>
-        ) : (
-          <ChevronDown className="h-3.5 w-3.5 text-ink-muted" />
-        )}
-      </div>
-      {open && items.length > 0 && (
-        <div className="absolute z-50 top-full mt-1 w-full bg-elevated border border-border rounded-lg shadow-lg max-h-52 overflow-y-auto">
-          {items.map(b => (
-            <button
-              key={b.id}
-              className="w-full text-left px-3 py-2 text-sm font-body text-ink hover:bg-hover transition-colors"
-              onClick={() => { onSelect(b); setOpen(false); setQuery('') }}
-            >
-              {b.name}
-            </button>
-          ))}
-        </div>
-      )}
-    </div>
-  )
-}
-
-// ── StrengthBadge ──────────────────────────────────────────────────────────
-function StrengthBadge({ value }: { value?: number }) {
-  if (value == null) return null
-  const color = value <= 3 ? 'text-green-400 bg-green-900/20 border-green-800'
-    : value <= 6 ? 'text-yellow-400 bg-yellow-900/20 border-yellow-800'
-    : 'text-crimson bg-crimson/10 border-crimson/30'
-  return (
-    <span className={`inline-flex items-center px-1.5 py-0.5 rounded border text-xs font-body font-medium ${color}`}>
-      {value}/10
-    </span>
-  )
-}
+import { FlavorCard } from '@/components/cards'
+import { BrandSelector } from '@/components/ui/BrandSelector'
 
 // ── TagDropdown ────────────────────────────────────────────────────────────
 function TagDropdown({ allTags, assigned, onAdd }: {
@@ -285,40 +199,34 @@ function FlavorFormDialog({ flavor, brand, onClose }: {
   )
 }
 
-// ── FlavorCard ──────────────────────────────────────────────────────────────
-function FlavorCard({ flavor, allTags, onEdit }: {
-  flavor: TabacoFlavor; allTags: Tag[]; onEdit: () => void
-}) {
-  const [showTags, setShowTags] = useState(false)
+// ── DeleteFlavorDialog ───────────────────────────────────────────────────────
+function DeleteFlavorDialog({ flavor, isOpen, onClose }: { flavor: TabacoFlavor; isOpen: boolean; onClose: () => void }) {
+  const qc = useQueryClient()
+  const deleteMut = useMutation({
+    mutationFn: () => flavorApi.delete(flavor.id),
+    onSuccess: () => {
+      qc.invalidateQueries({ queryKey: ['flavors'] })
+      onClose()
+      toast.success('Вкус удалён')
+    },
+    onError: () => toast.error('Не удалось удалить вкус'),
+  })
   return (
-    <div className="group relative bg-surface border border-border rounded-xl p-4 hover:border-gold/40 transition-all">
-      <div className="flex items-start justify-between gap-2 mb-2">
-        <div className="flex items-center gap-2">
-          <h3 className="font-display text-sm text-ink leading-tight">{flavor.name}</h3>
-          <StrengthBadge value={flavor.strength} />
+    <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={onClose}>
+      <div className="bg-surface border border-border rounded-xl p-6 w-full max-w-sm shadow-2xl" onClick={e => e.stopPropagation()}>
+        <h2 className="font-display text-base text-ink mb-2">Удалить вкус?</h2>
+        <p className="text-sm font-body text-ink-dim mb-5">«{flavor.name}» будет удалён без возможности восстановления.</p>
+        <div className="flex justify-end gap-3">
+          <button onClick={onClose} className="px-4 py-2 rounded-lg text-sm font-body text-ink-dim border border-border hover:bg-hover transition-colors">Отмена</button>
+          <button
+            onClick={() => deleteMut.mutate()}
+            disabled={deleteMut.isPending}
+            className="px-4 py-2 rounded-lg text-sm font-body font-medium bg-red/10 border border-red/30 text-red hover:bg-red/20 disabled:opacity-50 transition-colors"
+          >
+            {deleteMut.isPending ? 'Удаление...' : 'Удалить'}
+          </button>
         </div>
-        <button
-          onClick={onEdit}
-          className="opacity-0 group-hover:opacity-100 text-xs font-body text-ink-muted hover:text-gold transition-all px-2 py-1 rounded border border-transparent hover:border-border"
-        >
-          Изм.
-        </button>
       </div>
-      {flavor.description && (
-        <p className="text-xs font-body text-ink-dim mb-3 line-clamp-2">{flavor.description}</p>
-      )}
-      <div className="flex flex-wrap gap-1.5 mb-2">
-        {flavor.tags.map(t => (
-          <span key={t.id} className="px-2 py-0.5 rounded-full bg-gold/10 border border-gold/20 text-xs text-gold">{t.name}</span>
-        ))}
-      </div>
-      <button
-        onClick={() => setShowTags(true)}
-        className="flex items-center gap-1 text-xs font-body text-ink-muted hover:text-gold transition-colors"
-      >
-        <TagIcon className="h-3 w-3" /> Теги
-      </button>
-      {showTags && <FlavorTagsDialog flavor={flavor} allTags={allTags} onClose={() => setShowTags(false)} />}
     </div>
   )
 }
@@ -329,6 +237,8 @@ export default function FlavorsPage() {
   const [search, setSearch] = useState('')
   const [editFlavor, setEditFlavor] = useState<TabacoFlavor | null>(null)
   const [showForm, setShowForm] = useState(false)
+  const [deleteFlavor, setDeleteFlavor] = useState<TabacoFlavor | null>(null)
+  const [tagsFlavor, setTagsFlavor] = useState<TabacoFlavor | null>(null)
 
   // All tags (для TagDropdown) — берём из брендов
   const { data: brandsData } = useInfiniteQuery({
@@ -424,8 +334,9 @@ export default function FlavorsPage() {
                   <FlavorCard
                     key={f.id}
                     flavor={f}
-                    allTags={allTags}
                     onEdit={() => { setEditFlavor(f); setShowForm(true) }}
+                    onManageTags={() => setTagsFlavor(f)}
+                    onDelete={() => setDeleteFlavor(f)}
                   />
                 ))
             }
@@ -452,6 +363,16 @@ export default function FlavorsPage() {
             brand={selectedBrand}
             onClose={() => setShowForm(false)}
           />
+        )}
+
+        {/* Tags dialog */}
+        {tagsFlavor && (
+          <FlavorTagsDialog flavor={tagsFlavor} allTags={allTags} onClose={() => setTagsFlavor(null)} />
+        )}
+
+        {/* Delete dialog */}
+        {deleteFlavor && (
+          <DeleteFlavorDialog flavor={deleteFlavor} isOpen={!!deleteFlavor} onClose={() => setDeleteFlavor(null)} />
         )}
       </div>
     </div>
