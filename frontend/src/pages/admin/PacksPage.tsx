@@ -1,7 +1,7 @@
-import { useState, type FormEvent } from 'react'
+import { useState, useRef, useEffect, type FormEvent } from 'react'
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { packApi } from '@/lib/api'
-import type { FlavorPack } from '@/types'
+import { packApi, flavorApi } from '@/lib/api'
+import type { FlavorPack, TabacoFlavor } from '@/types'
 import { formatDate } from '@/lib/utils'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -10,7 +10,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose,
 } from '@/components/ui/dialog'
 import { toast } from 'sonner'
-import { Plus, Pencil, Trash2, Archive, Loader2, Weight } from 'lucide-react'
+import { Plus, Pencil, Trash2, Archive, Loader2, Weight, X, ChevronDown } from 'lucide-react'
 
 const PAGE_LIMIT = 20
 
@@ -33,6 +33,83 @@ function WeightBar({ current, total }: { current: number; total: number }) {
       <div className="h-2 bg-elevated rounded-full overflow-hidden">
         <div className={`h-full ${color} transition-all duration-300`} style={{ width: `${pct}%` }} />
       </div>
+    </div>
+  )
+}
+
+// ─── Flavor selector ──────────────────────────────────────────────────────────
+
+function FlavorSelector({ value, onChange }: { value: string; onChange: (id: string, name: string) => void }) {
+  const [query, setQuery] = useState('')
+  const [open, setOpen] = useState(false)
+  const [selectedName, setSelectedName] = useState('')
+  const ref = useRef<HTMLDivElement>(null)
+
+  const { data } = useInfiniteQuery({
+    queryKey: ['flavors-selector', query],
+    queryFn: async ({ pageParam }) => {
+      const res = await flavorApi.search({ name: query || undefined, cursor: pageParam || undefined, limit: 20 })
+      return { data: res.data, nextCursor: res.headers['x-next-cursor'] || '' }
+    },
+    getNextPageParam: (last) => last.nextCursor || undefined,
+    initialPageParam: '',
+  })
+  const flavors = data?.pages.flatMap(p => p.data) ?? []
+
+  useEffect(() => {
+    const h = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false) }
+    document.addEventListener('mousedown', h)
+    return () => document.removeEventListener('mousedown', h)
+  }, [])
+
+  const displayValue = selectedName || (value ? `ID: ${value.slice(0, 8)}...` : '')
+
+  return (
+    <div ref={ref} className="relative">
+      <div
+        className="flex items-center gap-2 w-full px-3 py-2 rounded-lg border border-border bg-deep cursor-pointer hover:border-gold transition-colors"
+        onClick={() => setOpen(o => !o)}
+      >
+        <span className="text-sm font-body text-ink flex-1 truncate">
+          {displayValue || <span className="text-ink-muted">Без вкуса</span>}
+        </span>
+        {value && (
+          <button onClick={e => { e.stopPropagation(); onChange('', ''); setSelectedName('') }}>
+            <X className="h-3.5 w-3.5 text-ink-muted hover:text-crimson" />
+          </button>
+        )}
+        <ChevronDown className="h-3.5 w-3.5 text-ink-muted flex-shrink-0" />
+      </div>
+      {open && (
+        <div className="absolute z-50 top-full mt-1 w-full bg-elevated border border-border rounded-lg shadow-lg">
+          <div className="p-2 border-b border-border">
+            <input
+              autoFocus
+              className="w-full bg-transparent text-xs font-body text-ink placeholder-ink-muted outline-none"
+              placeholder="Поиск вкуса..."
+              value={query}
+              onChange={e => setQuery(e.target.value)}
+            />
+          </div>
+          <div className="max-h-48 overflow-y-auto">
+            <button
+              className="w-full text-left px-3 py-2 text-sm font-body text-ink-muted hover:bg-hover transition-colors"
+              onClick={() => { onChange('', ''); setSelectedName(''); setOpen(false) }}
+            >
+              Без вкуса
+            </button>
+            {flavors.map((f: TabacoFlavor) => (
+              <button
+                key={f.id}
+                className="w-full text-left px-3 py-2 text-sm font-body text-ink hover:bg-hover transition-colors"
+                onClick={() => { onChange(f.id, f.name); setSelectedName(f.name); setOpen(false) }}
+              >
+                {f.name}
+              </button>
+            ))}
+          </div>
+        </div>
+      )}
     </div>
   )
 }
@@ -141,12 +218,10 @@ function PackFormDialog({
             />
           </div>
           <div>
-            <Label htmlFor="p-flavor">UUID вкуса (необязательно)</Label>
-            <Input
-              id="p-flavor"
+            <Label>Вкус (необязательно)</Label>
+            <FlavorSelector
               value={flavorId}
-              onChange={(e) => setFlavorId(e.target.value)}
-              placeholder="xxxxxxxx-xxxx-xxxx-xxxx-xxxxxxxxxxxx"
+              onChange={(id) => setFlavorId(id)}
             />
           </div>
           <div className="grid grid-cols-2 gap-3">
@@ -261,7 +336,7 @@ function PackCard({
           <p className="font-mono text-xs text-ink-muted mt-0.5 truncate">{pack.id}</p>
           {pack.flavorId && (
             <p className="text-xs text-ink-muted mt-0.5 truncate">
-              Вкус: <span className="font-mono">{pack.flavorId}</span>
+              Вкус: <span className="font-mono">{pack.flavorId.slice(0, 8)}…</span>
             </p>
           )}
         </div>
