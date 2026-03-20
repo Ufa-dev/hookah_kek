@@ -84,11 +84,20 @@ class TabacoFlavorController(
 
     @GetMapping("/flavors")
     suspend fun findByTags(
-        @RequestParam("tags") tags: List<UUID>
+        @RequestParam("tags") tags: List<UUID>,
+        @RequestParam(required = false) cursor: UUID?,
+        @RequestParam(defaultValue = "20") limit: Int
     ): ResponseEntity<List<TabacoFlavor>> {
-        return service.findAllByTag(tags.map { TagId(it) }).let { flavor ->
-            ResponseEntity.ok(flavor)
-        }
+        val limited = limit.coerceIn(1, 100) // ограничиваем максимальный лимит
+        val flavors = service.findAllByTag(
+            tags.map { TagId(it) },
+            cursor?.let { FlavorId(it) },
+            limited
+        )
+        val nextCursor = flavors.lastOrNull()?.id?.id?.toString() ?: ""
+        return ResponseEntity.ok()
+            .header("X-Next-Cursor", nextCursor)
+            .body(flavors)
     }
 
     @GetMapping("/id/{id}")
@@ -99,14 +108,38 @@ class TabacoFlavorController(
     }
 
     @GetMapping("/name/{name}")
-    suspend fun findByName(@PathVariable name: String): ResponseEntity<List<TabacoFlavor>> {
-        return service.findAllByName(name)
-            .let { ResponseEntity.ok(it) }
+    suspend fun findByName(
+        @PathVariable name: String,
+        @RequestParam(required = false) cursor: UUID?,
+        @RequestParam(defaultValue = "20") limit: Int
+    ): ResponseEntity<List<TabacoFlavor>> {
+        val limited = limit.coerceIn(1, 100)
+        val flavors = service.findAllByName(
+            name,
+            cursor?.let { FlavorId(it) },
+            limited
+        )
+        val nextCursor = flavors.lastOrNull()?.id?.id?.toString() ?: ""
+        return ResponseEntity.ok()
+            .header("X-Next-Cursor", nextCursor)
+            .body(flavors)
     }
 
     @GetMapping("/brand/{brandId}")
-    suspend fun findByBrandId(@PathVariable brandId: UUID): ResponseEntity<List<TabacoFlavor>> {
-        return service.findByBrandId(BrandId(brandId))
-            .let { ResponseEntity.ok(it) }
+    suspend fun findByBrandId(
+        @PathVariable brandId: UUID,
+        @RequestParam(required = false) cursor: UUID?,
+        @RequestParam(defaultValue = "20") limit: Int
+    ): ResponseEntity<List<TabacoFlavor>> {
+        val limited = limit.coerceIn(1, 100)
+        val flavors = service.findByBrandId(
+            BrandId(brandId),
+            cursor?.let { FlavorId(it) },
+            limited
+        )
+        val nextCursor = flavors.lastOrNull()?.id?.id?.toString() ?: ""
+        return ResponseEntity.ok()
+            .header("X-Next-Cursor", nextCursor)
+            .body(flavors)
     }
 }

@@ -6,6 +6,7 @@ import com.hookah.kek_hookah.feature.tags.model.TagId
 import com.hookah.kek_hookah.feature.tobacco.brand.model.TabacoBrand
 import com.hookah.kek_hookah.feature.tobacco.flavor.internal.repository.FlavorRepository
 import com.hookah.kek_hookah.feature.tobacco.flavor.internal.repository.FlavorsTagRepository
+import com.hookah.kek_hookah.feature.tobacco.flavor.model.FlavorId
 import com.hookah.kek_hookah.feature.tobacco.flavor.model.TabacoFlavor
 import org.springframework.stereotype.Component
 
@@ -17,8 +18,8 @@ class FindFlavorByNameQuery(
     private val tagService: TagService,
 ) {
     //todo corutins
-    suspend fun execute(name: String): List<TabacoFlavor> {
-        val flavors = flavorRepository.findAllByName(name)
+    suspend fun execute(name: String, cursor: FlavorId? = null, limit: Int = 20): List<TabacoFlavor> {
+        val flavors = flavorRepository.findAllByName(name, cursor, limit)
         if (flavors.isEmpty()) return emptyList()
 
         val flavorsWithTags = mutableListOf<TabacoFlavor>()

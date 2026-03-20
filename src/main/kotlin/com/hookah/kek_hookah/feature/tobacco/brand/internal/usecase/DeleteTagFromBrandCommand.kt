@@ -21,10 +21,6 @@ class DeleteTagFromBrandCommand(
 
         tx.executeAndAwait { repository.delete(brandTag) }
 
-        eventPublisher + BrandTagDeleteEvent(
-            brandTag = brandTag,
-            publishedAt = OffsetDateTime.now()
-        )
 
     }
 

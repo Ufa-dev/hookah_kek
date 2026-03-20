@@ -61,8 +61,7 @@ class AuthService(
             accessToken = accessToken,
             refreshToken = refreshToken,
             expiresIn = accessTokenExpiration,
-            refreshExpiresIn = refreshTokenExpiration,
-            userId = user.id
+            refreshExpiresIn = refreshTokenExpiration
         )
     }
 
@@ -79,8 +78,7 @@ class AuthService(
             accessToken = accessToken,
             refreshToken = refreshToken,
             expiresIn = accessTokenExpiration,
-            refreshExpiresIn = refreshTokenExpiration,
-            userId = user.id
+            refreshExpiresIn = refreshTokenExpiration
         )
     }
 
@@ -110,8 +108,7 @@ class AuthService(
             accessToken = newAccessToken,
             refreshToken = newRefreshToken,
             expiresIn = accessTokenExpiration,
-            refreshExpiresIn = refreshTokenExpiration,
-            userId = user.id
+            refreshExpiresIn = refreshTokenExpiration
         )
     }
 

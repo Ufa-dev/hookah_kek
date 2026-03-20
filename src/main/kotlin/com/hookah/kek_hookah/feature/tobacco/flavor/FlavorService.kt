@@ -24,20 +24,25 @@ class FlavorService(
         return findFlavorByIdQuery.execute(id)
     }
 
-    suspend fun findAll(): List<TabacoFlavor> {
-        return repository.findAll()
+    suspend fun findAll(cursor: FlavorId?, limit: Int): List<TabacoFlavor> {
+        return repository.findAll(cursor, limit)
     }
 
-    suspend fun findByBrandId(brandId: BrandId): List<TabacoFlavor> {
-        return repository.findByBrandId(brandId)
+    suspend fun findByBrandId(brandId: BrandId, cursor: FlavorId?, limit: Int): List<TabacoFlavor> {
+        return repository.findByBrandId(brandId, cursor, limit)
     }
 
-    suspend fun findAllByName(name: String): List<TabacoFlavor> {
-        return repository.findAllByName(name)
+    suspend fun findAllByName(name: String, cursor: FlavorId?, limit: Int): List<TabacoFlavor> {
+        return repository.findAllByName(name, cursor, limit)
     }
 
-    suspend fun findByBrandIdAndNameContaining(brandId: BrandId, name: String): List<TabacoFlavor> {
-        return repository.findByBrandIdAndNameContaining(brandId, name)
+    suspend fun findByBrandIdAndNameContaining(
+        brandId: BrandId,
+        name: String,
+        cursor: FlavorId?,
+        limit: Int
+    ): List<TabacoFlavor> {
+        return repository.findByBrandIdAndNameContaining(brandId, name, cursor, limit)
     }
 
     suspend fun create(request: FlavorForCreate): TabacoFlavor {
@@ -49,7 +54,7 @@ class FlavorService(
     }
 
 
-    suspend fun findAllByTag(tags: List<TagId>): List<TabacoFlavor> {
+    suspend fun findAllByTag(tags: List<TagId>, cursor: FlavorId?, limited: Int): List<TabacoFlavor> {
         val flavorIds = flavorsTagRepository.findAllFlavorIdsByTagIds(tags)
         return flavorIds.mapNotNull { findById(it) }
     }

@@ -8,6 +8,5 @@ data class FlavorForCreate(
     val name: String,
     val description: String?,
     val strength: Short,
-    //val warehouseProductId: String,
     val userId: UserId
 )

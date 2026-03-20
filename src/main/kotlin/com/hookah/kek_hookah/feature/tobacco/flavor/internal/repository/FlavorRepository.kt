@@ -5,11 +5,13 @@ import com.hookah.kek_hookah.feature.tobacco.flavor.model.FlavorId
 import com.hookah.kek_hookah.feature.tobacco.flavor.model.TabacoFlavor
 import com.hookah.kek_hookah.feature.user.model.UserId
 import kotlinx.coroutines.reactive.awaitSingle
+import org.springframework.data.domain.Sort
 import org.springframework.data.annotation.Id
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
 import org.springframework.data.r2dbc.core.awaitOneOrNull
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
+import org.springframework.data.relational.core.query.Criteria
 import org.springframework.data.relational.core.query.Criteria.where
 import org.springframework.data.relational.core.query.Query
 import org.springframework.stereotype.Component
@@ -28,44 +30,69 @@ class FlavorRepository(
             ?.toFlavor()
     }
 
-    suspend fun findAll(): List<TabacoFlavor> {
+    suspend fun findAll(cursor: FlavorId?, limit: Int): List<TabacoFlavor> {
+        var criteria: Criteria = where("id").isNotNull
+        if (cursor != null) {
+            criteria = criteria.and("id").greaterThan(cursor.id)
+        }
+        val query = Query.query(criteria)
+            .sort(Sort.by(Sort.Order.asc("id")))
+            .limit(limit)
+
         return template.select(TabacoFlavorEntity::class.java)
+            .matching(query)
             .all()
             .collectList()
             .awaitSingle()
             .map { it.toFlavor() }
     }
 
-    suspend fun findByBrandId(brandId: BrandId): List<TabacoFlavor> {
+    suspend fun findByBrandId(brandId: BrandId, cursor: FlavorId?, limit: Int): List<TabacoFlavor> {
+        var criteria: Criteria = where("brand_id").`is`(brandId.id)
+        if (cursor != null) {
+            criteria = criteria.and("id").greaterThan(cursor.id)
+        }
+        val query = Query.query(criteria)
+            .sort(Sort.by(Sort.Order.asc("id")))
+            .limit(limit)
+
         return template.select(TabacoFlavorEntity::class.java)
-            .matching(Query.query(where("brand_id").`is`(brandId.id)))
+            .matching(query)
             .all()
             .collectList()
             .awaitSingle()
             .map { it.toFlavor() }
     }
 
-    suspend fun findAllByName(name: String): List<TabacoFlavor> {
+    suspend fun findAllByName(name: String, cursor: FlavorId?, limit: Int): List<TabacoFlavor> {
+        var criteria: Criteria = where("LOWER(name)").like("%${name.lowercase()}%")
+        if (cursor != null) {
+            criteria = criteria.and("id").greaterThan(cursor.id)
+        }
+        val query = Query.query(criteria)
+            .sort(Sort.by(Sort.Order.asc("id")))
+            .limit(limit)
+
         return template.select(TabacoFlavorEntity::class.java)
-            .matching(
-                Query.query(
-                    where("LOWER(name)").like("%${name.lowercase()}%")
-                )
-            )
+            .matching(query)
             .all()
             .collectList()
             .awaitSingle()
             .map { it.toFlavor() }
     }
 
-    suspend fun findByBrandIdAndNameContaining(brandId: BrandId, name: String): List<TabacoFlavor> {
+    suspend fun findByBrandIdAndNameContaining(brandId: BrandId, name: String, cursor: FlavorId?, limit: Int): List<TabacoFlavor> {
+        var criteria: Criteria = where("brand_id").`is`(brandId.id)
+            .and("LOWER(name)").like("%${name.lowercase()}%")
+        if (cursor != null) {
+            criteria = criteria.and("id").greaterThan(cursor.id)
+        }
+        val query = Query.query(criteria)
+            .sort(Sort.by(Sort.Order.asc("id")))
+            .limit(limit)
+
         return template.select(TabacoFlavorEntity::class.java)
-            .matching(
-                Query.query(
-                    where("brand_id").`is`(brandId.id)
-                        .and("LOWER(name)").like("%${name.lowercase()}%")
-                )
-            )
+            .matching(query)
             .all()
             .collectList()
             .awaitSingle()
