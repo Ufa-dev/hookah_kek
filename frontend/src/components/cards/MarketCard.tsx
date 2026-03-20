@@ -24,8 +24,8 @@ export function MarketCard({ item, onEdit, onDelete }: MarketCardProps) {
           </button>
         </div>
         <div className="flex flex-wrap gap-1.5">
-          <Badge>{item.brandName}</Badge>
-          <Badge variant="surface">{item.flavorName}</Badge>
+          <Badge variant="surface">{item.brandName}</Badge>
+          <Badge variant="outline">{item.flavorName}</Badge>
           <Badge variant="outline">{item.weightGrams} г</Badge>
           {item.gtin && (
             <Badge variant="outline">
