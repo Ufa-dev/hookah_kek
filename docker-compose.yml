@@ -20,6 +20,39 @@ services:
     networks:
       - hookah-network
 
+  backend:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: hookah-backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_PROFILES_ACTIVE: local
+      SPRING_R2DBC_URL: r2dbc:postgresql://postgres:5432/hookah
+      SPRING_R2DBC_USERNAME: hookah
+      SPRING_R2DBC_PASSWORD: hookah_dev_password
+      SPRING_FLYWAY_URL: jdbc:postgresql://postgres:5432/hookah
+      SPRING_FLYWAY_USER: hookah
+      SPRING_FLYWAY_PASSWORD: hookah_dev_password
+    ports:
+      - "8080:8080"
+    networks:
+      - hookah-network
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: hookah-frontend
+    depends_on:
+      - backend
+    ports:
+      - "80:80"
+    networks:
+      - hookah-network
+
 volumes:
   postgres_data:
     driver: local

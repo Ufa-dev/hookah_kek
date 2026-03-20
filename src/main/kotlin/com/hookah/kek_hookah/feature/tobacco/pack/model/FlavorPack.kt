@@ -6,10 +6,11 @@ import java.time.OffsetDateTime
 
 data class FlavorPack(
     val id: PackId,
-    val flavorId: FlavorId,
-    val currentWeightGrams: Long,
-    val totalWeightGrams: Long,
+    val name: String,
+    val flavorId: FlavorId?,
+    val currentWeightGrams: Int,
+    val totalWeightGrams: Int,
     val createdAt: OffsetDateTime,
     val updatedAt: OffsetDateTime,
-    val updatedBy: UserId
+    val updatedBy: UserId,
 )

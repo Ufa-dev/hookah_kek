@@ -1,7 +1,7 @@
 package com.hookah.kek_hookah.feature.tobacco.brand.internal.usecase
 
 import com.hookah.kek_hookah.feature.tobacco.brand.internal.repository.BrandsTagRepository
-import com.hookah.kek_hookah.feature.tobacco.brand.model.BrandTagDeleteEvent
+import com.hookah.kek_hookah.feature.tobacco.brand.model.BrandTagRemovedEvent
 import com.hookah.kek_hookah.feature.tobacco.brand.model.UpdateTagForBrand
 import com.hookah.kek_hookah.infrastructure.event.EventPublisher
 import org.springframework.stereotype.Component
@@ -20,8 +20,11 @@ class DeleteTagFromBrandCommand(
             ?: throw IllegalStateException("Not found tag for this brand!")
 
         tx.executeAndAwait { repository.delete(brandTag) }
-
-
+        eventPublisher + BrandTagRemovedEvent(
+            brandId = brandTag.brandId,
+            tagId = brandTag.tagId,
+            publishedAt = OffsetDateTime.now()
+        )
     }
 
 }

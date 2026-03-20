@@ -1,0 +1,33 @@
+spring:
+  webflux:
+    base-path: /
+
+  # Flyway location for tests
+  flyway:
+    locations: classpath:db/migration
+    baseline-on-migrate: true
+
+app:
+  security:
+    jwt:
+      access-token-expiration-ms: 1800000
+      refresh-token-expiration-ms: 86400000
+      # Same secret as application-local.yaml
+      secret: "YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkw"
+
+server:
+  port: 0
+
+management:
+  otlp:
+    metrics:
+      export:
+        enabled: false
+  health:
+    opensearch:
+      enabled: false
+
+logging:
+  level:
+    root: WARN
+    org.springframework.r2dbc: WARN

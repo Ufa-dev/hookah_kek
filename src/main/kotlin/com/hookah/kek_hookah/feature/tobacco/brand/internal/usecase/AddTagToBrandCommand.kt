@@ -2,7 +2,7 @@ package com.hookah.kek_hookah.feature.tobacco.brand.internal.usecase
 
 import com.hookah.kek_hookah.feature.tobacco.brand.internal.repository.BrandsTagRepository
 import com.hookah.kek_hookah.feature.tobacco.brand.model.BrandTag
-import com.hookah.kek_hookah.feature.tobacco.brand.model.BrandTagCreatedEvent
+import com.hookah.kek_hookah.feature.tobacco.brand.model.BrandTagAddedEvent
 import com.hookah.kek_hookah.feature.tobacco.brand.model.UpdateTagForBrand
 import com.hookah.kek_hookah.infrastructure.event.EventPublisher
 import org.springframework.stereotype.Component
@@ -23,11 +23,12 @@ class AddTagToBrandCommand(
         return BrandTag(
             request.brandId,
             request.tagId
-        ).let { brandTag ->
-            tx.executeAndAwait { repository.insert(brandTag) }
+        ).let { brand ->
+            tx.executeAndAwait { repository.insert(brand) }
         }.also { brandTag ->
-            eventPublisher + BrandTagCreatedEvent(
-                brandTag = brandTag,
+            eventPublisher + BrandTagAddedEvent(
+                brandId = brandTag.brandId,
+                tagId = brandTag.tagId,
                 publishedAt = OffsetDateTime.now()
             )
         }

@@ -5,7 +5,9 @@ import com.hookah.kek_hookah.feature.tags.model.TagId
 import com.hookah.kek_hookah.feature.tobacco.brand.internal.repository.BrandsTagRepository
 import com.hookah.kek_hookah.feature.tobacco.brand.internal.usecase.*
 import com.hookah.kek_hookah.feature.tobacco.brand.model.*
+import com.hookah.kek_hookah.utils.crud.Slice
 import org.springframework.stereotype.Component
+import java.util.UUID
 
 @Component
 class BrandService(
@@ -15,6 +17,7 @@ class BrandService(
     private val updateTagCommand: UpdateBrandCommand,
     private val findBrandByNameQuery: FindBrandByNameQuery,
     private val findBrandByIdQuery: FindBrandByIdQuery,
+    private val listBrandsQuery: ListBrandsQuery,
     private val brandsTagRepository: BrandsTagRepository,
     private val tagService: TagService,
 ) {
@@ -64,5 +67,9 @@ class BrandService(
 
     suspend fun update(request: BrandForUpdate): TabacoBrand {
         return updateTagCommand.execute(request)
+    }
+
+    suspend fun list(limit: Int, afterId: UUID?): Slice<TabacoBrand> {
+        return listBrandsQuery.execute(limit, afterId)
     }
 }

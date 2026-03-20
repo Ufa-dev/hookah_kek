@@ -16,3 +16,15 @@ data class BrandUpdatedEvent(
     val after: TabacoBrand,
     override val publishedAt: OffsetDateTime
 ) : BrandEvent
+
+data class BrandTagAddedEvent(
+    val brandId: BrandId,
+    val tagId: com.hookah.kek_hookah.feature.tags.model.TagId,
+    override val publishedAt: OffsetDateTime
+) : BrandEvent
+
+data class BrandTagRemovedEvent(
+    val brandId: BrandId,
+    val tagId: com.hookah.kek_hookah.feature.tags.model.TagId,
+    override val publishedAt: OffsetDateTime
+) : BrandEvent

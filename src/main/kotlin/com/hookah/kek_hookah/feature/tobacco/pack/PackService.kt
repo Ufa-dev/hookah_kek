@@ -1,34 +1,34 @@
 package com.hookah.kek_hookah.feature.tobacco.pack
 
-import com.hookah.kek_hookah.feature.tobacco.pack.internal.repository.FlavorPackRepository
-import com.hookah.kek_hookah.feature.tobacco.pack.internal.usecase.CreateFlavorPackCommand
-import com.hookah.kek_hookah.feature.tobacco.pack.internal.usecase.UpdateFlavorPackCommand
+import com.hookah.kek_hookah.feature.tobacco.pack.internal.usecase.*
 import com.hookah.kek_hookah.feature.tobacco.pack.model.FlavorPack
-import com.hookah.kek_hookah.feature.tobacco.pack.model.FlavorPackForCreate
-import com.hookah.kek_hookah.feature.tobacco.pack.model.FlavorPackForUpdate
+import com.hookah.kek_hookah.feature.tobacco.pack.model.PackForCreate
+import com.hookah.kek_hookah.feature.tobacco.pack.model.PackForUpdate
 import com.hookah.kek_hookah.feature.tobacco.pack.model.PackId
+import com.hookah.kek_hookah.utils.crud.Slice
 import org.springframework.stereotype.Component
 
 @Component
-class FlavorPackService(
-    private val repository: FlavorPackRepository,
-    private val createFlavorPackCommand: CreateFlavorPackCommand,
-    private val updateFlavorPackCommand: UpdateFlavorPackCommand,
+class PackService(
+    private val createPackCommand: CreatePackCommand,
+    private val updatePackCommand: UpdatePackCommand,
+    private val deletePackCommand: DeletePackCommand,
+    private val findPackByIdQuery: FindPackByIdQuery,
+    private val listPacksQuery: ListPacksQuery,
 ) {
-    suspend fun findById(id: PackId): FlavorPack? {
-        return repository.findById(id)
-    }
 
-    suspend fun findAll(): List<FlavorPack> {
-        return repository.findAll()
-    }
+    suspend fun findById(id: PackId): FlavorPack? =
+        findPackByIdQuery.execute(id)
 
-    suspend fun create(request: FlavorPackForCreate): FlavorPack {
-        return createFlavorPackCommand.execute(request)
-    }
+    suspend fun list(limit: Int, afterId: String?): Slice<FlavorPack> =
+        listPacksQuery.execute(limit, afterId)
 
-    suspend fun update(request: FlavorPackForUpdate): FlavorPack {
-        return updateFlavorPackCommand.execute(request)
-    }
+    suspend fun create(request: PackForCreate): FlavorPack =
+        createPackCommand.execute(request)
 
+    suspend fun update(request: PackForUpdate): FlavorPack =
+        updatePackCommand.execute(request)
+
+    suspend fun delete(id: PackId) =
+        deletePackCommand.execute(id)
 }

@@ -10,6 +10,7 @@ import com.hookah.kek_hookah.feature.auth.internal.usecase.SaveRefreshTokenComma
 import com.hookah.kek_hookah.feature.auth.internal.usecase.VerifyLoginCommand
 import com.hookah.kek_hookah.feature.user.UserService
 import com.hookah.kek_hookah.feature.user.model.UserForCreate
+import jakarta.annotation.PostConstruct
 import org.springframework.beans.factory.annotation.Value
 import org.springframework.boot.context.event.ApplicationReadyEvent
 import org.springframework.context.event.EventListener
@@ -32,14 +33,6 @@ class AuthService(
     @Value($$"${app.security.jwt.refresh-token-expiration-ms:86400000}")
     private val refreshTokenExpiration: Long,
 ) {
-/*
-    @EventListener(ApplicationReadyEvent::class)
-    suspend fun kek() {
-        val req = RegisterRequest(name="lol", email =  "super@mail.ru", password =  "123456")
-        register(req)
-    }
-    */
-
 
     suspend fun register(request: RegisterRequest): AuthResponse {
         val user = UserForCreate(
@@ -88,9 +81,6 @@ class AuthService(
 
         val storedToken = refreshTokenRepository.findByJti(jti)
             ?: throw BadCredentialsException("Refresh token has been revoked")
-
-        val user = userService.findById(storedToken.userId)
-            ?: throw BadCredentialsException("User not found")
 
         val newAccessToken = jwtProvider.generateNewAccessToken(request.token)
             ?: throw BadCredentialsException("Failed to generate new access token")
