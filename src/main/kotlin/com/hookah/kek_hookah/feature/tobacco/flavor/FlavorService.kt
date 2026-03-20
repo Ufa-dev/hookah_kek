@@ -18,7 +18,7 @@ class FlavorService(
     private val updateFlavorCommand: UpdateFlavorCommand,
     private val addTagToFlavorCommand: AddTagToFlavorCommand,
     private val deleteTagFromFlavorCommand: DeleteTagFromFlavorCommand,
-    private val findFlavorByIdQuery: FindFlavorByIdQuery,    // если есть Query-классы, либо используем repository напрямую
+    private val findFlavorByIdQuery: FindFlavorByIdQuery,
     private val deleteFlavorCommand: DeleteFlavorCommand,
 ) {
     suspend fun findById(id: FlavorId): TabacoFlavor? {

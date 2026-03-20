@@ -16,9 +16,12 @@ class DeleteFlavorCommand(
     private val tx: TransactionalOperator,
 ) {
     suspend fun execute(id: FlavorId) {
-        val flavor = repository.findById(id)
-            ?: throw IllegalArgumentException("Flavor '$id' not found")
-        tx.executeAndAwait { repository.delete(id) }
+        val flavor = tx.executeAndAwait {
+            val f = repository.findById(id)
+                ?: throw IllegalArgumentException("Flavor '$id' not found")
+            repository.delete(id)
+            f
+        }!!
         eventPublisher + FlavorDeletedEvent(flavor = flavor, publishedAt = OffsetDateTime.now())
     }
 }

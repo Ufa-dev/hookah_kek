@@ -16,9 +16,12 @@ class DeleteBrandCommand(
     private val tx: TransactionalOperator,
 ) {
     suspend fun execute(id: BrandId) {
-        val brand = repository.findById(id)
-            ?: throw IllegalArgumentException("Brand '$id' not found")
-        tx.executeAndAwait { repository.delete(id) }
+        val brand = tx.executeAndAwait {
+            val b = repository.findById(id)
+                ?: throw IllegalArgumentException("Brand '$id' not found")
+            repository.delete(id)
+            b
+        }!!
         eventPublisher + BrandDeletedEvent(brand = brand, publishedAt = OffsetDateTime.now())
     }
 }
