@@ -28,3 +28,8 @@ data class BrandTagRemovedEvent(
     val tagId: com.hookah.kek_hookah.feature.tags.model.TagId,
     override val publishedAt: OffsetDateTime
 ) : BrandEvent
+
+data class BrandDeletedEvent(
+    val brand: TabacoBrand,
+    override val publishedAt: OffsetDateTime
+) : BrandEvent

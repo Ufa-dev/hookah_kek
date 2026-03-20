@@ -20,6 +20,7 @@ class BrandService(
     private val listBrandsQuery: ListBrandsQuery,
     private val brandsTagRepository: BrandsTagRepository,
     private val tagService: TagService,
+    private val deleteBrandCommand: DeleteBrandCommand,
 ) {
 
     suspend fun findById(id: BrandId): TabacoBrand? {
@@ -71,5 +72,9 @@ class BrandService(
 
     suspend fun list(limit: Int, afterId: UUID?): Slice<TabacoBrand> {
         return listBrandsQuery.execute(limit, afterId)
+    }
+
+    suspend fun delete(id: BrandId) {
+        deleteBrandCommand.execute(id)
     }
 }

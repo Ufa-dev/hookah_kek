@@ -131,6 +131,13 @@ class FlavorRepository(
         return template.update(flavor.toEntity()).awaitSingle().toFlavor()
     }
 
+    suspend fun delete(id: FlavorId) {
+        template.delete(TabacoFlavorEntity::class.java)
+            .matching(Query.query(where("id").`is`(id.id)))
+            .all()
+            .awaitSingle()
+    }
+
     private fun TabacoFlavorEntity.toFlavor() = TabacoFlavor(
         id = FlavorId(id),
         brandId = BrandId(brandId),
