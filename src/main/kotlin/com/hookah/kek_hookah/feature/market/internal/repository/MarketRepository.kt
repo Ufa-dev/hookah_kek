@@ -39,12 +39,40 @@ class MarketRepository(
             .one()
             .awaitFirstOrNull()
 
-    suspend fun findAllViews(limit: Int, afterId: UUID?): List<MarketArcView> {
-        val sql = VIEW_QUERY +
-            (if (afterId != null) " WHERE m.id > :afterId" else "") +
-            " ORDER BY m.id ASC LIMIT :limit"
+    suspend fun findAllViews(
+        limit: Int,
+        afterId: UUID? = null,
+        brandName: String? = null,
+        flavorName: String? = null,
+        nameContains: String? = null,
+        weightMin: Int? = null,
+        weightMax: Int? = null,
+        sortBy: String = "updated_at",
+        sortDir: String = "desc",
+    ): List<MarketArcView> {
+        val allowedSortColumns = setOf("name", "brand_name", "flavor_name", "weight_grams", "updated_at")
+        val col = if (sortBy in allowedSortColumns) sortBy else "updated_at"
+        val dir = if (sortDir.lowercase() == "asc") "ASC" else "DESC"
+
+        val conditions = mutableListOf<String>()
+        if (afterId != null)             conditions += "m.id > :afterId"
+        if (!brandName.isNullOrBlank())  conditions += "LOWER(b.name) LIKE :brandName"
+        if (!flavorName.isNullOrBlank()) conditions += "LOWER(f.name) LIKE :flavorName"
+        if (!nameContains.isNullOrBlank()) conditions += "LOWER(m.name) LIKE :nameContains"
+        if (weightMin != null)           conditions += "m.weight_grams >= :weightMin"
+        if (weightMax != null)           conditions += "m.weight_grams <= :weightMax"
+
+        val where = if (conditions.isNotEmpty()) " WHERE " + conditions.joinToString(" AND ") else ""
+        val sql = VIEW_QUERY + where + " ORDER BY $col $dir, m.id $dir LIMIT :limit"
+
         var spec = db.sql(sql).bind("limit", limit)
-        if (afterId != null) spec = spec.bind("afterId", afterId)
+        if (afterId != null)             spec = spec.bind("afterId", afterId)
+        if (!brandName.isNullOrBlank())  spec = spec.bind("brandName", "%${brandName.lowercase()}%")
+        if (!flavorName.isNullOrBlank()) spec = spec.bind("flavorName", "%${flavorName.lowercase()}%")
+        if (!nameContains.isNullOrBlank()) spec = spec.bind("nameContains", "%${nameContains.lowercase()}%")
+        if (weightMin != null)           spec = spec.bind("weightMin", weightMin)
+        if (weightMax != null)           spec = spec.bind("weightMax", weightMax)
+
         return spec
             .map { row, _ -> row.toView() }
             .all()
