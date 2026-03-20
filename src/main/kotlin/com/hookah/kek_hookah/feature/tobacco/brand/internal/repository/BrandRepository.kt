@@ -9,6 +9,7 @@ import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
 import org.springframework.data.r2dbc.core.awaitOneOrNull
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
+import org.springframework.data.domain.Sort
 import org.springframework.data.relational.core.query.Criteria.where
 import org.springframework.data.relational.core.query.Query
 import org.springframework.stereotype.Component
@@ -52,6 +53,20 @@ class BrandRepository(
             .map { it.toBrand() }
     }
 
+    suspend fun findAll(limit: Int, afterId: UUID?): List<TabacoBrand> {
+        val query = if (afterId != null) {
+            Query.query(where("id").greaterThan(afterId))
+        } else {
+            Query.empty()
+        }
+        return template.select(BrandEntity::class.java)
+            .matching(query.sort(Sort.by(Sort.Direction.ASC, "id")).limit(limit))
+            .all()
+            .collectList()
+            .awaitSingle()
+            .map { it.toBrand() }
+    }
+
     suspend fun insert(brand: TabacoBrand): TabacoBrand {
         return template.insert(brand.toEntity()).awaitSingle().toBrand()
     }
@@ -79,7 +94,7 @@ class BrandRepository(
     )
 
 
-    @Table("brands")
+    @Table("tabacoo_brand")
     data class BrandEntity(
         @Id
         val id: UUID,
@@ -87,7 +102,7 @@ class BrandRepository(
         @Column("name")
         val name: String,
 
-        @Column("name")
+        @Column("description")
         val description: String?,
 
         @Column("created_at")
