@@ -4,6 +4,8 @@ import type {
   User, UserUpdateRequest,
   Tag, TagCreateRequest, TagUpdateRequest,
   TabacoBrand, BrandCreateRequest, BrandUpdateRequest, UpdateTagForBrandRequest,
+  TabacoFlavor, FlavorCreateRequest, FlavorUpdateRequest, UpdateTagForFlavorRequest,
+  MarketArcView, MarketCreateRequest, MarketUpdateRequest, MarketListParams,
   FlavorPack, PackCreateRequest, PackUpdateRequest,
   Slice, CursorParams,
 } from '@/types'
@@ -138,6 +140,53 @@ export const brandApi = {
   list:       (params: CursorParams = {})                       => http.get<Slice<TabacoBrand>>('/brand', { params }).then((r) => r.data),
   addTag:     (body: UpdateTagForBrandRequest)                  => http.patch<TabacoBrand>('/brand/add-tag', body).then((r) => r.data),
   removeTag:  (body: UpdateTagForBrandRequest)                  => http.patch<TabacoBrand>('/brand/remove-tag', body).then((r) => r.data),
+}
+
+// ─── Flavors ──────────────────────────────────────────────────────────────────
+
+export const flavorApi = {
+  list: (params: { cursor?: string; limit?: number } = {}) =>
+    http.get<TabacoFlavor[]>('/flavor', { params: { cursor: params.cursor, limit: params.limit ?? 20 } }),
+
+  search: (params: { brandId?: string; name?: string; cursor?: string; limit?: number }) =>
+    http.get<TabacoFlavor[]>('/flavor/search', { params: { ...params, limit: params.limit ?? 20 } }),
+
+  findByBrandId: (brandId: string, params: { cursor?: string; limit?: number } = {}) =>
+    http.get<TabacoFlavor[]>(`/flavor/brand/${brandId}`, { params: { cursor: params.cursor, limit: params.limit ?? 20 } }),
+
+  findById: (id: string) =>
+    http.get<TabacoFlavor>(`/flavor/id/${id}`),
+
+  create: (body: FlavorCreateRequest) =>
+    http.post<TabacoFlavor>('/flavor', body),
+
+  update: (id: string, body: FlavorUpdateRequest) =>
+    http.put<TabacoFlavor>(`/flavor/${id}`, body),
+
+  addTag: (body: UpdateTagForFlavorRequest) =>
+    http.patch<TabacoFlavor>('/flavor/add-tag', body),
+
+  removeTag: (body: UpdateTagForFlavorRequest) =>
+    http.patch<TabacoFlavor>('/flavor/remove-tag', body),
+}
+
+// ─── Market ───────────────────────────────────────────────────────────────────
+
+export const marketApi = {
+  list: (params: MarketListParams = {}) =>
+    http.get<MarketArcView[]>('/market', { params }),
+
+  findById: (id: string) =>
+    http.get<MarketArcView>(`/market/${id}`),
+
+  create: (body: MarketCreateRequest) =>
+    http.post<MarketArcView>('/market', body),
+
+  update: (id: string, body: MarketUpdateRequest) =>
+    http.put<MarketArcView>(`/market/${id}`, body),
+
+  delete: (id: string) =>
+    http.delete(`/market/${id}`),
 }
 
 // ─── Packs ────────────────────────────────────────────────────────────────────
