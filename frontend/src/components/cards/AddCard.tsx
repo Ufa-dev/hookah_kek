@@ -8,12 +8,13 @@ interface AddCardProps {
 export function AddCard({ label, onClick }: AddCardProps) {
   return (
     <button
+      type="button"
       onClick={onClick}
       className="group flex flex-col items-center justify-center gap-3 min-h-[140px] w-full
                  rounded-lg transition-all duration-150 cursor-pointer
-                 border border-[#2a2a2a] border-t-2 border-t-[#3a3a3a]
+                 border-l border-r border-b border-[#2a2a2a] border-t-2 border-t-[#3a3a3a]
                  bg-[#0f0f0f]
-                 hover:border-[#9B2335] hover:border-t-[#B91C1C] hover:bg-[#160909]"
+                 hover:border-l-[#9B2335] hover:border-r-[#9B2335] hover:border-b-[#9B2335] hover:border-t-[#B91C1C] hover:bg-[#160909]"
       aria-label={label}
     >
       <div className="flex items-center justify-center w-10 h-10 rounded-lg
