@@ -4,6 +4,7 @@ import { Toaster } from 'sonner'
 import { queryClient } from '@/lib/queryClient'
 import { AuthProvider } from '@/contexts/AuthContext'
 import { ThemeProvider } from '@/contexts/ThemeContext'
+import { useTheme } from '@/contexts/ThemeContext'
 import { ProtectedRoute } from '@/components/ProtectedRoute'
 import { Navbar } from '@/components/Navbar'
 import LoginPage    from '@/pages/LoginPage'
@@ -34,36 +35,41 @@ function AppLayout() {
   )
 }
 
+function AppInner() {
+  const { theme } = useTheme()
+  return (
+    <BrowserRouter>
+      <AuthProvider>
+        <Routes>
+          <Route path="/login"    element={<LoginPage />} />
+          <Route path="/register" element={<RegisterPage />} />
+          <Route element={<ProtectedRoute />}>
+            <Route path="/*" element={<AppLayout />} />
+          </Route>
+        </Routes>
+
+        <Toaster
+          position="bottom-right"
+          theme={theme}
+          toastOptions={{
+            style: {
+              fontFamily: '"Inter", system-ui, sans-serif',
+              fontSize: '14px',
+              borderRadius: '8px',
+            },
+          }}
+        />
+      </AuthProvider>
+    </BrowserRouter>
+  )
+}
+
 export default function App() {
   return (
     <ThemeProvider>
-    <QueryClientProvider client={queryClient}>
-      <BrowserRouter>
-        <AuthProvider>
-          <Routes>
-            <Route path="/login"    element={<LoginPage />} />
-            <Route path="/register" element={<RegisterPage />} />
-            <Route element={<ProtectedRoute />}>
-              <Route path="/*" element={<AppLayout />} />
-            </Route>
-          </Routes>
-
-          <Toaster
-            position="bottom-right"
-            toastOptions={{
-              style: {
-                background: '#FFFFFF',
-                border: '1px solid #E5E7EB',
-                color: '#111827',
-                fontFamily: '"Outfit", sans-serif',
-                fontSize: '14px',
-                borderRadius: '8px',
-              },
-            }}
-          />
-        </AuthProvider>
-      </BrowserRouter>
-    </QueryClientProvider>
+      <QueryClientProvider client={queryClient}>
+        <AppInner />
+      </QueryClientProvider>
     </ThemeProvider>
   )
 }
