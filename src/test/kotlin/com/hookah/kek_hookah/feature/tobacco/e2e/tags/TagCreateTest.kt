@@ -11,7 +11,6 @@ import org.junit.jupiter.api.assertAll
 import org.springframework.beans.factory.annotation.Autowired
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
-import org.springframework.test.web.reactive.server.expectBody
 import java.util.UUID
 
 @IntegrationTest
@@ -25,16 +24,14 @@ class TagCreateTest {
         val client = unauthorizedClient.randomUser()
         val name = "tst-${UUID.randomUUID().toString().take(8)}"
 
-        val tag = client.createTag(name)
-            .expectStatus().isOk
-            .expectBody<Tag>()
-            .returnResult().responseBody!!
+        val tag = client.createTagAndGet(name)
 
         assertAll(
             { assertNotNull(tag.id) },
             { assertEquals(name, tag.name) },
             { assertNotNull(tag.createdAt) },
-            { assertNotNull(tag.updatedAt) }
+            { assertNotNull(tag.updatedAt) },
+            { assertNotNull(tag.updatedBy) }
         )
     }
 

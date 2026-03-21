@@ -40,11 +40,8 @@ class TagUpdateTest {
 
     @Test
     fun `should return 401 when updating tag without authentication`() = runTest {
-        val client = unauthorizedClient.randomUser()
-        val created = client.createTagAndGet("tst-${UUID.randomUUID().toString().take(8)}")
-
         unauthorizedClient.patch()
-            .uri("$TAG_URL/${created.id.id}/name")
+            .uri("$TAG_URL/${UUID.randomUUID()}/name")
             .contentType(MediaType.APPLICATION_JSON)
             .bodyValue(mapOf("name" to "new-name"))
             .exchange()

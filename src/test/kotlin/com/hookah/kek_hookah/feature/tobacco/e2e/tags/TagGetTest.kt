@@ -6,7 +6,6 @@ import com.hookah.kek_hookah.feature.tobacco.support.IntegrationTest
 import com.hookah.kek_hookah.utils.crud.Slice
 import kotlin.test.assertEquals
 import kotlinx.coroutines.test.runTest
-import org.junit.jupiter.api.Assertions.assertNotNull
 import org.junit.jupiter.api.Assertions.assertTrue
 import org.junit.jupiter.api.Test
 import org.junit.jupiter.api.assertAll
@@ -77,8 +76,7 @@ class TagGetTest {
             .expectBody<Slice<Tag>>()
             .returnResult().responseBody!!
 
-        assertNotNull(slice)
-        assertTrue(slice.items.isNotEmpty())
+        assertTrue(slice.items.any { it.name == name })
     }
 
     @Test
