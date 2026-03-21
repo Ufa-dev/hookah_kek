@@ -7,10 +7,11 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        display: ['"Cinzel"', 'Georgia', 'serif'],
-        body: ['"Outfit"', 'system-ui', 'sans-serif'],
+        display: ['"Playfair Display"', 'Georgia', 'serif'],
+        body: ['"Inter"', 'system-ui', 'sans-serif'],
       },
       colors: {
+        gold: '#D4A647',
         // Background scale — white/light
         void:    '#FFFFFF',
         deep:    '#F9FAFB',
