@@ -52,6 +52,20 @@ class FlavorsTagRepository(
             .map { it.tagId }
     }
 
+    suspend fun findAllTagIdsByFlavorIds(flavorIds: List<FlavorId>): Map<UUID, List<UUID>> {
+        if (flavorIds.isEmpty()) return emptyMap()
+        return template.select(FlavorTagEntity::class.java)
+            .matching(
+                Query.query(
+                    where("tabacoo_flavor_id").`in`(flavorIds.map { it.id })
+                )
+            )
+            .all()
+            .collectList()
+            .awaitSingle()
+            .groupBy({ it.flavorId }, { it.tagId })
+    }
+
     suspend fun findAllFlavorIdsByTagIds(tagIds: List<TagId>): List<FlavorId> {
         if (tagIds.isEmpty()) return emptyList()
 

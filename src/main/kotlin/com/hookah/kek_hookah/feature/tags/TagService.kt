@@ -36,6 +36,10 @@ class TagService(
         return updateTagCommand.execute(request)
     }
 
+    suspend fun findAllByIds(ids: List<UUID>): List<Tag> {
+        return repository.findAllByIds(ids)
+    }
+
     suspend fun list(limit: Int, afterId: UUID?): Slice<Tag> {
         return listTagsQuery.execute(limit, afterId)
     }

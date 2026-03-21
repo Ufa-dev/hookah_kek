@@ -52,6 +52,16 @@ class TagRepository(
             .map { it.toTag() }
     }
 
+    suspend fun findAllByIds(ids: List<UUID>): List<Tag> {
+        if (ids.isEmpty()) return emptyList()
+        return template.select(TagEntity::class.java)
+            .matching(Query.query(where("id").`in`(ids)))
+            .all()
+            .collectList()
+            .awaitSingle()
+            .map { it.toTag() }
+    }
+
     suspend fun insert(tag: Tag): Tag {
         return template.insert(tag.toEntity()).awaitSingle().toTag()
     }

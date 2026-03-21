@@ -26,15 +26,15 @@ class FlavorService(
     }
 
     suspend fun findAll(cursor: FlavorId?, limit: Int): List<TabacoFlavor> {
-        return repository.findAll(cursor, limit)
+        return enrichWithTags(repository.findAll(cursor, limit))
     }
 
     suspend fun findByBrandId(brandId: BrandId, cursor: FlavorId?, limit: Int): List<TabacoFlavor> {
-        return repository.findByBrandId(brandId, cursor, limit)
+        return enrichWithTags(repository.findByBrandId(brandId, cursor, limit))
     }
 
     suspend fun findAllByName(name: String, cursor: FlavorId?, limit: Int): List<TabacoFlavor> {
-        return repository.findAllByName(name, cursor, limit)
+        return enrichWithTags(repository.findAllByName(name, cursor, limit))
     }
 
     suspend fun findByBrandIdAndNameContaining(
@@ -43,7 +43,18 @@ class FlavorService(
         cursor: FlavorId?,
         limit: Int
     ): List<TabacoFlavor> {
-        return repository.findByBrandIdAndNameContaining(brandId, name, cursor, limit)
+        return enrichWithTags(repository.findByBrandIdAndNameContaining(brandId, name, cursor, limit))
+    }
+
+    private suspend fun enrichWithTags(flavors: List<TabacoFlavor>): List<TabacoFlavor> {
+        if (flavors.isEmpty()) return flavors
+        val tagIdsByFlavorId = flavorsTagRepository.findAllTagIdsByFlavorIds(flavors.map { it.id })
+        val allTagUuids = tagIdsByFlavorId.values.flatten().distinct()
+        val tagsById = tagService.findAllByIds(allTagUuids).associateBy { it.id.id }
+        return flavors.map { flavor ->
+            val tags = (tagIdsByFlavorId[flavor.id.id] ?: emptyList()).mapNotNull { tagsById[it] }
+            flavor.copy(tags = tags)
+        }
     }
 
     suspend fun create(request: FlavorForCreate): TabacoFlavor {
