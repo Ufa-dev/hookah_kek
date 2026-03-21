@@ -6,12 +6,12 @@ import { formatDate } from '@/lib/utils'
 function StrengthBadge({ value }: { value?: number | null }) {
   if (value == null) return null
   const color = value <= 3
-    ? 'text-green-400 bg-green-900/20 border-green-800'
+    ? 'text-green-700 bg-green-100 border-green-300 dark:text-green-400 dark:bg-green-900/20 dark:border-green-800'
     : value <= 6
-    ? 'text-yellow-400 bg-yellow-900/20 border-yellow-800'
-    : 'text-red bg-red/10 border-red/30'
+    ? 'text-yellow-700 bg-yellow-100 border-yellow-300 dark:text-yellow-400 dark:bg-yellow-900/20 dark:border-yellow-800'
+    : 'text-red-dim bg-red-pale border-red-glow dark:text-red dark:bg-red/10 dark:border-red/30'
   return (
-    <span className={`inline-flex items-center px-1.5 py-0.5 rounded border text-xs font-body font-medium ${color}`}>
+    <span className={`inline-flex items-center px-1.5 py-0.5 rounded-sm border text-xs font-body font-semibold ${color}`}>
       {value}/10
     </span>
   )
