@@ -5,6 +5,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 ## Claude behavior
 
 - After creating any new file, immediately run `git add <path>` for that file.
+- The main branch is **`master`** (not `main`). Always commit to and create PRs against `master`.
 
 ## Commands
 
@@ -113,6 +114,6 @@ No `GET /tag` (list all) endpoint. Tags are derived from `GET /brand/brands?tags
 Kotlin value classes (`BrandId`, `UserId`, `TagId`) serialize as plain UUID strings via Kotlin Jackson module. If API returns `{ "id": { "value": "uuid" } }`, update `src/types/index.ts`.
 
 ### Design system
-"Midnight Lounge" — dark indigo scale + gold (`#D4A647`) + crimson (`#9B2335`) accents; Cinzel (headings) + Outfit (body). Full tokens in `tailwind.config.ts`; grain texture + safe-area vars in `index.css`.
+"Кровавый уголь" — dark `#161616`/`#0f0f0f` backgrounds + gold (`#D4A647`) + crimson (`#9B2335`) accents; Playfair Display (headings) + Inter (body). Full tokens in `tailwind.config.ts`; safe-area vars + strength-slider CSS in `index.css`.
 
 **Mobile**: use `page-root` + `page-container page-enter` wrappers; `min-h-dvh`; bottom tab bar (`md:hidden`); touch targets min 48px (`.touch-target`).
