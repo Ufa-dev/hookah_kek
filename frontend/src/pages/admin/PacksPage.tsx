@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect, type FormEvent } from 'react'
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { packApi, flavorApi } from '@/lib/api'
-import { PackCard } from '@/components/cards'
+import { PackCard, AddCard } from '@/components/cards'
+import { WeightBar } from '@/components/cards/WeightBar'
 import type { FlavorPack, TabacoFlavor, TabacoBrand } from '@/types'
 import { BrandSelector } from '@/components/ui/BrandSelector'
 import { Button } from '@/components/ui/button'
@@ -14,23 +15,6 @@ import { toast } from 'sonner'
 import { Plus, Archive, Loader2, Weight, X, ChevronDown } from 'lucide-react'
 
 const PAGE_LIMIT = 20
-
-// ─── Weight preview bar (used in PackFormDialog) ──────────────────────────────
-
-function WeightBar({ current, total }: { current: number; total: number }) {
-  const pct = total > 0 ? Math.round((current / total) * 100) : 0
-  const color = pct > 50 ? 'bg-green-500' : pct > 20 ? 'bg-yellow-500' : 'bg-red'
-  return (
-    <div className="space-y-1">
-      <div className="flex justify-between text-xs text-ink-muted">
-        <span>{current} г</span><span>{pct}%</span><span>{total} г</span>
-      </div>
-      <div className="h-2 bg-elevated rounded-full overflow-hidden">
-        <div className={`h-full ${color} transition-all duration-300`} style={{ width: `${pct}%` }} />
-      </div>
-    </div>
-  )
-}
 
 // ─── Flavor selector ──────────────────────────────────────────────────────────
 
@@ -91,7 +75,7 @@ function FlavorSelector({ value, onChange, brandId }: {
         <ChevronDown className="h-3.5 w-3.5 text-ink-muted flex-shrink-0" />
       </div>
       {open && (
-        <div className="absolute z-50 top-full mt-1 w-full bg-elevated border border-border rounded-lg shadow-lg">
+        <div className="absolute z-50 top-full mt-1 w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg shadow-lg">
           <div className="p-2 border-b border-border">
             <input
               autoFocus
@@ -103,7 +87,7 @@ function FlavorSelector({ value, onChange, brandId }: {
           </div>
           <div className="max-h-48 overflow-y-auto">
             <button
-              className="w-full text-left px-3 py-2 text-sm font-body text-ink-muted hover:bg-hover transition-colors"
+              className="w-full text-left px-3 py-2 text-sm font-body text-[#555] hover:bg-[#252525] transition-colors"
               onClick={() => { onChange('', ''); setSelectedName(''); setOpen(false) }}
             >
               Без вкуса
@@ -111,7 +95,7 @@ function FlavorSelector({ value, onChange, brandId }: {
             {flavors.map((f: TabacoFlavor) => (
               <button
                 key={f.id}
-                className="w-full text-left px-3 py-2 text-sm font-body text-ink hover:bg-hover transition-colors"
+                className="w-full text-left px-3 py-2 text-sm font-body text-[#f5f5f5] hover:bg-[#252525] transition-colors"
                 onClick={() => { onChange(f.id, f.name); setSelectedName(f.name); setOpen(false) }}
               >
                 {f.name}
@@ -397,6 +381,10 @@ export default function PacksPage() {
         ) : (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+              <AddCard
+                label="Новый контейнер"
+                onClick={openCreate}
+              />
               {packs.map((pack) => (
                 <PackCard
                   key={pack.id}
