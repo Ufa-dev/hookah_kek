@@ -5,6 +5,7 @@ import com.hookah.kek_hookah.feature.tobacco.pack.internal.usecase.CreatePackCom
 import com.hookah.kek_hookah.feature.tobacco.pack.model.FlavorPack
 import com.hookah.kek_hookah.feature.tobacco.pack.model.PackForCreate
 import com.hookah.kek_hookah.feature.tobacco.pack.model.PackId
+import com.hookah.kek_hookah.feature.tobacco.pack.model.PackTagId
 import com.hookah.kek_hookah.feature.user.model.UserId
 import com.hookah.kek_hookah.infrastructure.event.EventPublisher
 import io.mockk.coEvery
@@ -30,8 +31,9 @@ class CreatePackCommandTest {
 
     private val userId = UserId(UUID.randomUUID())
 
-    private fun existingPack(id: String) = FlavorPack(
-        id = PackId(id),
+    private fun existingPack(tagId: String) = FlavorPack(
+        id = PackId(),
+        tagId = PackTagId(tagId),
         name = "Existing",
         flavorId = null,
         currentWeightGrams = 0,
@@ -43,7 +45,7 @@ class CreatePackCommandTest {
 
     @Test
     fun `throws when pack id already exists`() = runTest {
-        coEvery { repository.findById(PackId("dup")) } returns existingPack("dup")
+        coEvery { repository.findByTagId(PackTagId("dup")) } returns existingPack("dup")
 
         assertThrows<IllegalArgumentException> {
             command.execute(PackForCreate("dup", "Dup Pack", null, 0, 100, userId))
@@ -52,7 +54,7 @@ class CreatePackCommandTest {
 
     @Test
     fun `throws when currentWeight exceeds totalWeight`() = runTest {
-        coEvery { repository.findById(PackId("bad")) } returns null
+        coEvery { repository.findByTagId(PackTagId("bad")) } returns null
 
         assertThrows<IllegalArgumentException> {
             command.execute(PackForCreate("bad", "Bad Pack", null, 200, 100, userId))
@@ -61,7 +63,7 @@ class CreatePackCommandTest {
 
     @Test
     fun `throws when totalWeight is zero`() = runTest {
-        coEvery { repository.findById(PackId("zero")) } returns null
+        coEvery { repository.findByTagId(PackTagId("zero")) } returns null
 
         assertThrows<IllegalArgumentException> {
             command.execute(PackForCreate("zero", "Zero Pack", null, 0, 0, userId))
@@ -70,7 +72,7 @@ class CreatePackCommandTest {
 
     @Test
     fun `throws when currentWeight is negative`() = runTest {
-        coEvery { repository.findById(PackId("neg")) } returns null
+        coEvery { repository.findByTagId(PackTagId("neg")) } returns null
 
         assertThrows<IllegalArgumentException> {
             command.execute(PackForCreate("neg", "Neg Pack", null, -1, 100, userId))

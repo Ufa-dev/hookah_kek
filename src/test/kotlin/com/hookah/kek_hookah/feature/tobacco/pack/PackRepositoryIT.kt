@@ -3,6 +3,7 @@ package com.hookah.kek_hookah.feature.tobacco.pack
 import com.hookah.kek_hookah.feature.tobacco.pack.internal.repository.PackRepository
 import com.hookah.kek_hookah.feature.tobacco.pack.model.FlavorPack
 import com.hookah.kek_hookah.feature.tobacco.pack.model.PackId
+import com.hookah.kek_hookah.feature.tobacco.pack.model.PackTagId
 import com.hookah.kek_hookah.feature.user.model.UserId
 import kotlinx.coroutines.test.runTest
 import org.junit.jupiter.api.Assertions.assertEquals
@@ -41,6 +42,7 @@ class PackRepositoryIT {
 
     private fun pack(id: String, current: Int = 50, total: Int = 100) = FlavorPack(
         id = PackId(id),
+        tagId = PackTagId(id),
         name = id,
         flavorId = null,
         currentWeightGrams = current,
@@ -95,7 +97,7 @@ class PackRepositoryIT {
         repository.insert(pack("zz-page-b"))
         repository.insert(pack("zz-page-c"))
 
-        val firstPage = repository.findAll(2, "zz-page-")  // after "zz-page-" gets a, b
+        val firstPage = repository.findAll(2, null)  // first 2 items
         assertEquals(2, firstPage.size)
 
         val secondPage = repository.findAll(2, firstPage.last().id.id)
