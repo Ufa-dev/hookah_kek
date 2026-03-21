@@ -11,6 +11,7 @@ import {
 } from '@/components/ui/dialog'
 import { toast } from 'sonner'
 import { Plus, Pencil, Tag as TagIcon, Search, Hash, Check, X, Loader2 } from 'lucide-react'
+import { AddCard } from '@/components/cards'
 
 const PAGE_LIMIT = 30
 
@@ -299,6 +300,10 @@ export default function TagsPage() {
           <EmptyTags onCreateClick={() => setCreateOpen(true)} />
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
+            <AddCard
+              label="Новый тег"
+              onClick={() => setCreateOpen(true)}
+            />
             {filtered.map((tag) => (
               <TagRow key={String(tag.id)} tag={tag} />
             ))}
