@@ -44,7 +44,7 @@ class BrandRepository(
         return template.select(BrandEntity::class.java)
             .matching(
                 Query.query(
-                    where("LOWER(name)").like("%${name.lowercase()}%")
+                    where("name").like("%$name%")
                 )
             )
             .all()
