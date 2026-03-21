@@ -46,7 +46,7 @@ function DialogContent({ className, children, ...props }: DialogPrimitive.Dialog
         </div>
         <div className="p-5 sm:p-6">{children}</div>
         <DialogPrimitive.Close
-          className="absolute right-4 top-4 p-1.5 rounded text-[#555] hover:text-[#f5f5f5] hover:bg-[#252525] transition-colors touch-target flex items-center justify-center"
+          className="absolute right-4 top-4 p-1.5 rounded text-[#888] hover:text-[#f5f5f5] hover:bg-[#252525] transition-colors touch-target flex items-center justify-center"
           aria-label="Закрыть"
         >
           <X className="h-4 w-4" />
@@ -72,7 +72,7 @@ function DialogTitle({ className, ...props }: DialogPrimitive.DialogTitleProps) 
 function DialogDescription({ className, ...props }: DialogPrimitive.DialogDescriptionProps) {
   return (
     <DialogPrimitive.Description
-      className={cn('text-sm text-[#555] mt-1', className)}
+      className={cn('text-sm text-[#aaa] mt-1', className)}
       {...props}
     />
   )

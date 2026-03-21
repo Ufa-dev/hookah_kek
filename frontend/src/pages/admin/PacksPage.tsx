@@ -87,7 +87,7 @@ function FlavorSelector({ value, onChange, brandId }: {
           </div>
           <div className="max-h-48 overflow-y-auto">
             <button
-              className="w-full text-left px-3 py-2 text-sm font-body text-[#555] hover:bg-[#252525] transition-colors"
+              className="w-full text-left px-3 py-2 text-sm font-body text-[#aaa] hover:bg-[#252525] transition-colors"
               onClick={() => { onChange('', ''); setSelectedName(''); setOpen(false) }}
             >
               Без вкуса

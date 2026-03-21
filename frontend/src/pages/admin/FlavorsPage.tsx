@@ -147,30 +147,30 @@ function FlavorFormDialog({ flavor, brand, onClose }: {
         </div>
         <div className="space-y-4">
           <div>
-            <label className="block text-xs font-body text-[#666] mb-1 font-medium">Бренд</label>
-            <p className="text-sm font-body text-[#888] px-3 py-2 rounded-lg bg-[#0f0f0f] border border-[#2a2a2a]">{brand.name}</p>
+            <label className="block text-xs font-body text-[#999] mb-1 font-medium">Бренд</label>
+            <p className="text-sm font-body text-[#aaa] px-3 py-2 rounded-lg bg-[#0f0f0f] border border-[#2a2a2a]">{brand.name}</p>
           </div>
           <div>
-            <label className="block text-xs font-body text-[#666] mb-1 font-medium">Название *</label>
+            <label className="block text-xs font-body text-[#999] mb-1 font-medium">Название *</label>
             <input
-              className="w-full px-3 py-2 rounded-lg border border-[#2a2a2a] bg-[#0f0f0f] text-sm font-body text-[#f5f5f5] placeholder:text-[#444] outline-none focus:border-[#9B2335] transition-colors"
+              className="w-full px-3 py-2 rounded-lg border border-[#2a2a2a] bg-[#0f0f0f] text-sm font-body text-[#f5f5f5] placeholder:text-[#666] outline-none focus:border-[#9B2335] transition-colors"
               value={form.name}
               onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
               placeholder="Название вкуса"
             />
           </div>
           <div>
-            <label className="block text-xs font-body text-[#666] mb-1 font-medium">Описание</label>
+            <label className="block text-xs font-body text-[#999] mb-1 font-medium">Описание</label>
             <textarea
               rows={2}
-              className="w-full px-3 py-2 rounded-lg border border-[#2a2a2a] bg-[#0f0f0f] text-sm font-body text-[#f5f5f5] placeholder:text-[#444] outline-none focus:border-[#9B2335] transition-colors resize-none"
+              className="w-full px-3 py-2 rounded-lg border border-[#2a2a2a] bg-[#0f0f0f] text-sm font-body text-[#f5f5f5] placeholder:text-[#666] outline-none focus:border-[#9B2335] transition-colors resize-none"
               value={form.description}
               onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
               placeholder="Описание вкуса"
             />
           </div>
           <div>
-            <label className="block text-xs font-body text-[#666] mb-1 font-medium">
+            <label className="block text-xs font-body text-[#999] mb-1 font-medium">
               Крепость:{' '}
               <span className="font-display text-base" style={{ color: '#D4A647' }}>
                 {form.strength}
@@ -183,7 +183,7 @@ function FlavorFormDialog({ flavor, brand, onClose }: {
               value={form.strength}
               onChange={e => setForm(f => ({ ...f, strength: Number(e.target.value) }))}
             />
-            <div className="flex justify-between text-xs text-[#666] mt-1">
+            <div className="flex justify-between text-xs text-[#999] mt-1">
               <span>Лёгкий</span><span>Крепкий</span>
             </div>
           </div>

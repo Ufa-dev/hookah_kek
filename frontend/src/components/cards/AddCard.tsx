@@ -21,13 +21,13 @@ export function AddCard({ label, onClick }: AddCardProps) {
                       bg-[#1e1e1e] border border-[#333]
                       transition-all duration-150
                       group-hover:bg-[#9B233322] group-hover:border-[#9B2335]">
-        <Plus className="h-5 w-5 text-[#444] group-hover:text-[#B91C1C] transition-colors duration-150" />
+        <Plus className="h-5 w-5 text-[#888] group-hover:text-[#B91C1C] transition-colors duration-150" />
       </div>
       <div className="text-center">
-        <p className="text-sm font-body font-medium text-[#4a4a4a] group-hover:text-[#c08080] transition-colors duration-150">
+        <p className="text-sm font-body font-medium text-[#aaa] group-hover:text-[#f5f5f5] transition-colors duration-150">
           {label}
         </p>
-        <p className="text-xs font-body text-[#333] group-hover:text-[#555] transition-colors duration-150 mt-0.5">
+        <p className="text-xs font-body text-[#777] group-hover:text-[#999] transition-colors duration-150 mt-0.5">
           нажми чтобы добавить
         </p>
       </div>
