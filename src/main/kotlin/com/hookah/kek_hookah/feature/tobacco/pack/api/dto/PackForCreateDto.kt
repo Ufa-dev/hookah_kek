@@ -7,7 +7,7 @@ import java.util.*
 
 data class PackForCreateDto(
     @field:NotBlank
-    val id: String,
+    val tagId: String,
 
     @field:NotBlank
     val name: String,

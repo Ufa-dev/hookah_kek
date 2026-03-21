@@ -14,6 +14,7 @@ import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
 import org.springframework.validation.annotation.Validated
 import org.springframework.web.bind.annotation.*
+import java.util.*
 
 @RestController
 @RequestMapping("/api/v1/pack")
@@ -25,9 +26,11 @@ class PackController(
     suspend fun list(
         @RequestParam(defaultValue = "20") limit: Int,
         @RequestParam(required = false) after: String?,
-    ): ResponseEntity<Slice<FlavorPack>> =
-        service.list(limit.coerceIn(1, 100), after)
+    ): ResponseEntity<Slice<FlavorPack>> {
+        val afterId = after?.let { runCatching { UUID.fromString(it) }.getOrNull() }
+        return service.list(limit.coerceIn(1, 100), afterId)
             .let { ResponseEntity.ok(it) }
+    }
 
     @GetMapping("/{id}")
     suspend fun findById(
@@ -43,7 +46,7 @@ class PackController(
         @RequestBody @Validated request: PackForCreateDto,
     ): ResponseEntity<FlavorPack> =
         PackForCreate(
-            id = request.id,
+            tagId = request.tagId,
             name = request.name,
             flavorId = request.flavorId?.let { FlavorId(it) },
             currentWeightGrams = request.currentWeightGrams,

@@ -3,6 +3,7 @@ package com.hookah.kek_hookah.feature.tobacco.pack.internal.repository
 import com.hookah.kek_hookah.feature.tobacco.flavor.model.FlavorId
 import com.hookah.kek_hookah.feature.tobacco.pack.model.FlavorPack
 import com.hookah.kek_hookah.feature.tobacco.pack.model.PackId
+import com.hookah.kek_hookah.feature.tobacco.pack.model.PackTagId
 import com.hookah.kek_hookah.feature.user.model.UserId
 import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.data.annotation.Id
@@ -28,8 +29,14 @@ class PackRepository(
             .awaitOneOrNull()
             ?.toPack()
 
-    suspend fun findAll(limit: Int, afterId: String?): List<FlavorPack> {
-        val criteria = if (!afterId.isNullOrEmpty()) where("id").greaterThan(afterId) else null
+    suspend fun findByTagId(tagId: PackTagId): FlavorPack? =
+        template.select(PackEntity::class.java)
+            .matching(Query.query(where("tag_id").`is`(tagId.id)))
+            .awaitOneOrNull()
+            ?.toPack()
+
+    suspend fun findAll(limit: Int, afterId: UUID?): List<FlavorPack> {
+        val criteria = if (afterId != null) where("id").greaterThan(afterId) else null
         val query = (if (criteria != null) Query.query(criteria) else Query.empty())
             .sort(Sort.by(Sort.Direction.ASC, "id"))
             .limit(limit)
@@ -56,6 +63,7 @@ class PackRepository(
 
     private fun PackEntity.toPack() = FlavorPack(
         id = PackId(id),
+        tagId = PackTagId(tagId),
         name = name,
         flavorId = flavorId?.let { FlavorId(it) },
         currentWeightGrams = currentWeightGrams,
@@ -67,6 +75,7 @@ class PackRepository(
 
     private fun FlavorPack.toEntity() = PackEntity(
         id = id.id,
+        tagId = tagId.id,
         name = name,
         flavorId = flavorId?.id,
         currentWeightGrams = currentWeightGrams,
@@ -80,7 +89,10 @@ class PackRepository(
     data class PackEntity(
         @Id
         @Column("id")
-        val id: String,
+        val id: UUID,
+
+        @Column("tag_id")
+        val tagId: String,
 
         @Column("name")
         val name: String,

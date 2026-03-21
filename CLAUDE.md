@@ -7,6 +7,12 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - After creating any new file, immediately run `git add <path>` for that file.
 - The main branch is **`master`** (not `main`). Always commit to and create PRs against `master`.
 
+## Git Workflow / Worktrees
+
+- Worktrees создаются в `.worktrees/<branch-name>/` (НЕ в `.claude/worktrees/`).
+- Имя ветки = имя задачи без префикса `worktree-`. Пример: `feature/add-market-page`, не `worktree-add-market-page`.
+- `.worktrees/` добавлен в `.gitignore` — не коммитить его содержимое.
+
 ## Commands
 
 ```bash
