@@ -1,26 +1,7 @@
 import { Pencil, Clock, Trash2 } from 'lucide-react'
 import type { FlavorPack } from '@/types'
 import { formatDate } from '@/lib/utils'
-
-function WeightBar({ current, total }: { current: number; total: number }) {
-  const pct = total > 0 ? Math.round((current / total) * 100) : 0
-  const color =
-    pct > 50 ? 'bg-green-500' :
-    pct > 20 ? 'bg-yellow-500' :
-               'bg-red'
-  return (
-    <div className="space-y-1">
-      <div className="flex justify-between text-xs text-ink-muted">
-        <span>{current} г</span>
-        <span>{pct}%</span>
-        <span>{total} г</span>
-      </div>
-      <div className="h-2 bg-elevated rounded-full overflow-hidden">
-        <div className={`h-full ${color} transition-all duration-300`} style={{ width: `${pct}%` }} />
-      </div>
-    </div>
-  )
-}
+import { WeightBar } from '@/components/cards/WeightBar'
 
 interface PackCardProps {
   pack: FlavorPack
