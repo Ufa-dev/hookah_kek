@@ -68,7 +68,7 @@ class BrandsTagRepository(
         return template.select(BrandTagEntity::class.java)
             .matching(
                 Query.query(
-                    where("tag_id").`in`(tagIds)
+                    where("tag_id").`in`(tagIds.map { it.id })
                 )
             )
             .all()

@@ -2,6 +2,7 @@ package com.hookah.kek_hookah.feature.tobacco.e2e.brand
 
 import com.hookah.kek_hookah.feature.tobacco.brand.model.TabacoBrand
 import com.hookah.kek_hookah.feature.tobacco.e2e.auth.randomUser
+import com.hookah.kek_hookah.feature.tobacco.e2e.tags.createTagAndGet
 import com.hookah.kek_hookah.feature.tobacco.support.IntegrationTest
 import com.hookah.kek_hookah.utils.crud.Slice
 import kotlin.test.assertEquals
@@ -68,6 +69,21 @@ class BrandGetTest {
             .returnResult().responseBody!!
 
         assertTrue(slice.items.any { it.id == created.id })
+    }
+
+    @Test
+    fun `should get brands by tag`() = runTest {
+        val client = unauthorizedClient.randomUser()
+        val tag = client.createTagAndGet("tst-${UUID.randomUUID().toString().take(8)}")
+        val brand = client.createBrandAndGet()
+        client.addTagToBrand(brandId = brand.id, tagId = tag.id).expectStatus().isOk
+
+        val brands = client.getBrandsByTags(listOf(tag.id.id))
+            .expectStatus().isOk
+            .expectBody<List<TabacoBrand>>()
+            .returnResult().responseBody!!
+
+        assertTrue(brands.any { it.id == brand.id })
     }
 
     @Test
