@@ -4,7 +4,7 @@ import { toast } from 'sonner'
 import { Plus, Search, X, Flame } from 'lucide-react'
 import { flavorApi, brandApi } from '@/lib/api'
 import type { TabacoFlavor, TabacoBrand, Tag, FlavorCreateRequest, FlavorUpdateRequest } from '@/types'
-import { FlavorCard } from '@/components/cards'
+import { FlavorCard, AddCard } from '@/components/cards'
 import { BrandSelector } from '@/components/ui/BrandSelector'
 
 // ── TagDropdown ────────────────────────────────────────────────────────────
@@ -87,10 +87,10 @@ function FlavorTagsDialog({ flavor, allTags, onClose }: {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={onClose}>
-      <div className="bg-surface border border-border rounded-xl p-6 w-full max-w-md shadow-2xl" onClick={e => e.stopPropagation()}>
+      <div className="bg-[#161616] border border-[#2a2a2a] rounded-xl p-6 w-full max-w-md shadow-2xl" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-display text-base text-ink">Теги: {flavor.name}</h2>
-          <button onClick={onClose}><X className="h-4 w-4 text-ink-dim hover:text-crimson" /></button>
+          <h2 className="font-display text-base text-[#f5f5f5]">Теги: {flavor.name}</h2>
+          <button onClick={onClose}><X className="h-4 w-4 text-[#888] hover:text-crimson" /></button>
         </div>
         <div className="flex flex-wrap gap-2 mb-4 min-h-[2rem]">
           {tags.map(t => (
@@ -101,7 +101,7 @@ function FlavorTagsDialog({ flavor, allTags, onClose }: {
               </button>
             </span>
           ))}
-          {tags.length === 0 && <p className="text-xs text-ink-muted">Нет тегов</p>}
+          {tags.length === 0 && <p className="text-xs text-[#888]">Нет тегов</p>}
         </div>
         <TagDropdown allTags={allTags} assigned={tags} onAdd={t => addMut.mutate(t)} />
       </div>
@@ -140,44 +140,50 @@ function FlavorFormDialog({ flavor, brand, onClose }: {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={onClose}>
-      <div className="bg-surface border border-border rounded-xl p-6 w-full max-w-md shadow-2xl" onClick={e => e.stopPropagation()}>
+      <div className="bg-[#161616] border border-[#2a2a2a] rounded-xl p-6 w-full max-w-md shadow-2xl" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-5">
-          <h2 className="font-display text-base text-ink">{flavor ? 'Редактировать вкус' : 'Новый вкус'}</h2>
-          <button onClick={onClose}><X className="h-4 w-4 text-ink-dim hover:text-crimson" /></button>
+          <h2 className="font-display text-base text-[#f5f5f5]">{flavor ? 'Редактировать вкус' : 'Новый вкус'}</h2>
+          <button onClick={onClose}><X className="h-4 w-4 text-[#888] hover:text-crimson" /></button>
         </div>
         <div className="space-y-4">
           <div>
-            <label className="block text-xs font-body text-ink-muted mb-1">Бренд</label>
-            <p className="text-sm font-body text-ink-dim px-3 py-2 rounded-lg bg-deep border border-border">{brand.name}</p>
+            <label className="block text-xs font-body text-[#666] mb-1 font-medium">Бренд</label>
+            <p className="text-sm font-body text-[#888] px-3 py-2 rounded-lg bg-[#0f0f0f] border border-[#2a2a2a]">{brand.name}</p>
           </div>
           <div>
-            <label className="block text-xs font-body text-ink-muted mb-1">Название *</label>
+            <label className="block text-xs font-body text-[#666] mb-1 font-medium">Название *</label>
             <input
-              className="w-full px-3 py-2 rounded-lg border border-border bg-deep text-sm font-body text-ink placeholder-ink-muted outline-none focus:border-gold transition-colors"
+              className="w-full px-3 py-2 rounded-lg border border-[#2a2a2a] bg-[#0f0f0f] text-sm font-body text-[#f5f5f5] placeholder:text-[#444] outline-none focus:border-[#9B2335] transition-colors"
               value={form.name}
               onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
               placeholder="Название вкуса"
             />
           </div>
           <div>
-            <label className="block text-xs font-body text-ink-muted mb-1">Описание</label>
+            <label className="block text-xs font-body text-[#666] mb-1 font-medium">Описание</label>
             <textarea
               rows={2}
-              className="w-full px-3 py-2 rounded-lg border border-border bg-deep text-sm font-body text-ink placeholder-ink-muted outline-none focus:border-gold transition-colors resize-none"
+              className="w-full px-3 py-2 rounded-lg border border-[#2a2a2a] bg-[#0f0f0f] text-sm font-body text-[#f5f5f5] placeholder:text-[#444] outline-none focus:border-[#9B2335] transition-colors resize-none"
               value={form.description}
               onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
               placeholder="Описание вкуса"
             />
           </div>
           <div>
-            <label className="block text-xs font-body text-ink-muted mb-1">Крепость: {form.strength}/10</label>
+            <label className="block text-xs font-body text-[#666] mb-1 font-medium">
+              Крепость:{' '}
+              <span className="font-display text-base" style={{ color: '#D4A647' }}>
+                {form.strength}
+              </span>
+              {' '}/10
+            </label>
             <input
               type="range" min={0} max={10} step={1}
-              className="w-full accent-gold"
+              className="strength-slider w-full"
               value={form.strength}
               onChange={e => setForm(f => ({ ...f, strength: Number(e.target.value) }))}
             />
-            <div className="flex justify-between text-xs text-ink-muted mt-1">
+            <div className="flex justify-between text-xs text-[#666] mt-1">
               <span>Лёгкий</span><span>Крепкий</span>
             </div>
           </div>
@@ -189,7 +195,7 @@ function FlavorFormDialog({ flavor, brand, onClose }: {
           <button
             onClick={() => mut.mutate()}
             disabled={!form.name.trim() || mut.isPending}
-            className="px-4 py-2 rounded-lg text-sm font-body font-medium bg-gold/10 border border-gold/30 text-gold hover:bg-gold/20 disabled:opacity-50 transition-colors"
+            className="px-4 py-2 rounded-lg text-sm font-body font-semibold bg-[#9B2335] text-white hover:bg-[#B91C1C] disabled:opacity-50 transition-colors"
           >
             {mut.isPending ? 'Сохранение...' : (flavor ? 'Сохранить' : 'Создать')}
           </button>
@@ -330,15 +336,22 @@ export default function FlavorsPage() {
               ? Array.from({ length: 6 }).map((_, i) => (
                   <div key={i} className="h-32 rounded-xl bg-surface border border-border animate-pulse" />
                 ))
-              : flavors.map(f => (
-                  <FlavorCard
-                    key={f.id}
-                    flavor={f}
-                    onEdit={() => { setEditFlavor(f); setShowForm(true) }}
-                    onManageTags={() => setTagsFlavor(f)}
-                    onDelete={() => setDeleteFlavor(f)}
-                  />
-                ))
+              : [
+                  <AddCard
+                    key="add-card"
+                    label="Новый вкус"
+                    onClick={() => { setEditFlavor(null); setShowForm(true) }}
+                  />,
+                  ...flavors.map(f => (
+                    <FlavorCard
+                      key={f.id}
+                      flavor={f}
+                      onEdit={() => { setEditFlavor(f); setShowForm(true) }}
+                      onManageTags={() => setTagsFlavor(f)}
+                      onDelete={() => setDeleteFlavor(f)}
+                    />
+                  )),
+                ]
             }
           </div>
         )}
