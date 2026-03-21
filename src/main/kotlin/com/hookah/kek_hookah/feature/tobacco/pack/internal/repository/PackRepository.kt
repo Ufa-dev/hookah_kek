@@ -29,7 +29,7 @@ class PackRepository(
             ?.toPack()
 
     suspend fun findAll(limit: Int, afterId: String?): List<FlavorPack> {
-        val criteria = if (afterId != null) where("id").greaterThan(afterId) else null
+        val criteria = if (!afterId.isNullOrEmpty()) where("id").greaterThan(afterId) else null
         val query = (if (criteria != null) Query.query(criteria) else Query.empty())
             .sort(Sort.by(Sort.Direction.ASC, "id"))
             .limit(limit)

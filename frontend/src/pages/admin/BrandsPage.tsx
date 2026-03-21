@@ -308,9 +308,9 @@ export default function BrandsPage() {
 
   const { data: infiniteData, isLoading: browseLoading, isFetchingNextPage, fetchNextPage, hasNextPage } = useInfiniteQuery({
     queryKey: ['brands-infinite'],
-    queryFn:  ({ pageParam }) => brandApi.list({ limit: PAGE_LIMIT, after: pageParam as string | undefined }),
-    initialPageParam: undefined as string | undefined,
-    getNextPageParam: (last) => last.nextToken ?? undefined,
+    queryFn:  ({ pageParam }) => brandApi.list({ limit: PAGE_LIMIT, after: pageParam || undefined }),
+    initialPageParam: '',
+    getNextPageParam: (last) => last.nextToken || undefined,
     enabled:  search.trim().length < 2,
   })
 

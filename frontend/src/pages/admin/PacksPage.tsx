@@ -351,9 +351,9 @@ export default function PacksPage() {
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
     queryKey: ['packs-infinite'],
     queryFn: ({ pageParam }) =>
-      packApi.list({ limit: PAGE_LIMIT, after: pageParam as string | undefined }),
-    initialPageParam: undefined as string | undefined,
-    getNextPageParam: (last) => last.nextToken ?? undefined,
+      packApi.list({ limit: PAGE_LIMIT, after: pageParam || undefined }),
+    initialPageParam: '',
+    getNextPageParam: (last) => last.nextToken || undefined,
   })
 
   const packs = data?.pages.flatMap((p) => p.items) ?? []
