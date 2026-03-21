@@ -19,7 +19,7 @@ const buttonVariants = cva(
         ghost:
           'text-red hover:bg-red-pale border border-transparent hover:border-red-glow rounded',
         outline:
-          'border border-border text-ink-dim hover:border-red hover:text-red bg-white rounded',
+          'border border-border text-ink-dim hover:border-red hover:text-red bg-transparent rounded',
         danger:
           'border border-red-glow text-red hover:bg-red-pale bg-transparent rounded',
         link: 'text-red underline-offset-4 hover:underline p-0 h-auto rounded-none',
