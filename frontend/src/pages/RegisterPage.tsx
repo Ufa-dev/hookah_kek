@@ -28,7 +28,7 @@ export default function RegisterPage() {
 
   return (
     <div
-      className="min-h-dvh flex flex-col items-center justify-center px-4 bg-deep"
+      className="min-h-dvh flex flex-col items-center justify-center px-4 bg-deep dark:bg-[#0d0d0d]"
       style={{ paddingTop: 'env(safe-area-inset-top, 0px)', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
       <div className="w-full max-w-sm page-enter">
