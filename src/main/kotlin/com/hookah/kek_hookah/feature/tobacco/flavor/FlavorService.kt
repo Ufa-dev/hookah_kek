@@ -19,6 +19,7 @@ class FlavorService(
     private val addTagToFlavorCommand: AddTagToFlavorCommand,
     private val deleteTagFromFlavorCommand: DeleteTagFromFlavorCommand,
     private val findFlavorByIdQuery: FindFlavorByIdQuery,
+    private val enrichFlavorsWithTagsQuery: EnrichFlavorsWithTagsQuery,
     private val deleteFlavorCommand: DeleteFlavorCommand,
 ) {
     suspend fun findById(id: FlavorId): TabacoFlavor? {
@@ -26,15 +27,15 @@ class FlavorService(
     }
 
     suspend fun findAll(cursor: FlavorId?, limit: Int): List<TabacoFlavor> {
-        return enrichWithTags(repository.findAll(cursor, limit))
+        return enrichFlavorsWithTagsQuery.execute(repository.findAll(cursor, limit))
     }
 
     suspend fun findByBrandId(brandId: BrandId, cursor: FlavorId?, limit: Int): List<TabacoFlavor> {
-        return enrichWithTags(repository.findByBrandId(brandId, cursor, limit))
+        return enrichFlavorsWithTagsQuery.execute(repository.findByBrandId(brandId, cursor, limit))
     }
 
     suspend fun findAllByName(name: String, cursor: FlavorId?, limit: Int): List<TabacoFlavor> {
-        return enrichWithTags(repository.findAllByName(name, cursor, limit))
+        return enrichFlavorsWithTagsQuery.execute(repository.findAllByName(name, cursor, limit))
     }
 
     suspend fun findByBrandIdAndNameContaining(
@@ -43,18 +44,7 @@ class FlavorService(
         cursor: FlavorId?,
         limit: Int
     ): List<TabacoFlavor> {
-        return enrichWithTags(repository.findByBrandIdAndNameContaining(brandId, name, cursor, limit))
-    }
-
-    private suspend fun enrichWithTags(flavors: List<TabacoFlavor>): List<TabacoFlavor> {
-        if (flavors.isEmpty()) return flavors
-        val tagIdsByFlavorId = flavorsTagRepository.findAllTagIdsByFlavorIds(flavors.map { it.id })
-        val allTagUuids = tagIdsByFlavorId.values.flatten().distinct()
-        val tagsById = tagService.findAllByIds(allTagUuids).associateBy { it.id.id }
-        return flavors.map { flavor ->
-            val tags = (tagIdsByFlavorId[flavor.id.id] ?: emptyList()).mapNotNull { tagsById[it] }
-            flavor.copy(tags = tags)
-        }
+        return enrichFlavorsWithTagsQuery.execute(repository.findByBrandIdAndNameContaining(brandId, name, cursor, limit))
     }
 
     suspend fun create(request: FlavorForCreate): TabacoFlavor {
