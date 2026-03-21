@@ -19,7 +19,7 @@ fun AuthorizedWebTestClient.createTag(name: String): WebTestClient.ResponseSpec 
 
 fun AuthorizedWebTestClient.createTagAndGet(name: String): Tag =
     createTag(name)
-        .expectStatus().is2xxSuccessful
+        .expectStatus().isOk
         .expectBody<Tag>()
         .returnResult().responseBody!!
 

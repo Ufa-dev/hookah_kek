@@ -26,7 +26,7 @@ class TagCreateTest {
         val name = "tst-${UUID.randomUUID().toString().take(8)}"
 
         val tag = client.createTag(name)
-            .expectStatus().is2xxSuccessful
+            .expectStatus().isOk
             .expectBody<Tag>()
             .returnResult().responseBody!!
 
