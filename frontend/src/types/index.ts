@@ -203,3 +203,11 @@ export interface CursorParams {
   limit?: number
   after?: string
 }
+
+export interface PackListParams {
+  limit?: number
+  after?: string
+  name?: string
+  flavorId?: string
+  brandId?: string
+}

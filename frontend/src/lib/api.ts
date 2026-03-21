@@ -7,7 +7,7 @@ import type {
   TabacoFlavor, FlavorCreateRequest, FlavorUpdateRequest, UpdateTagForFlavorRequest,
   MarketArcView, MarketCreateRequest, MarketUpdateRequest, MarketListParams,
   FlavorPack, PackCreateRequest, PackUpdateRequest,
-  Slice, CursorParams,
+  Slice, CursorParams, PackListParams,
 } from '@/types'
 
 // ─── Token storage ─────────────────────────────────────────────────────────────
@@ -196,7 +196,7 @@ export const marketApi = {
 // ─── Packs ────────────────────────────────────────────────────────────────────
 
 export const packApi = {
-  list:     (params: CursorParams = {})                  => http.get<Slice<FlavorPack>>('/pack', { params }).then((r) => r.data),
+  list:     (params: PackListParams = {})                 => http.get<Slice<FlavorPack>>('/pack', { params }).then((r) => r.data),
   findById: (id: string)                                 => http.get<FlavorPack>(`/pack/${encodeURIComponent(id)}`).then((r) => r.data),
   create:   (body: PackCreateRequest)                    => http.post<FlavorPack>('/pack', body).then((r) => r.data),
   update:   (id: string, body: PackUpdateRequest)        => http.put<FlavorPack>(`/pack/${encodeURIComponent(id)}`, body).then((r) => r.data),

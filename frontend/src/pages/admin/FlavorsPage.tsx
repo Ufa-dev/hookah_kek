@@ -6,59 +6,7 @@ import { flavorApi, brandApi } from '@/lib/api'
 import type { TabacoFlavor, TabacoBrand, Tag, FlavorCreateRequest, FlavorUpdateRequest } from '@/types'
 import { FlavorCard, AddCard } from '@/components/cards'
 import { BrandSelector } from '@/components/ui/BrandSelector'
-
-// ── TagDropdown ────────────────────────────────────────────────────────────
-function TagDropdown({ allTags, assigned, onAdd }: {
-  allTags: Tag[]; assigned: Tag[]; onAdd: (tag: Tag) => void
-}) {
-  const [open, setOpen] = useState(false)
-  const [query, setQuery] = useState('')
-  const ref = useRef<HTMLDivElement>(null)
-  const available = allTags.filter(t => !assigned.find(a => a.id === t.id) && t.name.toLowerCase().includes(query.toLowerCase()))
-
-  useEffect(() => {
-    const h = (e: MouseEvent) => { if (ref.current && !ref.current.contains(e.target as Node)) setOpen(false) }
-    document.addEventListener('mousedown', h)
-    return () => document.removeEventListener('mousedown', h)
-  }, [])
-
-  return (
-    <div ref={ref} className="relative">
-      <button
-        onClick={() => setOpen(o => !o)}
-        className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-dashed border-border text-xs text-ink-dim hover:border-gold hover:text-gold transition-colors"
-      >
-        <Plus className="h-3 w-3" /> Добавить тег
-      </button>
-      {open && (
-        <div className="absolute z-50 top-full mt-1 w-56 bg-elevated border border-border rounded-lg shadow-lg">
-          <div className="p-2 border-b border-border">
-            <input
-              autoFocus
-              className="w-full bg-transparent text-xs font-body text-ink placeholder-ink-muted outline-none"
-              placeholder="Поиск тега..."
-              value={query}
-              onChange={e => setQuery(e.target.value)}
-            />
-          </div>
-          <div className="max-h-40 overflow-y-auto">
-            {available.length === 0 ? (
-              <p className="px-3 py-2 text-xs text-ink-muted">Теги не найдены</p>
-            ) : available.map(t => (
-              <button
-                key={t.id}
-                className="w-full text-left px-3 py-1.5 text-xs font-body text-ink hover:bg-hover transition-colors"
-                onClick={() => { onAdd(t); setOpen(false); setQuery('') }}
-              >
-                {t.name}
-              </button>
-            ))}
-          </div>
-        </div>
-      )}
-    </div>
-  )
-}
+import { TagSelector } from '@/components/ui/TagSelector'
 
 // ── FlavorTagsDialog ────────────────────────────────────────────────────────
 function FlavorTagsDialog({ flavor, allTags, onClose }: {
@@ -92,18 +40,12 @@ function FlavorTagsDialog({ flavor, allTags, onClose }: {
           <h2 className="font-display text-base text-[#f5f5f5]">Теги: {flavor.name}</h2>
           <button onClick={onClose}><X className="h-4 w-4 text-[#888] hover:text-crimson" /></button>
         </div>
-        <div className="flex flex-wrap gap-2 mb-4 min-h-[2rem]">
-          {tags.map(t => (
-            <span key={t.id} className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-gold/10 border border-gold/30 text-xs text-gold">
-              {t.name}
-              <button onClick={() => removeMut.mutate(t)} className="hover:text-crimson transition-colors">
-                <X className="h-2.5 w-2.5" />
-              </button>
-            </span>
-          ))}
-          {tags.length === 0 && <p className="text-xs text-[#888]">Нет тегов</p>}
-        </div>
-        <TagDropdown allTags={allTags} assigned={tags} onAdd={t => addMut.mutate(t)} />
+        <TagSelector
+          assigned={tags}
+          allTags={allTags}
+          onAdd={t => addMut.mutate(t)}
+          onRemove={t => removeMut.mutate(t)}
+        />
       </div>
     </div>
   )
@@ -245,6 +187,15 @@ export default function FlavorsPage() {
   const [showForm, setShowForm] = useState(false)
   const [deleteFlavor, setDeleteFlavor] = useState<TabacoFlavor | null>(null)
   const [tagsFlavor, setTagsFlavor] = useState<TabacoFlavor | null>(null)
+  const [selectedTags, setSelectedTags] = useState<Tag[]>([])
+  const [tagFilterOpen, setTagFilterOpen] = useState(false)
+  const tagFilterRef = useRef<HTMLDivElement>(null)
+
+  useEffect(() => {
+    const h = (e: MouseEvent) => { if (tagFilterRef.current && !tagFilterRef.current.contains(e.target as Node)) setTagFilterOpen(false) }
+    document.addEventListener('mousedown', h)
+    return () => document.removeEventListener('mousedown', h)
+  }, [])
 
   // All tags (для TagDropdown) — берём из брендов
   const { data: brandsData } = useInfiniteQuery({
@@ -279,6 +230,9 @@ export default function FlavorsPage() {
   })
 
   const flavors = query.data?.pages.flatMap(p => p.data) ?? []
+  const filtered = selectedTags.length === 0
+    ? flavors
+    : flavors.filter(f => selectedTags.every(t => f.tags.some(ft => ft.id === t.id)))
 
   return (
     <div className="page-root">
@@ -320,6 +274,41 @@ export default function FlavorsPage() {
           )}
         </div>
 
+        {/* Tag filter */}
+        <div className="flex flex-wrap gap-2 items-center mb-6">
+          <span className="text-xs text-ink-muted font-body">Теги:</span>
+          {selectedTags.map(t => (
+            <span key={t.id} className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-gold/10 border border-gold/30 text-xs text-gold">
+              {t.name}
+              <button onClick={() => setSelectedTags(prev => prev.filter(st => st.id !== t.id))}>
+                <X className="h-2.5 w-2.5 hover:text-crimson" />
+              </button>
+            </span>
+          ))}
+          <div ref={tagFilterRef} className="relative">
+            <button
+              onClick={() => setTagFilterOpen(o => !o)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-dashed border-border text-xs text-ink-dim hover:border-gold hover:text-gold transition-colors"
+            >
+              <Plus className="h-3 w-3" /> Тег
+            </button>
+            {tagFilterOpen && (
+              <div className="absolute z-50 top-full mt-1 w-48 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg shadow-lg">
+                <div className="max-h-40 overflow-y-auto">
+                  {allTags.filter(t => !selectedTags.find(st => st.id === t.id)).map(t => (
+                    <button key={t.id}
+                      className="w-full text-left px-3 py-1.5 text-xs text-[#f5f5f5] hover:bg-[#252525] transition-colors"
+                      onClick={() => { setSelectedTags(prev => [...prev, t]); setTagFilterOpen(false) }}
+                    >
+                      {t.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Empty state */}
         {!selectedBrand && (
           <div className="flex flex-col items-center justify-center py-20 text-center">
@@ -342,7 +331,7 @@ export default function FlavorsPage() {
                     label="Новый вкус"
                     onClick={() => { setEditFlavor(null); setShowForm(true) }}
                   />,
-                  ...flavors.map(f => (
+                  ...filtered.map(f => (
                     <FlavorCard
                       key={f.id}
                       flavor={f}

@@ -9,7 +9,7 @@ const NAV_ITEMS = [
   { to: '/dashboard',    label: 'Главная',    icon: LayoutDashboard },
   { to: '/admin/brands', label: 'Бренды',     icon: Package },
   { to: '/admin/flavors', label: 'Вкусы',     icon: Flame },
-  { to: '/admin/market',  label: 'Рынок',     icon: ShoppingBag },
+  { to: '/admin/market',  label: 'Склад',     icon: ShoppingBag },
   { to: '/admin/tags',   label: 'Теги',       icon: Tag },
   { to: '/admin/packs',  label: 'Контейнеры', icon: Archive },
   { to: '/profile',      label: 'Профиль',    icon: User },

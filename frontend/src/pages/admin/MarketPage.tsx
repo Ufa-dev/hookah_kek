@@ -319,8 +319,8 @@ export default function MarketPage() {
               <ShoppingBag className="h-4 w-4 text-gold" />
             </div>
             <div>
-              <h1 className="font-display text-xl text-ink">Каталог рынка</h1>
-              <p className="text-xs font-body text-ink-muted">Рыночные SKU для закупки</p>
+              <h1 className="font-display text-xl text-ink">Склад</h1>
+              <p className="text-xs font-body text-ink-muted">SKU для закупки</p>
             </div>
           </div>
           <button

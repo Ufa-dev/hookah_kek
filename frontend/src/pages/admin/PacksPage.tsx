@@ -12,7 +12,7 @@ import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose,
 } from '@/components/ui/dialog'
 import { toast } from 'sonner'
-import { Plus, Archive, Loader2, Weight, X, ChevronDown } from 'lucide-react'
+import { Plus, Archive, Loader2, Weight, X, ChevronDown, Search } from 'lucide-react'
 
 const PAGE_LIMIT = 20
 
@@ -55,6 +55,10 @@ function FlavorSelector({ value, onChange, brandId }: {
     document.addEventListener('mousedown', h)
     return () => document.removeEventListener('mousedown', h)
   }, [])
+
+  useEffect(() => {
+    if (!value) setSelectedName('')
+  }, [value])
 
   const displayValue = selectedName || (value ? `ID: ${value.slice(0, 8)}...` : '')
 
@@ -331,11 +335,13 @@ export default function PacksPage() {
   const [formOpen, setFormOpen]     = useState(false)
   const [editPack, setEditPack]     = useState<FlavorPack | undefined>()
   const [deletePack, setDeletePack] = useState<FlavorPack | undefined>()
+  const [filters, setFilters] = useState({ name: '', brandId: '', flavorId: '' })
+  const [filterBrand, setFilterBrand] = useState<TabacoBrand | null>(null)
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
-    queryKey: ['packs-infinite'],
+    queryKey: ['packs-infinite', filters],
     queryFn: ({ pageParam }) =>
-      packApi.list({ limit: PAGE_LIMIT, after: pageParam || undefined }),
+      packApi.list({ limit: PAGE_LIMIT, after: pageParam || undefined, ...filters }),
     initialPageParam: '',
     getNextPageParam: (last) => last.nextToken || undefined,
   })
@@ -363,6 +369,33 @@ export default function PacksPage() {
           <Button onClick={openCreate} size="sm" className="gap-1.5">
             <Plus className="h-4 w-4" /> Добавить
           </Button>
+        </div>
+
+        {/* Filters */}
+        <div className="bg-surface border border-border rounded-xl p-4 mb-6">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-ink-muted" />
+              <input
+                className="w-full pl-9 pr-3 py-2 rounded-lg border border-border bg-surface text-sm font-body text-ink placeholder-ink-muted outline-none focus:border-red transition-colors"
+                placeholder="Название..."
+                value={filters.name}
+                onChange={e => setFilters(f => ({ ...f, name: e.target.value }))}
+              />
+            </div>
+            <BrandSelector
+              selected={filterBrand}
+              onSelect={b => {
+                setFilterBrand(b)
+                setFilters(f => ({ ...f, brandId: b?.id ?? '', flavorId: '' }))
+              }}
+            />
+            <FlavorSelector
+              value={filters.flavorId}
+              onChange={(id) => setFilters(f => ({ ...f, flavorId: id }))}
+              brandId={filterBrand?.id}
+            />
+          </div>
         </div>
 
         {/* Pack list */}

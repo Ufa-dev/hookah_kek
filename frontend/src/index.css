@@ -180,6 +180,14 @@
   animation: shimmer 1.5s ease-in-out infinite;
 }
 
+/* Fix dropdown & filter backgrounds in dark mode */
+.dark .bg-surface   { background-color: #161616; }
+.dark .bg-elevated  { background-color: #1a1a1a; }
+.dark .bg-deep      { background-color: #111111; }
+.dark .bg-hover     { background-color: #252525; }
+.dark .hover\:bg-hover:hover { background-color: #252525; }
+.dark .border-border { border-color: #2a2a2a; }
+
 /* ── Strength slider (Flavor form) ──────────────────────────────────────── */
 .strength-slider {
   -webkit-appearance: none;

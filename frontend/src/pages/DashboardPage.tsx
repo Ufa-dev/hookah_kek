@@ -31,7 +31,7 @@ export default function DashboardPage() {
           <QuickLink to="/admin/tags"   label="Управлять тегами"   description="Создавать и переименовывать теги"    icon={<Tag className="h-5 w-5 text-red" />} />
           <QuickLink to="/admin/flavors" label="Вкусы" description="Управление вкусами табака" icon={<Flame className="h-5 w-5 text-red" />} />
           <QuickLink to="/admin/packs"   label="Контейнеры" description="Учёт табака по весу" icon={<Archive className="h-5 w-5 text-red" />} />
-          <QuickLink to="/admin/market"  label="Каталог рынка" description="SKU для закупок" icon={<ShoppingBag className="h-5 w-5 text-red" />} />
+          <QuickLink to="/admin/market"  label="Склад" description="SKU для закупок" icon={<ShoppingBag className="h-5 w-5 text-red" />} />
         </div>
 
         {/* User card */}
