@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef, type FormEvent } from 'react'
 import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { brandApi, tagApi } from '@/lib/api'
-import { BrandCard } from '@/components/cards'
+import { BrandCard, AddCard } from '@/components/cards'
 import type { TabacoBrand, Tag } from '@/types'
 import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
@@ -120,7 +120,7 @@ function TagDropdown({
 
       {open && (
         <div
-          className="absolute left-0 right-0 mt-1 bg-white border border-border rounded-lg shadow-[0_8px_32px_rgba(0,0,0,0.18)] overflow-hidden"
+          className="absolute left-0 right-0 mt-1 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg shadow-lg overflow-hidden"
           style={{ zIndex: 9999, top: '100%' }}
         >
           {filtered.length === 0 ? (
@@ -138,7 +138,7 @@ function TagDropdown({
                       onAdd(tag); setFilter(''); setOpen(false)
                     }}
                     disabled={isAdding}
-                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-left hover:bg-red-pale hover:text-red transition-colors touch-target"
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-left text-[#f5f5f5] hover:bg-[#252525] hover:text-red transition-colors touch-target"
                   >
                     <TagIcon className="h-3.5 w-3.5 text-red-light flex-shrink-0" />
                     {tag.name}
@@ -358,6 +358,10 @@ export default function BrandsPage() {
           <EmptyState onCreateClick={() => { setEditBrand(undefined); setFormOpen(true) }} />
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
+            <AddCard
+              label="Новый бренд"
+              onClick={() => { setEditBrand(undefined); setFormOpen(true) }}
+            />
             {brands.map((brand) => (
               <BrandCard
                 key={String(brand.id)} brand={brand}
