@@ -289,12 +289,15 @@ export default function FlavorsPage() {
   })
   const allBrands: TabacoBrand[] = brandsData?.pages.flatMap(p => p.data) ?? []
 
+  const tagIds = selectedTags.map(t => t.id)
+
   const query = useInfiniteQuery({
-    queryKey: ['flavors', selectedBrand?.id, search],
+    queryKey: ['flavors', selectedBrand?.id, search, tagIds],
     queryFn: async ({ pageParam }) => {
       const res = await flavorApi.search({
         brandId: selectedBrand?.id,
         name: search || undefined,
+        tagIds: tagIds.length ? tagIds : undefined,
         cursor: pageParam || undefined,
         limit: 20,
       })
@@ -305,9 +308,6 @@ export default function FlavorsPage() {
   })
 
   const flavors = query.data?.pages.flatMap(p => p.data) ?? []
-  const filtered = selectedTags.length === 0
-    ? flavors
-    : flavors.filter(f => selectedTags.every(t => f.tags.some(ft => ft.id === t.id)))
 
   return (
     <div className="page-root">
@@ -392,7 +392,7 @@ export default function FlavorsPage() {
                   label="Новый вкус"
                   onClick={() => { setEditFlavor(null); setShowForm(true) }}
                 />,
-                ...filtered.map(f => (
+                ...flavors.map(f => (
                   <FlavorCard
                     key={f.id}
                     flavor={f}
