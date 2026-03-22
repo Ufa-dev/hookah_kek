@@ -1,52 +1,91 @@
 package com.hookah.kek_hookah.feature.tobacco.e2e.auth
 
+
+import com.hookah.kek_hookah.feature.auth.api.dto.AuthResponse
+import com.hookah.kek_hookah.feature.auth.api.dto.CreditsToLogin
+import com.hookah.kek_hookah.feature.auth.api.dto.RegisterRequest
+import com.hookah.kek_hookah.feature.auth.api.dto.TokenToRefresh
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
-import org.springframework.test.web.reactive.server.expectBody
 import java.util.UUID
 
-/**
- * A thin wrapper around [WebTestClient] that carries a pre-set Bearer token.
- * Delegates HTTP method calls to the underlying authorized client.
- */
-class AuthorizedWebTestClient(private val delegate: WebTestClient) {
+const val AUTH_URL = "/api/v1/auth"
 
-    fun get(): WebTestClient.RequestHeadersUriSpec<*> = delegate.get()
-    fun post(): WebTestClient.RequestBodyUriSpec = delegate.post()
-    fun put(): WebTestClient.RequestBodyUriSpec = delegate.put()
-    fun patch(): WebTestClient.RequestBodyUriSpec = delegate.patch()
-    fun delete(): WebTestClient.RequestHeadersUriSpec<*> = delegate.delete()
+class AuthorizedWebTestClient(
+    val userEmail: String,
+    val userName: String,
+    private val webTestClient: WebTestClient
+) : WebTestClient by webTestClient
+
+fun WebTestClient.randomUser(): AuthorizedWebTestClient {
+    val salt = UUID.randomUUID().toString()
+    val email = "test-${salt}@test.com"
+    val name = "Test User #$salt"
+
+    val password = "testpass$salt".take(12)
+
+    val accessToken = registerTestUser(
+        email = email,
+        name = name,
+        password = password
+    ).accessToken
+
+    return mutate()
+        .defaultHeader("Authorization", "Bearer $accessToken")
+        .build().let { client ->
+            AuthorizedWebTestClient(userEmail = email, userName = name, webTestClient = client)
+        }
 }
 
-/**
- * Registers a fresh random user, logs in, and returns an [AuthorizedWebTestClient]
- * pre-configured with the resulting Bearer token.
- */
-fun WebTestClient.randomUser(): AuthorizedWebTestClient {
-    val uid = UUID.randomUUID().toString().take(8)
-    val email = "test-$uid@example.com"
-    val password = "Pass123!"
+fun WebTestClient.registerTestUser(
+    email: String,
+    name: String,
+    password: String,
+): AuthResponse {
+    require(password.length in 6..32) { "Password must be 6-32 characters, got: ${password.length}" }
 
-    post().uri("/api/v1/auth/register")
+    return post()
+        .uri("$AUTH_URL/register")
         .contentType(MediaType.APPLICATION_JSON)
-        .bodyValue(mapOf("email" to email, "name" to "Test $uid", "password" to password))
+        .bodyValue(RegisterRequest(email = email, name = name, password = password))
         .exchange()
-        .expectStatus().is2xxSuccessful
+        .expectStatus().isCreated
+        .expectBody<AuthResponse>()
+        .returnResult()
+        .responseBody!!
+}
 
-    data class TokenResponse(val accessToken: String)
+fun WebTestClient.register(
+    email: String,
+    name: String,
+    password: String
+): WebTestClient.ResponseSpec {
+    require(password.length in 6..32) { "Password must be 6-32 characters, got: ${password.length}" }
 
-    val token = post().uri("/api/v1/auth/login")
+    return post()
+        .uri("$AUTH_URL/register")
         .contentType(MediaType.APPLICATION_JSON)
-        .bodyValue(mapOf("email" to email, "password" to password))
+        .bodyValue(RegisterRequest(email = email, name = name, password = password))
         .exchange()
-        .expectStatus().isOk
-        .expectBody<TokenResponse>()
-        .returnResult().responseBody!!
-        .accessToken
+}
 
-    val authorized = mutate()
-        .defaultHeader("Authorization", "Bearer $token")
-        .build()
+fun WebTestClient.login(
+    email: String,
+    password: String
+): WebTestClient.ResponseSpec {
+    require(password.length in 6..32) { "Password must be 6-32 characters, got: ${password.length}" }
 
-    return AuthorizedWebTestClient(authorized)
+    return post()
+        .uri("$AUTH_URL/login")
+        .contentType(MediaType.APPLICATION_JSON)
+        .bodyValue(CreditsToLogin(email = email, password = password))
+        .exchange()
+}
+
+fun WebTestClient.refreshToken(token: String): WebTestClient.ResponseSpec {
+    return post()
+        .uri("$AUTH_URL/refresh")
+        .contentType(MediaType.APPLICATION_JSON)
+        .bodyValue(TokenToRefresh(token = token))
+        .exchange()
 }

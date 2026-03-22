@@ -1,40 +1,43 @@
 package com.hookah.kek_hookah.feature.tobacco.support
 
-import org.springframework.boot.test.context.TestConfiguration
-import org.springframework.boot.testcontainers.context.ImportTestcontainers
-import org.springframework.boot.testcontainers.service.connection.ServiceConnection
-import org.springframework.boot.web.server.reactive.context.ReactiveWebServerApplicationContext
-import org.springframework.context.ApplicationContext
-import org.springframework.context.annotation.Bean
-import org.springframework.context.annotation.Lazy
-import org.springframework.test.web.reactive.server.WebTestClient
+import org.springframework.boot.test.util.TestPropertyValues
+import org.springframework.context.ApplicationContextInitializer
+import org.springframework.context.ConfigurableApplicationContext
 import org.testcontainers.containers.PostgreSQLContainer
-import org.testcontainers.junit.jupiter.Container
 
 /**
- * Shared Testcontainers + WebTestClient configuration for [IntegrationTest]-annotated test classes.
+ * Shared test configuration for all integration tests.
+ * Provides a singleton PostgreSQL container and registers test properties.
  */
-@TestConfiguration
-@ImportTestcontainers(Containers::class)
-class IntegrationTestConfig {
+class IntegrationTestConfig : ApplicationContextInitializer<ConfigurableApplicationContext> {
 
-    @Bean
-    @Lazy
-    fun webTestClient(applicationContext: ApplicationContext): WebTestClient {
-        val ctx = applicationContext as ReactiveWebServerApplicationContext
-        val port = ctx.webServer!!.port
-        return WebTestClient.bindToServer()
-            .baseUrl("http://localhost:$port")
-            .build()
+    companion object {
+        /**
+         * Singleton PostgreSQL container shared across all tests.
+         * Using singleton pattern to avoid starting a new container for each test class.
+         */
+        val postgresContainer: PostgreSQLContainer<*> = PostgreSQLContainer("postgres:16-alpine")
+            .withDatabaseName("testdb")
+            .withUsername("testuser")
+            .withPassword("testpass")
+            .apply {
+                start()
+            }
     }
-}
 
-object Containers {
-    @Container
-    @ServiceConnection
-    @JvmField
-    val postgres: PostgreSQLContainer<*> = PostgreSQLContainer("postgres:16-alpine")
-        .withDatabaseName("hookah_test")
-        .withUsername("test")
-        .withPassword("test")
+    override fun initialize(applicationContext: ConfigurableApplicationContext) {
+        // Register database properties
+        TestPropertyValues.of(
+            "spring.r2dbc.url=r2dbc:postgresql://${postgresContainer.host}:${postgresContainer.firstMappedPort}/${postgresContainer.databaseName}",
+            "spring.r2dbc.username=${postgresContainer.username}",
+            "spring.r2dbc.password=${postgresContainer.password}",
+            "spring.flyway.url=${postgresContainer.jdbcUrl}",
+            "spring.flyway.user=${postgresContainer.username}",
+            "spring.flyway.password=${postgresContainer.password}",
+            // JWT configuration
+            "app.security.jwt.secret=test-secret-key-for-jwt-token-generation-minimum-256-bits",
+            "app.security.jwt.access-token-expiration-ms=1800000",
+            "app.security.jwt.refresh-token-expiration-ms=86400000"
+        ).applyTo(applicationContext.environment)
+    }
 }
