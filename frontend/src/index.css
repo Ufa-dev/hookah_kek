@@ -18,7 +18,7 @@
   }
 
   body {
-    background-color: #F9FAFB;
+    background-color: #EAEAED;
     color: #111827;
     font-family: 'Inter', system-ui, sans-serif;
     font-weight: 400;
@@ -50,7 +50,7 @@
     padding-top: calc(var(--nav-h) + var(--safe-top));
     padding-bottom: calc(var(--tab-h) + var(--safe-bottom) + 16px);
     min-height: 100dvh;
-    background-color: #F9FAFB;
+    background-color: #EAEAED;
   }
   @media (min-width: 768px) {
     .page-root { padding-bottom: 32px; }

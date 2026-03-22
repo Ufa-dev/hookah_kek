@@ -12,6 +12,7 @@ import {
 import { toast } from 'sonner'
 import { Plus, Pencil, Tag as TagIcon, Search, Hash, Check, X, Loader2 } from 'lucide-react'
 import { AddButton } from '@/components/ui/AddButton'
+import { PageHeader } from '@/components/ui/PageHeader'
 
 const PAGE_LIMIT = 30
 
@@ -229,17 +230,11 @@ export default function TagsPage() {
     <div className="page-root">
       <div className="page-container page-enter">
 
-        {/* Header */}
-        <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
-          <div>
-            <p className="text-xs text-ink-muted font-body uppercase tracking-widest mb-1">Администрирование</p>
-            <h1 className="font-display text-3xl sm:text-5xl font-bold text-red">
-              Теги брендов
-            </h1>
-            <div className="red-line w-20 mt-3" />
-          </div>
-          <AddButton label="Новый тег" onClick={() => setCreateOpen(true)} />
-        </div>
+        <PageHeader
+          title="Теги брендов"
+          addLabel="Новый тег"
+          onAdd={() => setCreateOpen(true)}
+        />
 
         {/* Search bar */}
         <div className="flex gap-2 mb-5">

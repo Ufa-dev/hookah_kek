@@ -7,13 +7,14 @@ import type { FlavorPack, TabacoFlavor, TabacoBrand } from '@/types'
 import { BrandSelector } from '@/components/ui/BrandSelector'
 import { Button } from '@/components/ui/button'
 import { AddButton } from '@/components/ui/AddButton'
+import { PageHeader } from '@/components/ui/PageHeader'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
   Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogClose,
 } from '@/components/ui/dialog'
 import { toast } from 'sonner'
-import { Plus, Archive, Loader2, Weight, X, ChevronDown, Search } from 'lucide-react'
+import { Plus, Loader2, Weight, X, ChevronDown, Search } from 'lucide-react'
 
 const PAGE_LIMIT = 20
 
@@ -356,19 +357,10 @@ export default function PacksPage() {
     <div className="page-root">
       <div className="page-container page-enter">
 
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className="w-9 h-9 rounded-lg bg-red-pale border border-red-glow flex items-center justify-center">
-              <Archive className="h-4.5 w-4.5 text-red" />
-            </div>
-            <div>
-              <h1 className="font-display text-xl text-ink">Контейнеры</h1>
-              <p className="text-xs text-ink-muted">Учёт табака по весу</p>
-            </div>
-          </div>
-          <AddButton onClick={openCreate} />
-        </div>
+        <PageHeader
+          title="Контейнеры"
+          onAdd={openCreate}
+        />
 
         {/* Filters */}
         <div className="bg-surface border border-border rounded-xl p-4 mb-6">

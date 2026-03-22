@@ -5,6 +5,7 @@ import { BrandCard } from '@/components/cards'
 import type { TabacoBrand, Tag } from '@/types'
 import { Button } from '@/components/ui/button'
 import { AddButton } from '@/components/ui/AddButton'
+import { PageHeader } from '@/components/ui/PageHeader'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -334,17 +335,11 @@ export default function BrandsPage() {
   return (
     <div className="page-root">
       <div className="page-container page-enter">
-        {/* Header */}
-        <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
-          <div>
-            <p className="text-xs text-ink-muted font-body uppercase tracking-widest mb-1">Администрирование</p>
-            <h1 className="font-display text-3xl sm:text-5xl font-bold text-red">
-              Бренды табака
-            </h1>
-            <div className="red-line w-20 mt-3" />
-          </div>
-          <AddButton label="Новый бренд" onClick={() => { setEditBrand(undefined); setFormOpen(true) }} />
-        </div>
+        <PageHeader
+          title="Бренды табака"
+          addLabel="Новый бренд"
+          onAdd={() => { setEditBrand(undefined); setFormOpen(true) }}
+        />
 
         {/* Search */}
         <div className="relative mb-5">
