@@ -89,6 +89,22 @@ class FlavorsTagRepository(
             .distinct()
     }
 
+    suspend fun findFlavorIdsByAllTagIds(tagIds: List<TagId>): List<FlavorId> {
+        if (tagIds.isEmpty()) return emptyList()
+        var result: Set<UUID>? = null
+        for (tagId in tagIds) {
+            val idsForTag = template.select(FlavorTagEntity::class.java)
+                .matching(Query.query(where("tag_id").`is`(tagId.id)))
+                .all()
+                .collectList()
+                .awaitSingle()
+                .map { it.flavorId }
+                .toSet()
+            result = result?.intersect(idsForTag) ?: idsForTag
+        }
+        return (result ?: emptySet()).map { FlavorId(it) }
+    }
+
     private fun FlavorTagEntity.toFlavorTag() = FlavorTag(
         flavorId = FlavorId(flavorId),
         tagId = TagId(tagId)

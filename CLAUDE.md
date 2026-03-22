@@ -10,7 +10,16 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Development Workflow
 
-**Approved plan → implement → review → commit (in that order)**
+**Approved plan → create branch → implement → review → commit (in that order)**
+
+### 0. Create branch (FIRST, before any file edits)
+
+```bash
+git checkout master
+git checkout -b fix/<activity-name>   # или feat/<activity-name>
+```
+
+**Никогда не редактировать файлы на `master` напрямую.**
 
 ### 1. Implementation phase (no git)
 

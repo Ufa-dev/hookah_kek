@@ -8,6 +8,7 @@ import com.hookah.kek_hookah.feature.tobacco.flavor.internal.repository.FlavorsT
 import com.hookah.kek_hookah.feature.tobacco.flavor.internal.usecase.*
 import com.hookah.kek_hookah.feature.tobacco.flavor.model.*
 import org.springframework.stereotype.Component
+import java.util.UUID
 
 @Component
 class FlavorService(
@@ -59,6 +60,33 @@ class FlavorService(
     suspend fun findAllByTag(tags: List<TagId>, cursor: FlavorId?, limited: Int): List<TabacoFlavor> {
         val flavorIds = flavorsTagRepository.findAllFlavorIdsByTagIds(tags)
         return flavorIds.mapNotNull { findById(it) }
+    }
+
+    suspend fun search(
+        brandId: BrandId?,
+        name: String?,
+        tagIds: List<TagId>,
+        cursor: FlavorId?,
+        limit: Int
+    ): List<TabacoFlavor> {
+        val flavorIdFilter: Set<UUID>? = if (tagIds.isNotEmpty())
+            flavorsTagRepository.findFlavorIdsByAllTagIds(tagIds).map { it.id }.toSet()
+        else null
+
+        if (flavorIdFilter != null && flavorIdFilter.isEmpty()) return emptyList()
+
+        val base = when {
+            brandId != null && !name.isNullOrBlank() ->
+                enrichFlavorsWithTagsQuery.execute(repository.findByBrandIdAndNameContaining(brandId, name, cursor, limit))
+            brandId != null ->
+                enrichFlavorsWithTagsQuery.execute(repository.findByBrandId(brandId, cursor, limit))
+            !name.isNullOrBlank() ->
+                enrichFlavorsWithTagsQuery.execute(repository.findAllByName(name, cursor, limit))
+            else ->
+                enrichFlavorsWithTagsQuery.execute(repository.findAll(cursor, limit))
+        }
+
+        return if (flavorIdFilter != null) base.filter { it.id.id in flavorIdFilter } else base
     }
 
     suspend fun addTag(request: UpdateTagForFlavor): TabacoFlavor {

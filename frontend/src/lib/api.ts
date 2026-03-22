@@ -149,7 +149,7 @@ export const flavorApi = {
   list: (params: { cursor?: string; limit?: number } = {}) =>
     http.get<TabacoFlavor[]>('/flavor', { params: { cursor: params.cursor, limit: params.limit ?? 20 } }),
 
-  search: (params: { brandId?: string; name?: string; cursor?: string; limit?: number }) =>
+  search: (params: { brandId?: string; name?: string; tagIds?: string[]; cursor?: string; limit?: number }) =>
     http.get<TabacoFlavor[]>('/flavor/search', { params: { ...params, limit: params.limit ?? 20 } }),
 
   findByBrandId: (brandId: string, params: { cursor?: string; limit?: number } = {}) =>
