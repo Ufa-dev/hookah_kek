@@ -36,9 +36,10 @@ fun AuthorizedWebTestClient.createPackAndGet(
     tagId: String = UUID.randomUUID().toString(),
     name: String = "pack-${UUID.randomUUID().toString().take(8)}",
     totalWeightGrams: Int = 100,
-    currentWeightGrams: Int = 50
+    currentWeightGrams: Int = 50,
+    flavorId: UUID? = null,
 ): FlavorPack =
-    createPack(tagId = tagId, name = name, totalWeightGrams = totalWeightGrams, currentWeightGrams = currentWeightGrams)
+    createPack(tagId = tagId, name = name, totalWeightGrams = totalWeightGrams, currentWeightGrams = currentWeightGrams, flavorId = flavorId)
         .expectStatus().isOk
         .expectBody<FlavorPack>()
         .returnResult().responseBody!!
@@ -49,6 +50,20 @@ fun AuthorizedWebTestClient.getPackById(id: UUID): WebTestClient.ResponseSpec =
 
 fun AuthorizedWebTestClient.listPacks(limit: Int = 20): WebTestClient.ResponseSpec =
     get().uri("$PACK_URL?limit=$limit").exchange()
+
+fun AuthorizedWebTestClient.listPacksFiltered(
+    name: String? = null,
+    flavorId: UUID? = null,
+    brandId: UUID? = null,
+): WebTestClient.ResponseSpec {
+    val params = buildList {
+        if (name != null) add("name=$name")
+        if (flavorId != null) add("flavorId=$flavorId")
+        if (brandId != null) add("brandId=$brandId")
+    }.joinToString("&")
+    val uri = if (params.isNotEmpty()) "$PACK_URL?$params" else PACK_URL
+    return get().uri(uri).exchange()
+}
 
 fun AuthorizedWebTestClient.updatePack(
     id: UUID,

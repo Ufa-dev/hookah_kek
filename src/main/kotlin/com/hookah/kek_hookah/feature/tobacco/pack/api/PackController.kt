@@ -26,9 +26,12 @@ class PackController(
     suspend fun list(
         @RequestParam(defaultValue = "20") limit: Int,
         @RequestParam(required = false) after: String?,
+        @RequestParam(required = false) name: String?,
+        @RequestParam(required = false) flavorId: UUID?,
+        @RequestParam(required = false) brandId: UUID?,
     ): ResponseEntity<Slice<FlavorPack>> {
         val afterId = after?.let { runCatching { UUID.fromString(it) }.getOrNull() }
-        return service.list(limit.coerceIn(1, 100), afterId)
+        return service.list(limit.coerceIn(1, 100), afterId, name?.takeIf { it.isNotBlank() }, flavorId, brandId)
             .let { ResponseEntity.ok(it) }
     }
 

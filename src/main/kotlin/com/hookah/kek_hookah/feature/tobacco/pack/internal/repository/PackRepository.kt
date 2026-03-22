@@ -7,13 +7,13 @@ import com.hookah.kek_hookah.feature.tobacco.pack.model.PackTagId
 import com.hookah.kek_hookah.feature.user.model.UserId
 import kotlinx.coroutines.reactive.awaitSingle
 import org.springframework.data.annotation.Id
-import org.springframework.data.domain.Sort
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
 import org.springframework.data.r2dbc.core.awaitOneOrNull
 import org.springframework.data.relational.core.mapping.Column
 import org.springframework.data.relational.core.mapping.Table
 import org.springframework.data.relational.core.query.Criteria.where
 import org.springframework.data.relational.core.query.Query
+import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.stereotype.Component
 import java.time.OffsetDateTime
 import java.util.*
@@ -21,6 +21,7 @@ import java.util.*
 @Component
 class PackRepository(
     private val template: R2dbcEntityTemplate,
+    private val db: DatabaseClient,
 ) {
 
     suspend fun findById(id: PackId): FlavorPack? =
@@ -35,17 +36,33 @@ class PackRepository(
             .awaitOneOrNull()
             ?.toPack()
 
-    suspend fun findAll(limit: Int, afterId: UUID?): List<FlavorPack> {
-        val criteria = if (afterId != null) where("id").greaterThan(afterId) else null
-        val query = (if (criteria != null) Query.query(criteria) else Query.empty())
-            .sort(Sort.by(Sort.Direction.ASC, "id"))
-            .limit(limit)
-        return template.select(PackEntity::class.java)
-            .matching(query)
-            .all()
-            .collectList()
-            .awaitSingle()
-            .map { it.toPack() }
+    suspend fun findAll(limit: Int, afterId: UUID?, name: String?, flavorId: UUID?, brandId: UUID?): List<FlavorPack> {
+        val sql = buildString {
+            append("SELECT * FROM flavor_pack WHERE 1=1")
+            if (!name.isNullOrBlank()) append(" AND LOWER(name) LIKE :name")
+            if (flavorId != null)      append(" AND flavor_id = :flavorId")
+            if (brandId != null)       append(" AND flavor_id IN (SELECT id FROM tabacoo_flavor WHERE brand_id = :brandId)")
+            if (afterId != null)       append(" AND id > :afterId")
+            append(" ORDER BY id ASC LIMIT :limit")
+        }
+        var spec = db.sql(sql).bind("limit", limit)
+        if (!name.isNullOrBlank()) spec = spec.bind("name", "%${name.lowercase()}%")
+        if (flavorId != null)      spec = spec.bind("flavorId", flavorId)
+        if (brandId != null)       spec = spec.bind("brandId", brandId)
+        if (afterId != null)       spec = spec.bind("afterId", afterId)
+        return spec.map { row, _ ->
+            PackEntity(
+                id = row.get("id", UUID::class.java)!!,
+                tagId = row.get("tag_id", String::class.java)!!,
+                name = row.get("name", String::class.java)!!,
+                flavorId = row.get("flavor_id", UUID::class.java),
+                currentWeightGrams = row.get("current_weight_grams", Integer::class.java)!!.toInt(),
+                totalWeightGrams = row.get("total_weight_grams", Integer::class.java)!!.toInt(),
+                createdAt = row.get("created_at", OffsetDateTime::class.java)!!,
+                updatedAt = row.get("updated_at", OffsetDateTime::class.java)!!,
+                updatedBy = row.get("updated_by", UUID::class.java)!!,
+            )
+        }.all().collectList().awaitSingle().map { it.toPack() }
     }
 
     suspend fun insert(pack: FlavorPack): FlavorPack =
