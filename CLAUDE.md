@@ -7,11 +7,17 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 - After creating any new file, immediately run `git add <path>` for that file.
 - The main branch is **`master`** (not `main`). Always commit to and create PRs against `master`.
 
-## Git Workflow / Worktrees
+## Git Workflow
 
-- Worktrees создаются в `.worktrees/<branch-name>/` (НЕ в `.claude/worktrees/`).
-- Имя ветки = имя задачи без префикса `worktree-`. Пример: `feature/add-market-page`, не `worktree-add-market-page`.
-- `.worktrees/` добавлен в `.gitignore` — не коммитить его содержимое.
+1. Создай ветку от `master`: `git checkout master && git checkout -b feature/<feature-name>`
+2. Реализуй задачу, закоммить изменения в эту ветку.
+3. Запушь ветку: `git push origin feature/<feature-name>`
+4. Сделай checkout на этой ветке локально — пользователь сам создаст PR в `master`.
+
+**Правила:**
+- Ветки всегда от `master`, именуются `feature/<feature-name>`.
+- PR в `master` создаёт пользователь самостоятельно.
+- Не использовать worktrees.
 
 ## Commands
 
