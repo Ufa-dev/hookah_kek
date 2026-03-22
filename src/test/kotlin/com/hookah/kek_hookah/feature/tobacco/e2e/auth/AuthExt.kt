@@ -1,7 +1,6 @@
 package com.hookah.kek_hookah.feature.tobacco.e2e.auth
 
 
-
 import com.hookah.kek_hookah.feature.auth.api.dto.AuthResponse
 import com.hookah.kek_hookah.feature.auth.api.dto.CreditsToLogin
 import com.hookah.kek_hookah.feature.auth.api.dto.RegisterRequest

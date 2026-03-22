@@ -41,11 +41,17 @@ git add <specific files — never git add -A>
 git commit -m "type(scope): description"
 ```
 
-## Git Workflow / Worktrees
+## Git Workflow
 
-- Worktrees создаются в `.worktrees/<branch-name>/` (НЕ в `.claude/worktrees/`).
-- Имя ветки = имя задачи без префикса `worktree-`. Пример: `feature/add-market-page`, не `worktree-add-market-page`.
-- `.worktrees/` добавлен в `.gitignore` — не коммитить его содержимое.
+1. Создай ветку от `master`: `git checkout master && git checkout -b feature/<feature-name>`
+2. Реализуй задачу, закоммить изменения в эту ветку.
+3. Запушь ветку: `git push origin feature/<feature-name>`
+4. Сделай checkout на этой ветке локально — пользователь сам создаст PR в `master`.
+
+**Правила:**
+- Ветки всегда от `master`, именуются `feature/<feature-name>`.
+- PR в `master` создаёт пользователь самостоятельно.
+- Не использовать worktrees.
 
 ## Commands
 

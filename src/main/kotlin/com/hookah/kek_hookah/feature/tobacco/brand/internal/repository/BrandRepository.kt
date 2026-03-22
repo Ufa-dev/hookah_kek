@@ -40,11 +40,12 @@ class BrandRepository(
             ).awaitOneOrNull()?.toBrand()
     }
 
+    // name column is CITEXT — PostgreSQL handles case-insensitivity natively, no need for LOWER()
     suspend fun findAllByName(name: String): List<TabacoBrand> {
         return template.select(BrandEntity::class.java)
             .matching(
                 Query.query(
-                    where("LOWER(name)").like("%${name.lowercase()}%")
+                    where("name").like("%$name%")
                 )
             )
             .all()
