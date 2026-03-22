@@ -69,24 +69,20 @@ class FlavorService(
         cursor: FlavorId?,
         limit: Int
     ): List<TabacoFlavor> {
-        val flavorIdFilter: Set<UUID>? = if (tagIds.isNotEmpty())
-            flavorsTagRepository.findFlavorIdsByAllTagIds(tagIds).map { it.id }.toSet()
+        val idFilter: List<UUID>? = if (tagIds.isNotEmpty())
+            flavorsTagRepository.findFlavorIdsByAllTagIds(tagIds).map { it.id }
+                .also { if (it.isEmpty()) return emptyList() }
         else null
 
-        if (flavorIdFilter != null && flavorIdFilter.isEmpty()) return emptyList()
-
-        val base = when {
-            brandId != null && !name.isNullOrBlank() ->
-                enrichFlavorsWithTagsQuery.execute(repository.findByBrandIdAndNameContaining(brandId, name, cursor, limit))
-            brandId != null ->
-                enrichFlavorsWithTagsQuery.execute(repository.findByBrandId(brandId, cursor, limit))
-            !name.isNullOrBlank() ->
-                enrichFlavorsWithTagsQuery.execute(repository.findAllByName(name, cursor, limit))
-            else ->
-                enrichFlavorsWithTagsQuery.execute(repository.findAll(cursor, limit))
-        }
-
-        return if (flavorIdFilter != null) base.filter { it.id.id in flavorIdFilter } else base
+        return enrichFlavorsWithTagsQuery.execute(
+            repository.search(
+                brandId = brandId?.id,
+                name = name,
+                idFilter = idFilter,
+                cursor = cursor,
+                limit = limit
+            )
+        )
     }
 
     suspend fun addTag(request: UpdateTagForFlavor): TabacoFlavor {
