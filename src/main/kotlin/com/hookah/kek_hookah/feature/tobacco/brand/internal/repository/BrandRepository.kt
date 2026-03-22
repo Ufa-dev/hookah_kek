@@ -54,12 +54,26 @@ class BrandRepository(
             .map { it.toBrand() }
     }
 
-    suspend fun findAll(limit: Int, afterId: UUID?): List<TabacoBrand> {
-        val query = if (afterId != null) {
-            Query.query(where("id").greaterThan(afterId))
-        } else {
-            Query.empty()
+    suspend fun findAll(
+        limit: Int,
+        afterId: UUID?,
+        allowedBrandIds: List<UUID>? = null,
+        name: String? = null,
+    ): List<TabacoBrand> {
+        var criteria = if (afterId != null) where("id").greaterThan(afterId) else null
+
+        if (!allowedBrandIds.isNullOrEmpty()) {
+            val idFilter = where("id").`in`(allowedBrandIds)
+            criteria = criteria?.and(idFilter) ?: idFilter
         }
+
+        if (!name.isNullOrBlank()) {
+            // name column is CITEXT — case-insensitivity handled by PostgreSQL natively
+            val nameFilter = where("name").like("%$name%")
+            criteria = criteria?.and(nameFilter) ?: nameFilter
+        }
+
+        val query = if (criteria != null) Query.query(criteria) else Query.empty()
         return template.select(BrandEntity::class.java)
             .matching(query.sort(Sort.by(Sort.Direction.ASC, "id")).limit(limit))
             .all()
