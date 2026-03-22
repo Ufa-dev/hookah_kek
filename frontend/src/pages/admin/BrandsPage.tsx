@@ -1,9 +1,10 @@
 import { useState, useEffect, useRef, type FormEvent } from 'react'
 import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { brandApi, tagApi } from '@/lib/api'
-import { BrandCard, AddCard } from '@/components/cards'
+import { BrandCard } from '@/components/cards'
 import type { TabacoBrand, Tag } from '@/types'
 import { Button } from '@/components/ui/button'
+import { AddButton } from '@/components/ui/AddButton'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { Textarea } from '@/components/ui/textarea'
@@ -342,9 +343,7 @@ export default function BrandsPage() {
             </h1>
             <div className="red-line w-20 mt-3" />
           </div>
-          <Button onClick={() => { setEditBrand(undefined); setFormOpen(true) }}>
-            <Plus className="h-4 w-4" /> Новый бренд
-          </Button>
+          <AddButton label="Новый бренд" onClick={() => { setEditBrand(undefined); setFormOpen(true) }} />
         </div>
 
         {/* Search */}
@@ -358,10 +357,6 @@ export default function BrandsPage() {
           <EmptyState onCreateClick={() => { setEditBrand(undefined); setFormOpen(true) }} />
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 sm:gap-4">
-            <AddCard
-              label="Новый бренд"
-              onClick={() => { setEditBrand(undefined); setFormOpen(true) }}
-            />
             {brands.map((brand) => (
               <BrandCard
                 key={String(brand.id)} brand={brand}

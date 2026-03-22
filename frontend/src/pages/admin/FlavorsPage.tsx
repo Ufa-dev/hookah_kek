@@ -4,8 +4,9 @@ import { toast } from 'sonner'
 import { Plus, Search, X, Flame, ChevronDown } from 'lucide-react'
 import { flavorApi, brandApi, tagApi } from '@/lib/api'
 import type { TabacoFlavor, TabacoBrand, Tag, FlavorCreateRequest, FlavorUpdateRequest } from '@/types'
-import { FlavorCard, AddCard } from '@/components/cards'
+import { FlavorCard } from '@/components/cards'
 import { BrandSelector } from '@/components/ui/BrandSelector'
+import { AddButton } from '@/components/ui/AddButton'
 import { TagSelector } from '@/components/ui/TagSelector'
 
 // ── FlavorTagsDialog ────────────────────────────────────────────────────────
@@ -323,12 +324,7 @@ export default function FlavorsPage() {
               <p className="text-xs font-body text-ink-muted">Управление вкусами табака</p>
             </div>
           </div>
-          <button
-            onClick={() => { setEditFlavor(null); setShowForm(true) }}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gold/10 border border-gold/30 text-gold text-sm font-body hover:bg-gold/20 transition-colors"
-          >
-            <Plus className="h-4 w-4" /> Добавить
-          </button>
+          <AddButton onClick={() => { setEditFlavor(null); setShowForm(true) }} />
         </div>
 
         {/* Brand Selector + Search */}
@@ -386,22 +382,15 @@ export default function FlavorsPage() {
             ? Array.from({ length: 6 }).map((_, i) => (
                 <div key={i} className="h-32 rounded-xl bg-surface border border-border animate-pulse" />
               ))
-            : [
-                <AddCard
-                  key="add-card"
-                  label="Новый вкус"
-                  onClick={() => { setEditFlavor(null); setShowForm(true) }}
-                />,
-                ...flavors.map(f => (
-                  <FlavorCard
-                    key={f.id}
-                    flavor={f}
-                    onEdit={() => { setEditFlavor(f); setShowForm(true) }}
-                    onManageTags={() => setTagsFlavor(f)}
-                    onDelete={() => setDeleteFlavor(f)}
-                  />
-                )),
-              ]
+            : flavors.map(f => (
+                <FlavorCard
+                  key={f.id}
+                  flavor={f}
+                  onEdit={() => { setEditFlavor(f); setShowForm(true) }}
+                  onManageTags={() => setTagsFlavor(f)}
+                  onDelete={() => setDeleteFlavor(f)}
+                />
+              ))
           }
         </div>
 
