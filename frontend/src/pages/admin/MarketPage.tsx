@@ -184,42 +184,42 @@ function MarketFormDialog({ item, onClose }: { item: MarketArcView | null; onClo
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={onClose}>
-      <div className="bg-[#161616] border border-[#2a2a2a] rounded-xl p-6 w-full max-w-md shadow-2xl" onClick={e => e.stopPropagation()}>
+      <div className="bg-white border border-border rounded-xl p-6 w-full max-w-md shadow-2xl" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-5">
-          <h2 className="font-display text-base text-[#f5f5f5]">{item ? 'Редактировать SKU' : 'Новый SKU'}</h2>
-          <button onClick={onClose}><X className="h-4 w-4 text-[#888] hover:text-crimson" /></button>
+          <h2 className="font-display text-base text-ink">{item ? 'Редактировать SKU' : 'Новый SKU'}</h2>
+          <button onClick={onClose}><X className="h-4 w-4 text-ink-muted hover:text-red" /></button>
         </div>
         <div className="space-y-4">
           <div>
-            <label className="block text-xs font-body text-[#999] mb-1">Бренд *</label>
+            <label className="block text-xs font-body text-ink-muted mb-1">Бренд *</label>
             <BrandSelectorCompact value={brand} onChange={b => { setBrand(b); setFlavor(null) }} />
           </div>
           <div>
-            <label className="block text-xs font-body text-[#999] mb-1">Вкус *</label>
+            <label className="block text-xs font-body text-ink-muted mb-1">Вкус *</label>
             <FlavorSelectorCompact brandId={brand?.id} value={flavor} onChange={setFlavor} />
           </div>
           <div>
-            <label className="block text-xs font-body text-[#999] mb-1">Название SKU *</label>
+            <label className="block text-xs font-body text-ink-muted mb-1">Название SKU *</label>
             <input
-              className="w-full px-3 py-2 rounded-lg border border-[#2a2a2a] bg-[#0f0f0f] text-sm font-body text-[#f5f5f5] placeholder:text-[#666] outline-none focus:border-gold transition-colors"
+              className="w-full px-3 py-2 rounded-lg border border-border bg-elevated text-sm font-body text-ink placeholder:text-ink-muted outline-none focus:border-red transition-colors"
               value={form.name}
               onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
               placeholder="Например: Darkside Generis 100g"
             />
           </div>
           <div>
-            <label className="block text-xs font-body text-[#999] mb-1">Вес (г) *</label>
+            <label className="block text-xs font-body text-ink-muted mb-1">Вес (г) *</label>
             <input
               type="number" min={1}
-              className="w-full px-3 py-2 rounded-lg border border-[#2a2a2a] bg-[#0f0f0f] text-sm font-body text-[#f5f5f5] outline-none focus:border-gold transition-colors"
+              className="w-full px-3 py-2 rounded-lg border border-border bg-elevated text-sm font-body text-ink outline-none focus:border-red transition-colors"
               value={form.weightGrams}
               onChange={e => setForm(f => ({ ...f, weightGrams: Number(e.target.value) }))}
             />
           </div>
           <div>
-            <label className="block text-xs font-body text-[#999] mb-1">GTIN / Штрих-код</label>
+            <label className="block text-xs font-body text-ink-muted mb-1">GTIN / Штрих-код</label>
             <input
-              className="w-full px-3 py-2 rounded-lg border border-[#2a2a2a] bg-[#0f0f0f] text-sm font-body text-[#f5f5f5] placeholder:text-[#666] outline-none focus:border-gold transition-colors"
+              className="w-full px-3 py-2 rounded-lg border border-border bg-elevated text-sm font-body text-ink placeholder:text-ink-muted outline-none focus:border-red transition-colors"
               value={form.gtin}
               onChange={e => setForm(f => ({ ...f, gtin: e.target.value }))}
               placeholder="Необязательно"
@@ -257,7 +257,7 @@ function DeleteMarketDialog({ item, onClose }: { item: MarketArcView; onClose: (
   })
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={onClose}>
-      <div className="bg-[#161616] border border-[#2a2a2a] rounded-xl p-6 w-full max-w-sm shadow-2xl" onClick={e => e.stopPropagation()}>
+      <div className="bg-white border border-border rounded-xl p-6 w-full max-w-sm shadow-2xl" onClick={e => e.stopPropagation()}>
         <h2 className="font-display text-base text-ink mb-2">Удалить SKU?</h2>
         <p className="text-sm font-body text-ink-dim mb-5">«{item.name}» будет удалён без возможности восстановления.</p>
         <div className="flex justify-end gap-3">

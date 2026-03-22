@@ -80,11 +80,11 @@ function FlavorSelector({ value, onChange, brandId }: {
         <ChevronDown className="h-3.5 w-3.5 text-ink-muted flex-shrink-0" />
       </div>
       {open && (
-        <div className="absolute z-50 top-full mt-1 w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg shadow-lg">
+        <div className="absolute z-50 top-full mt-1 w-full bg-white border border-border rounded-lg shadow-lg">
           <div className="p-2 border-b border-border">
             <input
               autoFocus
-              className="w-full bg-transparent text-xs font-body text-ink placeholder-ink-muted outline-none"
+              className="w-full bg-transparent text-xs font-body text-ink placeholder:text-ink-muted outline-none"
               placeholder="Поиск вкуса..."
               value={query}
               onChange={e => setQuery(e.target.value)}
@@ -92,7 +92,7 @@ function FlavorSelector({ value, onChange, brandId }: {
           </div>
           <div className="max-h-48 overflow-y-auto">
             <button
-              className="w-full text-left px-3 py-2 text-sm font-body text-[#aaa] hover:bg-[#252525] transition-colors"
+              className="w-full text-left px-3 py-2 text-sm font-body text-ink-muted hover:bg-elevated transition-colors"
               onClick={() => { onChange('', ''); setSelectedName(''); setOpen(false) }}
             >
               Без вкуса
@@ -100,7 +100,7 @@ function FlavorSelector({ value, onChange, brandId }: {
             {flavors.map((f: TabacoFlavor) => (
               <button
                 key={f.id}
-                className="w-full text-left px-3 py-2 text-sm font-body text-[#f5f5f5] hover:bg-[#252525] transition-colors"
+                className="w-full text-left px-3 py-2 text-sm font-body text-ink hover:bg-elevated transition-colors"
                 onClick={() => { onChange(f.id, f.name); setSelectedName(f.name); setOpen(false) }}
               >
                 {f.name}
