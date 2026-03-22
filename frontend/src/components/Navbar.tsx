@@ -37,13 +37,13 @@ export function Navbar() {
           {/* Logo */}
           <Link to="/dashboard" className="flex items-center gap-2.5 group">
             <img src="/logo.png" className="w-7 h-7 object-contain" alt="" />
-            <span className="font-display text-base sm:text-lg font-bold text-red">
-              hookahPlace
+            <span className="font-display text-base sm:text-lg font-bold text-ink">
+              Hookah Place
             </span>
           </Link>
 
           {/* Desktop nav */}
-          <nav className="hidden md:flex items-center gap-1">
+          <nav className="hidden md:flex items-center gap-1 ml-10">
             {NAV_ITEMS.map(({ to, label, icon: Icon }) => (
               <NavLink
                 key={to}
@@ -94,8 +94,8 @@ export function Navbar() {
             style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
           >
             <div className="flex items-center justify-between px-5 h-[60px] border-b border-border">
-              <span className="font-display text-base font-bold text-red">
-                hookahPlace
+              <span className="font-display text-base font-bold text-ink">
+                Hookah Place
               </span>
               <button
                 onClick={() => setDrawerOpen(false)}
