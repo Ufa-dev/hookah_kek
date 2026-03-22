@@ -40,7 +40,7 @@ export default function LoginPage() {
             </h1>
           </div>
           <p className="text-xs text-ink-muted font-body mt-1.5 uppercase tracking-widest">
-            Управление брендами
+            Система управления складом
           </p>
         </div>
 
