@@ -10,8 +10,8 @@ import java.util.*
 class ListPacksQuery(
     private val repository: PackRepository,
 ) {
-    suspend fun execute(limit: Int, afterId: UUID?): Slice<FlavorPack> {
-        val packs = repository.findAll(limit, afterId)
+    suspend fun execute(limit: Int, afterId: UUID?, name: String?, flavorId: UUID?, brandId: UUID?): Slice<FlavorPack> {
+        val packs = repository.findAll(limit, afterId, name, flavorId, brandId)
         val nextToken = if (packs.size == limit) packs.last().id.id.toString() else null
         return Slice(items = packs, nextToken = nextToken)
     }

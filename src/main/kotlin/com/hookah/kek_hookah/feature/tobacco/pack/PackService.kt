@@ -27,8 +27,8 @@ class PackService(
     suspend fun findByTagId(tagId: PackTagId): FlavorPack? =
         repository.findByTagId(tagId)
 
-    suspend fun list(limit: Int, afterId: UUID?): Slice<FlavorPack> =
-        listPacksQuery.execute(limit, afterId)
+    suspend fun list(limit: Int, afterId: UUID?, name: String?, flavorId: UUID?, brandId: UUID?): Slice<FlavorPack> =
+        listPacksQuery.execute(limit, afterId, name, flavorId, brandId)
 
     suspend fun create(request: PackForCreate): FlavorPack =
         createPackCommand.execute(request)
