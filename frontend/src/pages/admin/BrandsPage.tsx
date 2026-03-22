@@ -121,7 +121,7 @@ function TagDropdown({
 
       {open && (
         <div
-          className="absolute left-0 right-0 mt-1 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg shadow-lg overflow-hidden"
+          className="absolute left-0 right-0 mt-1 bg-white border border-border rounded-lg shadow-lg overflow-hidden"
           style={{ zIndex: 9999, top: '100%' }}
         >
           {filtered.length === 0 ? (
@@ -139,7 +139,7 @@ function TagDropdown({
                       onAdd(tag); setFilter(''); setOpen(false)
                     }}
                     disabled={isAdding}
-                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-left text-[#f5f5f5] hover:bg-[#252525] hover:text-red transition-colors touch-target"
+                    className="w-full flex items-center gap-3 px-4 py-2.5 text-sm text-left text-ink hover:bg-elevated hover:text-red transition-colors touch-target"
                   >
                     <TagIcon className="h-3.5 w-3.5 text-red-light flex-shrink-0" />
                     {tag.name}
@@ -338,8 +338,8 @@ export default function BrandsPage() {
         <div className="flex flex-wrap items-end justify-between gap-4 mb-8">
           <div>
             <p className="text-xs text-ink-muted font-body uppercase tracking-widest mb-1">Администрирование</p>
-            <h1 className="font-display text-3xl sm:text-5xl text-ink">
-              Бренды <span className="text-red">табака</span>
+            <h1 className="font-display text-3xl sm:text-5xl font-bold text-red">
+              Бренды табака
             </h1>
             <div className="red-line w-20 mt-3" />
           </div>

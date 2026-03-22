@@ -35,7 +35,7 @@ export function TagSelector({ assigned, allTags, onAdd, onRemove, disabled }: Ta
             )}
           </span>
         ))}
-        {assigned.length === 0 && <p className="text-xs text-[#888]">Нет тегов</p>}
+        {assigned.length === 0 && <p className="text-xs text-ink-muted">Нет тегов</p>}
       </div>
       {!disabled && (
         <div ref={ref} className="relative">
@@ -46,11 +46,11 @@ export function TagSelector({ assigned, allTags, onAdd, onRemove, disabled }: Ta
             <Plus className="h-3 w-3" /> Добавить тег
           </button>
           {open && (
-            <div className="absolute z-50 top-full mt-1 w-56 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg shadow-lg">
-              <div className="p-2 border-b border-[#2a2a2a]">
+            <div className="absolute z-50 top-full mt-1 w-56 bg-white border border-border rounded-lg shadow-lg">
+              <div className="p-2 border-b border-border">
                 <input
                   autoFocus
-                  className="w-full bg-transparent text-xs font-body text-[#f5f5f5] placeholder-[#666] outline-none"
+                  className="w-full bg-transparent text-xs font-body text-ink placeholder:text-ink-muted outline-none"
                   placeholder="Поиск тега..."
                   value={query}
                   onChange={e => setQuery(e.target.value)}
@@ -58,11 +58,11 @@ export function TagSelector({ assigned, allTags, onAdd, onRemove, disabled }: Ta
               </div>
               <div className="max-h-40 overflow-y-auto">
                 {available.length === 0 ? (
-                  <p className="px-3 py-2 text-xs text-[#888]">Теги не найдены</p>
+                  <p className="px-3 py-2 text-xs text-ink-muted">Теги не найдены</p>
                 ) : available.map(t => (
                   <button
                     key={t.id}
-                    className="w-full text-left px-3 py-1.5 text-xs font-body text-[#f5f5f5] hover:bg-[#252525] transition-colors"
+                    className="w-full text-left px-3 py-1.5 text-xs font-body text-ink hover:bg-elevated transition-colors"
                     onClick={() => { onAdd(t); setOpen(false); setQuery('') }}
                   >
                     {t.name}

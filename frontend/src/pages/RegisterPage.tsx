@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/button'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import { toast } from 'sonner'
-import { Flame, Mail, Lock, UserRound } from 'lucide-react'
+import { Mail, Lock, UserRound } from 'lucide-react'
 
 export default function RegisterPage() {
   const { register, isLoading } = useAuth()
@@ -28,16 +28,14 @@ export default function RegisterPage() {
 
   return (
     <div
-      className="min-h-dvh flex flex-col items-center justify-center px-4 bg-deep dark:bg-[#0d0d0d]"
+      className="min-h-dvh flex flex-col items-center justify-center px-4 bg-deep"
       style={{ paddingTop: 'env(safe-area-inset-top, 0px)', paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
     >
       <div className="w-full max-w-sm page-enter">
         <div className="text-center mb-8">
-          <div className="inline-flex items-center justify-center w-14 h-14 rounded-xl bg-red-pale border border-red-glow shadow-red-sm mb-4">
-            <Flame className="h-6 w-6 text-red" />
-          </div>
-          <h1 className="font-display text-3xl sm:text-4xl text-ink">
-            hookah<span className="text-red">Place</span>
+          <img src="/logo.png" className="w-14 h-14 object-contain mb-4" alt="hookahPlace" />
+          <h1 className="font-display text-3xl sm:text-4xl font-bold text-red">
+            hookahPlace
           </h1>
           <p className="text-xs text-ink-muted font-body mt-1.5 uppercase tracking-widest">
             Управление брендами

@@ -30,7 +30,7 @@ function DialogContent({ className, children, ...props }: DialogPrimitive.Dialog
         className={cn(
           'fixed left-1/2 top-1/2 z-50 -translate-x-1/2 -translate-y-1/2',
           'w-[calc(100vw-2rem)] max-w-lg sm:w-full',
-          'bg-[#161616] border border-[#2a2a2a] rounded-xl',
+          'bg-white border border-border rounded-xl',
           'shadow-card-lg',
           'data-[state=open]:animate-in data-[state=closed]:animate-out',
           'data-[state=closed]:fade-out-0 data-[state=open]:fade-in-0',
@@ -46,7 +46,7 @@ function DialogContent({ className, children, ...props }: DialogPrimitive.Dialog
         </div>
         <div className="p-5 sm:p-6">{children}</div>
         <DialogPrimitive.Close
-          className="absolute right-4 top-4 p-1.5 rounded text-[#888] hover:text-[#f5f5f5] hover:bg-[#252525] transition-colors touch-target flex items-center justify-center"
+          className="absolute right-4 top-4 p-1.5 rounded text-ink-muted hover:text-ink hover:bg-elevated transition-colors touch-target flex items-center justify-center"
           aria-label="Закрыть"
         >
           <X className="h-4 w-4" />
@@ -63,7 +63,7 @@ function DialogHeader({ className, ...props }: HTMLAttributes<HTMLDivElement>) {
 function DialogTitle({ className, ...props }: DialogPrimitive.DialogTitleProps) {
   return (
     <DialogPrimitive.Title
-      className={cn('font-display text-xl sm:text-2xl text-[#f5f5f5]', className)}
+      className={cn('font-display text-xl sm:text-2xl text-ink', className)}
       {...props}
     />
   )
@@ -72,7 +72,7 @@ function DialogTitle({ className, ...props }: DialogPrimitive.DialogTitleProps) 
 function DialogDescription({ className, ...props }: DialogPrimitive.DialogDescriptionProps) {
   return (
     <DialogPrimitive.Description
-      className={cn('text-sm text-[#aaa] mt-1', className)}
+      className={cn('text-sm text-ink-muted mt-1', className)}
       {...props}
     />
   )

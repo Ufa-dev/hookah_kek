@@ -36,10 +36,10 @@ function FlavorTagsDialog({ flavor, allTags, onClose }: {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={onClose}>
-      <div className="bg-[#161616] border border-[#2a2a2a] rounded-xl p-6 w-full max-w-md shadow-2xl" onClick={e => e.stopPropagation()}>
+      <div className="bg-white border border-border rounded-xl p-6 w-full max-w-md shadow-2xl" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-4">
-          <h2 className="font-display text-base text-[#f5f5f5]">Теги: {flavor.name}</h2>
-          <button onClick={onClose}><X className="h-4 w-4 text-[#888] hover:text-crimson" /></button>
+          <h2 className="font-display text-base text-ink">Теги: {flavor.name}</h2>
+          <button onClick={onClose}><X className="h-4 w-4 text-ink-muted hover:text-red" /></button>
         </div>
         <TagSelector
           assigned={tags}
@@ -75,19 +75,19 @@ function BrandDropdown({ selected, allBrands, onSelect }: {
       <button
         type="button"
         onClick={() => setOpen(o => !o)}
-        className="w-full flex items-center justify-between px-3 py-2 rounded-lg border border-[#2a2a2a] bg-[#0f0f0f] text-sm font-body text-left hover:border-[#9B2335] transition-colors"
+        className="w-full flex items-center justify-between px-3 py-2 rounded-lg border border-border bg-elevated text-sm font-body text-left hover:border-red transition-colors"
       >
-        <span className={selected ? 'text-[#f5f5f5]' : 'text-[#666]'}>
+        <span className={selected ? 'text-ink' : 'text-ink-muted'}>
           {selected ? selected.name : 'Выберите бренд...'}
         </span>
-        <ChevronDown className="h-3.5 w-3.5 text-[#666] flex-shrink-0" />
+        <ChevronDown className="h-3.5 w-3.5 text-ink-muted flex-shrink-0" />
       </button>
       {open && (
-        <div className="absolute z-50 top-full mt-1 w-full bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg shadow-lg">
-          <div className="p-2 border-b border-[#2a2a2a]">
+        <div className="absolute z-50 top-full mt-1 w-full bg-white border border-border rounded-lg shadow-lg">
+          <div className="p-2 border-b border-border">
             <input
               autoFocus
-              className="w-full bg-transparent text-xs font-body text-[#f5f5f5] placeholder-[#666] outline-none"
+              className="w-full bg-transparent text-xs font-body text-ink placeholder:text-ink-muted outline-none"
               placeholder="Поиск..."
               value={query}
               onChange={e => setQuery(e.target.value)}
@@ -95,12 +95,12 @@ function BrandDropdown({ selected, allBrands, onSelect }: {
           </div>
           <div className="max-h-40 overflow-y-auto">
             {filtered.length === 0
-              ? <p className="px-3 py-2 text-xs text-[#888]">Не найдено</p>
+              ? <p className="px-3 py-2 text-xs text-ink-muted">Не найдено</p>
               : filtered.map(b => (
                 <button
                   key={b.id}
                   type="button"
-                  className="w-full text-left px-3 py-2 text-sm font-body text-[#f5f5f5] hover:bg-[#252525] transition-colors"
+                  className="w-full text-left px-3 py-2 text-sm font-body text-ink hover:bg-elevated transition-colors"
                   onClick={() => { onSelect(b); setOpen(false); setQuery('') }}
                 >
                   {b.name}
@@ -151,39 +151,39 @@ function FlavorFormDialog({ flavor, brand, allBrands, onClose }: {
 
   return (
     <div className="fixed inset-0 z-50 flex items-center justify-center bg-black/60 backdrop-blur-sm p-4" onClick={onClose}>
-      <div className="bg-[#161616] border border-[#2a2a2a] rounded-xl p-6 w-full max-w-md shadow-2xl" onClick={e => e.stopPropagation()}>
+      <div className="bg-white border border-border rounded-xl p-6 w-full max-w-md shadow-2xl" onClick={e => e.stopPropagation()}>
         <div className="flex items-center justify-between mb-5">
-          <h2 className="font-display text-base text-[#f5f5f5]">{flavor ? 'Редактировать вкус' : 'Новый вкус'}</h2>
-          <button onClick={onClose}><X className="h-4 w-4 text-[#888] hover:text-crimson" /></button>
+          <h2 className="font-display text-base text-ink">{flavor ? 'Редактировать вкус' : 'Новый вкус'}</h2>
+          <button onClick={onClose}><X className="h-4 w-4 text-ink-muted hover:text-red" /></button>
         </div>
         <div className="space-y-4">
           <div>
-            <label className="block text-xs font-body text-[#999] mb-1 font-medium">Бренд *</label>
+            <label className="block text-xs font-body text-ink-muted mb-1 font-medium">Бренд *</label>
             <BrandDropdown selected={formBrand} allBrands={allBrands} onSelect={setFormBrand} />
           </div>
           <div>
-            <label className="block text-xs font-body text-[#999] mb-1 font-medium">Название *</label>
+            <label className="block text-xs font-body text-ink-muted mb-1 font-medium">Название *</label>
             <input
-              className="w-full px-3 py-2 rounded-lg border border-[#2a2a2a] bg-[#0f0f0f] text-sm font-body text-[#f5f5f5] placeholder:text-[#666] outline-none focus:border-[#9B2335] transition-colors"
+              className="w-full px-3 py-2 rounded-lg border border-border bg-elevated text-sm font-body text-ink placeholder:text-ink-muted outline-none focus:border-red transition-colors"
               value={form.name}
               onChange={e => setForm(f => ({ ...f, name: e.target.value }))}
               placeholder="Название вкуса"
             />
           </div>
           <div>
-            <label className="block text-xs font-body text-[#999] mb-1 font-medium">Описание</label>
+            <label className="block text-xs font-body text-ink-muted mb-1 font-medium">Описание</label>
             <textarea
               rows={2}
-              className="w-full px-3 py-2 rounded-lg border border-[#2a2a2a] bg-[#0f0f0f] text-sm font-body text-[#f5f5f5] placeholder:text-[#666] outline-none focus:border-[#9B2335] transition-colors resize-none"
+              className="w-full px-3 py-2 rounded-lg border border-border bg-elevated text-sm font-body text-ink placeholder:text-ink-muted outline-none focus:border-red transition-colors resize-none"
               value={form.description}
               onChange={e => setForm(f => ({ ...f, description: e.target.value }))}
               placeholder="Описание вкуса"
             />
           </div>
           <div>
-            <label className="block text-xs font-body text-[#999] mb-1 font-medium">
+            <label className="block text-xs font-body text-ink-muted mb-1 font-medium">
               Крепость:{' '}
-              <span className="font-display text-base" style={{ color: '#D4A647' }}>
+              <span className="font-display text-base text-red">
                 {form.strength}
               </span>
               {' '}/10
@@ -194,7 +194,7 @@ function FlavorFormDialog({ flavor, brand, allBrands, onClose }: {
               value={form.strength}
               onChange={e => setForm(f => ({ ...f, strength: Number(e.target.value) }))}
             />
-            <div className="flex justify-between text-xs text-[#999] mt-1">
+            <div className="flex justify-between text-xs text-ink-muted mt-1">
               <span>Лёгкий</span><span>Крепкий</span>
             </div>
           </div>
@@ -360,11 +360,11 @@ export default function FlavorsPage() {
               <Plus className="h-3 w-3" /> Тег
             </button>
             {tagFilterOpen && (
-              <div className="absolute z-50 top-full mt-1 w-48 bg-[#1a1a1a] border border-[#2a2a2a] rounded-lg shadow-lg">
+              <div className="absolute z-50 top-full mt-1 w-48 bg-white border border-border rounded-lg shadow-lg">
                 <div className="max-h-40 overflow-y-auto">
                   {allTags.filter(t => !selectedTags.find(st => st.id === t.id)).map(t => (
                     <button key={t.id}
-                      className="w-full text-left px-3 py-1.5 text-xs text-[#f5f5f5] hover:bg-[#252525] transition-colors"
+                      className="w-full text-left px-3 py-1.5 text-xs text-ink hover:bg-elevated transition-colors"
                       onClick={() => setSelectedTags(prev => [...prev, t])}
                     >
                       {t.name}

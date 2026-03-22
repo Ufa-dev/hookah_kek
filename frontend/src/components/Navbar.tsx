@@ -1,9 +1,8 @@
 import { useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
-import { useTheme } from '@/contexts/ThemeContext'
 import { toast } from 'sonner'
-import { LayoutDashboard, User, Package, Tag, LogOut, Menu, X, Flame, Archive, ShoppingBag, Moon, Sun } from 'lucide-react'
+import { LayoutDashboard, User, Package, Tag, LogOut, Menu, X, Flame, Archive, ShoppingBag } from 'lucide-react'
 
 const NAV_ITEMS = [
   { to: '/dashboard',    label: 'Главная',    icon: LayoutDashboard },
@@ -19,7 +18,6 @@ export function Navbar() {
   const { logout } = useAuth()
   const navigate = useNavigate()
   const [drawerOpen, setDrawerOpen] = useState(false)
-  const { theme, toggleTheme } = useTheme()
 
   const handleLogout = async () => {
     setDrawerOpen(false)
@@ -32,17 +30,15 @@ export function Navbar() {
     <>
       {/* ── Fixed top bar ─────────────────────────────────────────────── */}
       <header
-        className="fixed top-0 left-0 right-0 z-40 h-[60px] bg-white dark:bg-[#111111] border-b border-border dark:border-[#2a2a2a] shadow-card"
+        className="fixed top-0 left-0 right-0 z-40 h-[60px] bg-white border-b border-border shadow-card"
         style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
       >
         <div className="max-w-5xl mx-auto px-4 sm:px-6 h-full flex items-center justify-between">
           {/* Logo */}
           <Link to="/dashboard" className="flex items-center gap-2.5 group">
-            <div className="w-7 h-7 rounded bg-red-pale border border-red-glow flex items-center justify-center flex-shrink-0">
-              <Flame className="h-3.5 w-3.5 text-red" />
-            </div>
-            <span className="font-display text-base sm:text-lg text-ink group-hover:text-red transition-colors">
-              hookah<span className="text-red">Place</span>
+            <img src="/logo.png" className="w-7 h-7 object-contain" alt="" />
+            <span className="font-display text-base sm:text-lg font-bold text-red">
+              hookahPlace
             </span>
           </Link>
 
@@ -65,15 +61,6 @@ export function Navbar() {
               </NavLink>
             ))}
           </nav>
-
-          {/* Desktop theme toggle */}
-          <button
-            onClick={toggleTheme}
-            className="hidden md:flex items-center justify-center w-9 h-9 rounded text-ink-dim dark:text-[#a3a3a3] hover:text-red hover:bg-red-pale dark:hover:bg-[#1f1f1f] border border-transparent transition-all duration-150 touch-target"
-            aria-label={theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
-          >
-            {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
-          </button>
 
           {/* Desktop logout */}
           <button
@@ -103,12 +90,12 @@ export function Navbar() {
             onClick={() => setDrawerOpen(false)}
           />
           <aside
-            className="fixed top-0 right-0 bottom-0 z-50 w-72 bg-white dark:bg-[#111111] border-l border-border dark:border-[#2a2a2a] shadow-card-lg flex flex-col animate-in slide-in-from-right duration-300"
+            className="fixed top-0 right-0 bottom-0 z-50 w-72 bg-white border-l border-border shadow-card-lg flex flex-col animate-in slide-in-from-right duration-300"
             style={{ paddingTop: 'env(safe-area-inset-top, 0px)' }}
           >
-            <div className="flex items-center justify-between px-5 h-[60px] border-b border-border dark:border-[#2a2a2a]">
-              <span className="font-display text-base text-ink">
-                hookah<span className="text-red">Place</span>
+            <div className="flex items-center justify-between px-5 h-[60px] border-b border-border">
+              <span className="font-display text-base font-bold text-red">
+                hookahPlace
               </span>
               <button
                 onClick={() => setDrawerOpen(false)}
@@ -139,16 +126,9 @@ export function Navbar() {
             </nav>
 
             <div
-              className="p-4 border-t border-border dark:border-[#2a2a2a]"
+              className="p-4 border-t border-border"
               style={{ paddingBottom: 'calc(1rem + env(safe-area-inset-bottom, 0px))' }}
             >
-              <button
-                onClick={toggleTheme}
-                className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-sm font-body font-medium text-ink-dim dark:text-[#a3a3a3] hover:bg-elevated dark:hover:bg-[#1f1f1f] transition-colors touch-target mb-1"
-              >
-                {theme === 'dark' ? <Sun className="h-4 w-4 flex-shrink-0" /> : <Moon className="h-4 w-4 flex-shrink-0" />}
-                {theme === 'dark' ? 'Светлая тема' : 'Тёмная тема'}
-              </button>
               <button
                 onClick={handleLogout}
                 className="flex items-center gap-3 w-full px-4 py-3 rounded-lg text-sm font-body font-medium text-red hover:bg-red-pale transition-colors touch-target"
@@ -163,7 +143,7 @@ export function Navbar() {
 
       {/* ── Bottom tab bar (mobile) ──────────────────────────────────── */}
       <nav
-        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white dark:bg-[#111111] border-t border-border dark:border-[#2a2a2a] shadow-[0_-1px_4px_#0000000A]"
+        className="md:hidden fixed bottom-0 left-0 right-0 z-40 bg-white border-t border-border shadow-[0_-1px_4px_#0000000A]"
         style={{ paddingBottom: 'env(safe-area-inset-bottom, 0px)' }}
       >
         <div className="flex items-stretch h-16">
