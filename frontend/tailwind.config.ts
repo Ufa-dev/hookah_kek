@@ -14,7 +14,7 @@ export default {
         gold: '#D4A647',
         // Background scale — white/light
         void:    '#FFFFFF',
-        deep:    '#F9FAFB',
+        deep:    '#EAEAED',
         surface: '#FFFFFF',
         elevated:'#F3F4F6',
         hover:   '#F0F0F0',

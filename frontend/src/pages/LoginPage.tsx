@@ -33,12 +33,14 @@ export default function LoginPage() {
       <div className="w-full max-w-sm page-enter">
         {/* Brand mark */}
         <div className="text-center mb-8">
-          <img src="/logo.png" className="w-14 h-14 object-contain mb-4" alt="hookahPlace" />
-          <h1 className="font-display text-3xl sm:text-4xl font-bold text-red">
-            hookahPlace
-          </h1>
+          <div className="flex items-center justify-center gap-3 mb-2">
+            <img src="/logo.png" className="w-10 h-10 object-contain" alt="Hookah Place" />
+            <h1 className="font-display text-3xl sm:text-4xl font-bold text-ink whitespace-nowrap">
+              Hookah Place
+            </h1>
+          </div>
           <p className="text-xs text-ink-muted font-body mt-1.5 uppercase tracking-widest">
-            Управление брендами
+            Система управления кальяной
           </p>
         </div>
 

@@ -18,7 +18,7 @@ export default function DashboardPage() {
           ) : (
             <h1 className="font-display text-3xl sm:text-5xl text-ink leading-tight">
               Привет,{' '}
-              <span className="text-red">{user?.name ?? 'гость'}</span>
+              <span className="text-ink">{user?.name ?? 'гость'}</span>
             </h1>
           )}
           <p className="text-sm text-ink-dim font-body mt-2">Панель управления hookahPlace Studio</p>

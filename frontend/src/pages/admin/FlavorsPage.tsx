@@ -1,12 +1,13 @@
 import { useState, useRef, useEffect } from 'react'
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { Plus, Search, X, Flame, ChevronDown } from 'lucide-react'
+import { Plus, Search, X, ChevronDown } from 'lucide-react'
 import { flavorApi, brandApi, tagApi } from '@/lib/api'
 import type { TabacoFlavor, TabacoBrand, Tag, FlavorCreateRequest, FlavorUpdateRequest } from '@/types'
 import { FlavorCard } from '@/components/cards'
 import { BrandSelector } from '@/components/ui/BrandSelector'
 import { AddButton } from '@/components/ui/AddButton'
+import { PageHeader } from '@/components/ui/PageHeader'
 import { TagSelector } from '@/components/ui/TagSelector'
 
 // ── FlavorTagsDialog ────────────────────────────────────────────────────────
@@ -313,19 +314,10 @@ export default function FlavorsPage() {
   return (
     <div className="page-root">
       <div className="page-container page-enter">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gold/10 border border-gold/30 flex items-center justify-center">
-              <Flame className="h-4 w-4 text-gold" />
-            </div>
-            <div>
-              <h1 className="font-display text-xl text-ink">Вкусы</h1>
-              <p className="text-xs font-body text-ink-muted">Управление вкусами табака</p>
-            </div>
-          </div>
-          <AddButton onClick={() => { setEditFlavor(null); setShowForm(true) }} />
-        </div>
+        <PageHeader
+          title="Вкусы"
+          onAdd={() => { setEditFlavor(null); setShowForm(true) }}
+        />
 
         {/* Brand Selector + Search */}
         <div className="flex flex-col sm:flex-row gap-3 mb-6">

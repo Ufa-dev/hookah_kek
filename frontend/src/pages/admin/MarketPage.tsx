@@ -1,7 +1,8 @@
 import { useState, useRef, useEffect } from 'react'
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { toast } from 'sonner'
-import { Plus, Search, X, ChevronDown, ShoppingBag, ChevronUp } from 'lucide-react'
+import { Search, X, ChevronDown, ShoppingBag, ChevronUp } from 'lucide-react'
+import { PageHeader } from '@/components/ui/PageHeader'
 import { marketApi, brandApi, flavorApi } from '@/lib/api'
 import { MarketCard } from '@/components/cards'
 import type { MarketArcView, MarketCreateRequest, MarketUpdateRequest, TabacoBrand, TabacoFlavor } from '@/types'
@@ -312,24 +313,10 @@ export default function MarketPage() {
   return (
     <div className="page-root">
       <div className="page-container page-enter">
-        {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center gap-3">
-            <div className="w-8 h-8 rounded-lg bg-gold/10 border border-gold/30 flex items-center justify-center">
-              <ShoppingBag className="h-4 w-4 text-gold" />
-            </div>
-            <div>
-              <h1 className="font-display text-xl text-ink">Склад</h1>
-              <p className="text-xs font-body text-ink-muted">SKU для закупки</p>
-            </div>
-          </div>
-          <button
-            onClick={() => setEditItem('new')}
-            className="flex items-center gap-2 px-3 py-2 rounded-lg bg-gold/10 border border-gold/30 text-gold text-sm font-body hover:bg-gold/20 transition-colors"
-          >
-            <Plus className="h-4 w-4" /> Добавить
-          </button>
-        </div>
+        <PageHeader
+          title="Склад"
+          onAdd={() => setEditItem('new')}
+        />
 
         {/* Filters */}
         <div className="bg-surface border border-border rounded-xl p-4 mb-6 space-y-3">
