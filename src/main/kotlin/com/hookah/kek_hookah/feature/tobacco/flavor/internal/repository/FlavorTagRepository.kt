@@ -19,7 +19,14 @@ class FlavorsTagRepository(
 ) {
 
     suspend fun delete(flavorTag: FlavorTag) {
-        template.delete(flavorTag.toEntity())
+        template.delete(FlavorTagEntity::class.java)
+            .matching(
+                Query.query(
+                    where("tabacoo_flavor_id").`is`(flavorTag.flavorId.id)
+                        .and("tag_id").`is`(flavorTag.tagId.id)
+                )
+            )
+            .all()
             .awaitSingle()
     }
 

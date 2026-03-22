@@ -14,13 +14,15 @@ import org.springframework.data.relational.core.mapping.Table
 import org.springframework.data.relational.core.query.Criteria
 import org.springframework.data.relational.core.query.Criteria.where
 import org.springframework.data.relational.core.query.Query
+import org.springframework.r2dbc.core.DatabaseClient
 import org.springframework.stereotype.Component
 import java.time.OffsetDateTime
 import java.util.*
 
 @Component
 class FlavorRepository(
-    private val template: R2dbcEntityTemplate
+    private val template: R2dbcEntityTemplate,
+    private val db: DatabaseClient,
 ) {
 
     suspend fun findById(id: FlavorId): TabacoFlavor? {
@@ -65,38 +67,52 @@ class FlavorRepository(
     }
 
     suspend fun findAllByName(name: String, cursor: FlavorId?, limit: Int): List<TabacoFlavor> {
-        var criteria: Criteria = where("LOWER(name)").like("%${name.lowercase()}%")
-        if (cursor != null) {
-            criteria = criteria.and("id").greaterThan(cursor.id)
+        val sql = buildString {
+            append("SELECT * FROM tabacoo_flavor WHERE LOWER(name) LIKE :name")
+            if (cursor != null) append(" AND id > :cursor")
+            append(" ORDER BY id ASC LIMIT :limit")
         }
-        val query = Query.query(criteria)
-            .sort(Sort.by(Sort.Order.asc("id")))
-            .limit(limit)
-
-        return template.select(TabacoFlavorEntity::class.java)
-            .matching(query)
-            .all()
-            .collectList()
-            .awaitSingle()
-            .map { it.toFlavor() }
+        var spec = db.sql(sql)
+            .bind("name", "%${name.lowercase()}%")
+            .bind("limit", limit)
+        if (cursor != null) spec = spec.bind("cursor", cursor.id)
+        return spec.map { row, meta ->
+            TabacoFlavorEntity(
+                id = row.get("id", UUID::class.java)!!,
+                brandId = row.get("brand_id", UUID::class.java)!!,
+                name = row.get("name", String::class.java)!!,
+                description = row.get("description", String::class.java),
+                strength = row.get("strength", java.lang.Short::class.java)?.toShort(),
+                createdAt = row.get("created_at", OffsetDateTime::class.java)!!,
+                updatedAt = row.get("updated_at", OffsetDateTime::class.java)!!,
+                updatedBy = row.get("updated_by", UUID::class.java)!!,
+            )
+        }.all().collectList().awaitSingle().map { it.toFlavor() }
     }
 
     suspend fun findByBrandIdAndNameContaining(brandId: BrandId, name: String, cursor: FlavorId?, limit: Int): List<TabacoFlavor> {
-        var criteria: Criteria = where("brand_id").`is`(brandId.id)
-            .and("LOWER(name)").like("%${name.lowercase()}%")
-        if (cursor != null) {
-            criteria = criteria.and("id").greaterThan(cursor.id)
+        val sql = buildString {
+            append("SELECT * FROM tabacoo_flavor WHERE brand_id = :brandId AND LOWER(name) LIKE :name")
+            if (cursor != null) append(" AND id > :cursor")
+            append(" ORDER BY id ASC LIMIT :limit")
         }
-        val query = Query.query(criteria)
-            .sort(Sort.by(Sort.Order.asc("id")))
-            .limit(limit)
-
-        return template.select(TabacoFlavorEntity::class.java)
-            .matching(query)
-            .all()
-            .collectList()
-            .awaitSingle()
-            .map { it.toFlavor() }
+        var spec = db.sql(sql)
+            .bind("brandId", brandId.id)
+            .bind("name", "%${name.lowercase()}%")
+            .bind("limit", limit)
+        if (cursor != null) spec = spec.bind("cursor", cursor.id)
+        return spec.map { row, meta ->
+            TabacoFlavorEntity(
+                id = row.get("id", UUID::class.java)!!,
+                brandId = row.get("brand_id", UUID::class.java)!!,
+                name = row.get("name", String::class.java)!!,
+                description = row.get("description", String::class.java),
+                strength = row.get("strength", java.lang.Short::class.java)?.toShort(),
+                createdAt = row.get("created_at", OffsetDateTime::class.java)!!,
+                updatedAt = row.get("updated_at", OffsetDateTime::class.java)!!,
+                updatedBy = row.get("updated_by", UUID::class.java)!!,
+            )
+        }.all().collectList().awaitSingle().map { it.toFlavor() }
     }
 
     suspend fun findByBrandAndName(brandId: BrandId, name: String): TabacoFlavor? {
