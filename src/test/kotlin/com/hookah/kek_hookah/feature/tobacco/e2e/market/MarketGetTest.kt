@@ -71,6 +71,49 @@ class MarketGetTest {
     }
 
     @Test
+    fun `should filter markets by flavor name`() = runTest {
+        val client = unauthorizedClient.randomUser()
+        val market = client.createMarketAndGet()
+
+        val markets = client.listMarkets(flavorName = market.flavorName)
+            .expectStatus().isOk
+            .expectBody<List<MarketArcView>>()
+            .returnResult().responseBody!!
+
+        assertTrue(markets.isNotEmpty())
+        assertTrue(markets.all { it.flavorName == market.flavorName })
+    }
+
+    @Test
+    fun `should filter markets by name contains`() = runTest {
+        val client = unauthorizedClient.randomUser()
+        val uniquePrefix = "uniq-${UUID.randomUUID().toString().take(8)}"
+        val market = client.createMarketAndGet(name = "$uniquePrefix-market")
+
+        val markets = client.listMarkets(name = uniquePrefix)
+            .expectStatus().isOk
+            .expectBody<List<MarketArcView>>()
+            .returnResult().responseBody!!
+
+        assertTrue(markets.any { it.id == market.id })
+        assertTrue(markets.all { it.name.contains(uniquePrefix) })
+    }
+
+    @Test
+    fun `should filter markets by weight range`() = runTest {
+        val client = unauthorizedClient.randomUser()
+        val market = client.createMarketAndGet(weightGrams = 250)
+
+        val markets = client.listMarkets(weightMin = 200, weightMax = 300)
+            .expectStatus().isOk
+            .expectBody<List<MarketArcView>>()
+            .returnResult().responseBody!!
+
+        assertTrue(markets.any { it.id == market.id })
+        assertTrue(markets.all { it.weightGrams in 200..300 })
+    }
+
+    @Test
     fun `should return 401 when getting market without authentication`() = runTest {
         unauthorizedClient.get()
             .uri("$MARKET_URL/${UUID.randomUUID()}")

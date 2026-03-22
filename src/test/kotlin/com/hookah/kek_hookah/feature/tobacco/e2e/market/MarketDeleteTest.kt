@@ -27,6 +27,13 @@ class MarketDeleteTest {
     }
 
     @Test
+    fun `should return 404 when deleting non-existent market id`() = runTest {
+        val client = unauthorizedClient.randomUser()
+        client.deleteMarket(UUID.randomUUID())
+            .expectStatus().isNotFound
+    }
+
+    @Test
     fun `should return 401 when deleting market without authentication`() = runTest {
         unauthorizedClient.delete()
             .uri("$MARKET_URL/${UUID.randomUUID()}")
