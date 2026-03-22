@@ -93,4 +93,37 @@ class BrandGetTest {
             .exchange()
             .expectStatus().isUnauthorized
     }
+
+    @Test
+    fun `should list brands filtered by tagId`() = runTest {
+        val client = unauthorizedClient.randomUser()
+        val tag = client.createTagAndGet("filter-tag-${UUID.randomUUID().toString().take(8)}")
+        val tagged = client.createBrandAndGet()
+        val untagged = client.createBrandAndGet()
+        client.addTagToBrand(brandId = tagged.id, tagId = tag.id).expectStatus().isOk
+
+        val slice = client.listBrandsFiltered(tagIds = listOf(tag.id.id))
+            .expectStatus().isOk
+            .expectBody<Slice<TabacoBrand>>()
+            .returnResult().responseBody!!
+
+        assertAll(
+            { assertTrue(slice.items.any { it.id == tagged.id }, "tagged brand present") },
+            { assertTrue(slice.items.none { it.id == untagged.id }, "untagged brand absent") },
+        )
+    }
+
+    @Test
+    fun `should list brands filtered by name`() = runTest {
+        val client = unauthorizedClient.randomUser()
+        val uniqueName = "unique-name-${UUID.randomUUID().toString().take(8)}"
+        val matched = client.createBrandAndGet(name = uniqueName)
+
+        val slice = client.listBrandsFiltered(name = uniqueName)
+            .expectStatus().isOk
+            .expectBody<Slice<TabacoBrand>>()
+            .returnResult().responseBody!!
+
+        assertTrue(slice.items.any { it.id == matched.id })
+    }
 }

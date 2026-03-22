@@ -15,12 +15,24 @@ class ListBrandsQuery(
     private val brandsTagRepository: BrandsTagRepository,
     private val tagService: TagService,
 ) {
-    suspend fun execute(limit: Int, afterId: UUID?): Slice<TabacoBrand> {
-        val brands = brandRepository.findAll(limit, afterId)
+    suspend fun execute(
+        limit: Int,
+        afterId: UUID?,
+        tagIds: List<TagId>? = null,
+        name: String? = null,
+    ): Slice<TabacoBrand> {
+        val allowedBrandIds: List<UUID>? = if (!tagIds.isNullOrEmpty()) {
+            val ids = brandsTagRepository.findAllBrandIdsByTagIds(tagIds).map { it.id }
+            // No brands have these tags — return empty result immediately
+            if (ids.isEmpty()) return Slice(items = emptyList(), nextToken = null)
+            ids
+        } else null
+
+        val brands = brandRepository.findAll(limit, afterId, allowedBrandIds, name)
 
         val enriched = brands.map { brand ->
-            val tagIds = brandsTagRepository.findAllByBrandId(brand.id)
-            val tags = tagIds.mapNotNull { tagUuid -> tagService.findById(TagId(tagUuid)) }
+            val tagUuids = brandsTagRepository.findAllByBrandId(brand.id)
+            val tags = tagUuids.mapNotNull { tagUuid -> tagService.findById(TagId(tagUuid)) }
             brand.copy(tags = tags)
         }
 

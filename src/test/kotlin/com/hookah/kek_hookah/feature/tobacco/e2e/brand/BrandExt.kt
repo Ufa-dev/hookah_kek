@@ -69,3 +69,18 @@ fun AuthorizedWebTestClient.removeTagFromBrand(brandId: BrandId, tagId: TagId): 
 
 fun AuthorizedWebTestClient.deleteBrand(id: UUID): WebTestClient.ResponseSpec =
     delete().uri("$BRAND_URL/$id").exchange()
+
+fun AuthorizedWebTestClient.listBrandsFiltered(
+    tagIds: List<UUID> = emptyList(),
+    name: String? = null,
+    limit: Int = 20,
+    after: UUID? = null,
+): WebTestClient.ResponseSpec {
+    val params = buildList {
+        add("limit=$limit")
+        after?.let { add("after=$it") }
+        name?.let { add("name=$it") }
+        tagIds.forEach { add("tagIds=$it") }
+    }.joinToString("&")
+    return get().uri("$BRAND_URL?$params").exchange()
+}

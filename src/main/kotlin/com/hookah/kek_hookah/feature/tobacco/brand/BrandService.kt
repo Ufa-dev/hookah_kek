@@ -70,8 +70,13 @@ class BrandService(
         return updateTagCommand.execute(request)
     }
 
-    suspend fun list(limit: Int, afterId: UUID?): Slice<TabacoBrand> {
-        return listBrandsQuery.execute(limit, afterId)
+    suspend fun list(
+        limit: Int,
+        afterId: UUID?,
+        tagIds: List<TagId>? = null,
+        name: String? = null,
+    ): Slice<TabacoBrand> {
+        return listBrandsQuery.execute(limit, afterId, tagIds, name)
     }
 
     suspend fun delete(id: BrandId) {

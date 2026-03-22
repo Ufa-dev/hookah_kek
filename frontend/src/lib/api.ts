@@ -137,7 +137,8 @@ export const brandApi = {
   findById:   (id: string)                                      => http.get<TabacoBrand>(`/brand/id/${id}`).then((r) => r.data),
   findByName: (name: string)                                    => http.get<TabacoBrand[]>(`/brand/name/${encodeURIComponent(name)}`).then((r) => r.data),
   findByTags: (tagIds: string[])                                => http.get<TabacoBrand[]>('/brand/brands', { params: { tags: tagIds.join(',') } }).then((r) => r.data),
-  list:       (params: CursorParams = {})                       => http.get<Slice<TabacoBrand>>('/brand', { params }).then((r) => r.data),
+  list: (params: CursorParams & { name?: string; tagIds?: string[] } = {}) =>
+    http.get<Slice<TabacoBrand>>('/brand', { params }).then((r) => r.data),
   addTag:     (body: UpdateTagForBrandRequest)                  => http.patch<TabacoBrand>('/brand/add-tag', body).then((r) => r.data),
   removeTag:  (body: UpdateTagForBrandRequest)                  => http.patch<TabacoBrand>('/brand/remove-tag', body).then((r) => r.data),
   delete:     (id: string)                                      => http.delete(`/brand/${id}`),

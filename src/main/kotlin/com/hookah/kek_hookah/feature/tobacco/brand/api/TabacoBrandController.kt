@@ -110,9 +110,15 @@ class TabacoBrandController(
     suspend fun list(
         @RequestParam(defaultValue = "20") limit: Int,
         @RequestParam(required = false) after: UUID?,
+        @RequestParam(required = false) tagIds: List<UUID>?,
+        @RequestParam(required = false) name: String?,
     ): ResponseEntity<Slice<TabacoBrand>> {
-        return service.list(limit.coerceIn(1, 100), after)
-            .let { ResponseEntity.ok(it) }
+        return service.list(
+            limit.coerceIn(1, 100),
+            after,
+            tagIds?.map { TagId(it) },
+            name,
+        ).let { ResponseEntity.ok(it) }
     }
 
     @DeleteMapping("/{id}")
