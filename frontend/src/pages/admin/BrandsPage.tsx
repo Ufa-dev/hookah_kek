@@ -1,5 +1,5 @@
 import { useState, useEffect, useRef, type FormEvent } from 'react'
-import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { brandApi, tagApi } from '@/lib/api'
 import { BrandCard } from '@/components/cards'
 import type { TabacoBrand, Tag } from '@/types'
@@ -298,38 +298,57 @@ export default function BrandsPage() {
   const [editBrand, setEditBrand]     = useState<TabacoBrand | undefined>()
   const [tagsBrand, setTagsBrand]     = useState<TabacoBrand | undefined>()
   const [deleteBrand, setDeleteBrand] = useState<TabacoBrand | undefined>()
-  const sentinelRef               = useRef<HTMLDivElement>(null)
+  const sentinelRef                   = useRef<HTMLDivElement>(null)
 
-  const { data: searchResults, isLoading: searchLoading } = useQuery({
-    queryKey: ['brands-search', search],
-    queryFn:  () => brandApi.findByName(search.trim()),
-    enabled:  search.trim().length >= 2,
-    placeholderData: [],
-  })
-
-  const { data: infiniteData, isLoading: browseLoading, isFetchingNextPage, fetchNextPage, hasNextPage } = useInfiniteQuery({
-    queryKey: ['brands-infinite'],
-    queryFn:  ({ pageParam }) => brandApi.list({ limit: PAGE_LIMIT, after: pageParam || undefined }),
-    initialPageParam: '',
-    getNextPageParam: (last) => last.nextToken || undefined,
-    enabled:  search.trim().length < 2,
-  })
-
-  const browseBrands  = infiniteData?.pages.flatMap((p) => p.items) ?? []
-  const isSearchMode  = search.trim().length >= 2
-  const brands        = isSearchMode ? (searchResults ?? []) : browseBrands
-  const isLoading     = isSearchMode ? searchLoading : browseLoading
-  const totalCount    = isSearchMode ? brands.length : (infiniteData?.pages.reduce((s, p) => s + p.items.length, 0) ?? 0)
+  const [selectedTags, setSelectedTags]   = useState<Tag[]>([])
+  const [tagFilterOpen, setTagFilterOpen] = useState(false)
+  const tagFilterRef = useRef<HTMLDivElement>(null)
 
   useEffect(() => {
-    if (!sentinelRef.current || isSearchMode) return
+    const h = (e: MouseEvent) => {
+      if (tagFilterRef.current && !tagFilterRef.current.contains(e.target as Node)) setTagFilterOpen(false)
+    }
+    document.addEventListener('mousedown', h)
+    return () => document.removeEventListener('mousedown', h)
+  }, [])
+
+  const { data: tagsData } = useInfiniteQuery({
+    queryKey: ['all-tags'],
+    queryFn: async ({ pageParam }) => {
+      const res = await tagApi.list({ limit: 100, after: pageParam || undefined })
+      return { data: res.items, nextCursor: res.nextToken || '' }
+    },
+    getNextPageParam: (last) => last.nextCursor || undefined,
+    initialPageParam: '',
+  })
+  const allTags: Tag[] = tagsData?.pages.flatMap(p => p.data) ?? []
+
+  const tagIds = selectedTags.map(t => t.id)
+
+  const { data: infiniteData, isLoading, isFetchingNextPage, fetchNextPage, hasNextPage } = useInfiniteQuery({
+    queryKey: ['brands-infinite', search, tagIds],
+    queryFn: ({ pageParam }) => brandApi.list({
+      limit: PAGE_LIMIT,
+      after: pageParam || undefined,
+      name: search.trim() || undefined,
+      tagIds: tagIds.length ? tagIds : undefined,
+    }),
+    initialPageParam: '',
+    getNextPageParam: (last) => last.nextToken || undefined,
+  })
+
+  const brands     = infiniteData?.pages.flatMap((p) => p.items) ?? []
+  const totalCount = brands.length
+
+  useEffect(() => {
+    if (!sentinelRef.current) return
     const observer = new IntersectionObserver(
       (entries) => { if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) fetchNextPage() },
       { threshold: 0.1 },
     )
     observer.observe(sentinelRef.current)
     return () => observer.disconnect()
-  }, [fetchNextPage, hasNextPage, isFetchingNextPage, isSearchMode])
+  }, [fetchNextPage, hasNextPage, isFetchingNextPage])
 
   return (
     <div className="page-root">
@@ -352,6 +371,41 @@ export default function BrandsPage() {
           <Input placeholder="Поиск по названию…" value={search} onChange={(e) => setSearch(e.target.value)} className="pl-10" />
         </div>
 
+        {/* Tag filter */}
+        <div className="flex flex-wrap gap-2 items-center mb-5">
+          <span className="text-xs text-ink-muted font-body">Теги:</span>
+          {selectedTags.map(t => (
+            <span key={t.id} className="inline-flex items-center gap-1 px-2 py-1 rounded-full bg-gold/10 border border-gold/30 text-xs text-gold">
+              {t.name}
+              <button onClick={() => setSelectedTags(prev => prev.filter(st => st.id !== t.id))}>
+                <X className="h-2.5 w-2.5 hover:text-red" />
+              </button>
+            </span>
+          ))}
+          <div ref={tagFilterRef} className="relative">
+            <button
+              onClick={() => setTagFilterOpen(o => !o)}
+              className="flex items-center gap-1.5 px-2.5 py-1.5 rounded-lg border border-dashed border-border text-xs text-ink-dim hover:border-gold hover:text-gold transition-colors"
+            >
+              <Plus className="h-3 w-3" /> Тег
+            </button>
+            {tagFilterOpen && (
+              <div className="absolute z-50 top-full mt-1 w-48 bg-white border border-border rounded-lg shadow-lg">
+                <div className="max-h-40 overflow-y-auto">
+                  {allTags.filter(t => !selectedTags.find(st => st.id === t.id)).map(t => (
+                    <button key={t.id}
+                      className="w-full text-left px-3 py-1.5 text-xs text-ink hover:bg-elevated transition-colors"
+                      onClick={() => { setSelectedTags(prev => [...prev, t]); setTagFilterOpen(false) }}
+                    >
+                      {t.name}
+                    </button>
+                  ))}
+                </div>
+              </div>
+            )}
+          </div>
+        </div>
+
         {/* Grid */}
         {isLoading ? <BrandsSkeleton /> : brands.length === 0 ? (
           <EmptyState onCreateClick={() => { setEditBrand(undefined); setFormOpen(true) }} />
@@ -369,22 +423,16 @@ export default function BrandsPage() {
         )}
 
         {/* Scroll sentinel */}
-        {!isSearchMode && (
-          <div ref={sentinelRef} className="flex justify-center py-6">
-            {isFetchingNextPage && (
-              <div className="flex items-center gap-2 text-sm text-ink-muted">
-                <Loader2 className="h-4 w-4 animate-spin text-red" /> Загрузка…
-              </div>
-            )}
-            {!hasNextPage && totalCount > 0 && (
-              <p className="text-xs text-ink-muted font-body">Все {totalCount} брендов загружены</p>
-            )}
-          </div>
-        )}
-
-        {isSearchMode && !searchLoading && brands.length > 0 && (
-          <p className="text-xs text-ink-muted mt-4 text-center font-body">{brands.length} найдено</p>
-        )}
+        <div ref={sentinelRef} className="flex justify-center py-6">
+          {isFetchingNextPage && (
+            <div className="flex items-center gap-2 text-sm text-ink-muted">
+              <Loader2 className="h-4 w-4 animate-spin text-red" /> Загрузка…
+            </div>
+          )}
+          {!hasNextPage && totalCount > 0 && (
+            <p className="text-xs text-ink-muted font-body">Все {totalCount} брендов загружены</p>
+          )}
+        </div>
       </div>
 
       <BrandFormDialog brand={editBrand} isOpen={formOpen} onClose={() => setFormOpen(false)} />
