@@ -115,6 +115,32 @@ class FlavorRepository(
         }.all().collectList().awaitSingle().map { it.toFlavor() }
     }
 
+    suspend fun search(
+        brandId: UUID?,
+        name: String?,
+        idFilter: List<UUID>?,
+        cursor: FlavorId?,
+        limit: Int
+    ): List<TabacoFlavor> {
+        var criteria: Criteria = where("id").isNotNull
+
+        if (brandId != null) criteria = criteria.and("brand_id").`is`(brandId)
+        if (!name.isNullOrBlank()) criteria = criteria.and("name").like("%$name%")
+        if (idFilter != null) criteria = criteria.and("id").`in`(idFilter)
+        if (cursor != null) criteria = criteria.and("id").greaterThan(cursor.id)
+
+        val query = Query.query(criteria)
+            .sort(Sort.by(Sort.Order.asc("id")))
+            .limit(limit)
+
+        return template.select(TabacoFlavorEntity::class.java)
+            .matching(query)
+            .all()
+            .collectList()
+            .awaitSingle()
+            .map { it.toFlavor() }
+    }
+
     suspend fun findByBrandAndName(brandId: BrandId, name: String): TabacoFlavor? {
         return template.select(TabacoFlavorEntity::class.java)
             .matching(
