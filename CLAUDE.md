@@ -43,13 +43,18 @@ git commit -m "type(scope): description"
 
 ## Git Workflow
 
-1. Создай ветку от `master`: `git checkout master && git checkout -b feature/<feature-name>`
-2. Реализуй задачу, закоммить изменения в эту ветку.
-3. Запушь ветку: `git push origin feature/<feature-name>`
-4. Сделай checkout на этой ветке локально — пользователь сам создаст PR в `master`.
+**Всегда создавай ветку ДО начала реализации**, именуй по активности:
+
+```bash
+git checkout master
+git checkout -b feature/<activity-name>   # например: feature/market-e2e-coverage
+```
+
+Затем реализуй, прогони тесты, и только после этого коммить в эту ветку.
 
 **Правила:**
-- Ветки всегда от `master`, именуются `feature/<feature-name>`.
+- Ветки всегда от `master`, именуются `feature/<activity-name>`.
+- Коммитить только локально — **не пушить** без явной просьбы пользователя.
 - PR в `master` создаёт пользователь самостоятельно.
 - Не использовать worktrees.
 
