@@ -35,7 +35,7 @@ export default function ProfilePage() {
       <div className="page-container page-enter">
         <div className="mb-8">
           <p className="text-xs text-ink-muted font-body uppercase tracking-widest mb-2">Аккаунт</p>
-          <h1 className="font-display text-3xl sm:text-5xl font-bold text-red">
+          <h1 className="font-display text-3xl sm:text-5xl font-bold text-ink">
             Мой профиль
           </h1>
           <div className="red-line w-20 mt-4" />
