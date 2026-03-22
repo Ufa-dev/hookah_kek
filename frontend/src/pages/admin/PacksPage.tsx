@@ -1,11 +1,12 @@
 import { useState, useRef, useEffect, type FormEvent } from 'react'
 import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { packApi, flavorApi } from '@/lib/api'
-import { PackCard, AddCard } from '@/components/cards'
+import { PackCard } from '@/components/cards'
 import { WeightBar } from '@/components/cards/WeightBar'
 import type { FlavorPack, TabacoFlavor, TabacoBrand } from '@/types'
 import { BrandSelector } from '@/components/ui/BrandSelector'
 import { Button } from '@/components/ui/button'
+import { AddButton } from '@/components/ui/AddButton'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
 import {
@@ -366,9 +367,7 @@ export default function PacksPage() {
               <p className="text-xs text-ink-muted">Учёт табака по весу</p>
             </div>
           </div>
-          <Button onClick={openCreate} size="sm" className="gap-1.5">
-            <Plus className="h-4 w-4" /> Добавить
-          </Button>
+          <AddButton onClick={openCreate} />
         </div>
 
         {/* Filters */}
@@ -414,10 +413,6 @@ export default function PacksPage() {
         ) : (
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
-              <AddCard
-                label="Новый контейнер"
-                onClick={openCreate}
-              />
               {packs.map((pack) => (
                 <PackCard
                   key={pack.id}

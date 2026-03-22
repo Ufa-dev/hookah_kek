@@ -11,7 +11,7 @@ import {
 } from '@/components/ui/dialog'
 import { toast } from 'sonner'
 import { Plus, Pencil, Tag as TagIcon, Search, Hash, Check, X, Loader2 } from 'lucide-react'
-import { AddCard } from '@/components/cards'
+import { AddButton } from '@/components/ui/AddButton'
 
 const PAGE_LIMIT = 30
 
@@ -238,9 +238,7 @@ export default function TagsPage() {
             </h1>
             <div className="red-line w-20 mt-3" />
           </div>
-          <Button onClick={() => setCreateOpen(true)}>
-            <Plus className="h-4 w-4" /> Новый тег
-          </Button>
+          <AddButton label="Новый тег" onClick={() => setCreateOpen(true)} />
         </div>
 
         {/* Search bar */}
@@ -300,10 +298,6 @@ export default function TagsPage() {
           <EmptyTags onCreateClick={() => setCreateOpen(true)} />
         ) : (
           <div className="grid grid-cols-1 sm:grid-cols-2 gap-2 sm:gap-3">
-            <AddCard
-              label="Новый тег"
-              onClick={() => setCreateOpen(true)}
-            />
             {filtered.map((tag) => (
               <TagRow key={String(tag.id)} tag={tag} />
             ))}

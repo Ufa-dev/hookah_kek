@@ -309,6 +309,23 @@ export const brandApi = {
 
 ---
 
+## AddButton
+
+Reusable "add" action button for page headers. Always use this instead of inline `<Button>` with a Plus icon.
+
+```tsx
+import { AddButton } from '@/components/ui/AddButton'
+
+<AddButton label="Новый бренд" onClick={openCreate} />
+// label defaults to "Добавить" if omitted
+```
+
+- Lives in `src/components/ui/AddButton.tsx`
+- Uses `<Button variant="primary">` + `<Plus>` icon internally
+- **Never** style add-buttons inline or use custom gold/colored variants for this action
+
+---
+
 ## Page layout boilerplate
 
 ```tsx
