@@ -37,7 +37,7 @@ export function Navbar() {
           {/* Logo */}
           <Link to="/dashboard" className="flex items-center gap-2.5 group">
             <img src="/logo.png" className="w-7 h-7 object-contain" alt="" />
-            <span className="font-display text-base sm:text-lg font-bold text-ink">
+            <span className="font-display text-base sm:text-lg font-bold text-ink whitespace-nowrap">
               Hookah Place
             </span>
           </Link>
