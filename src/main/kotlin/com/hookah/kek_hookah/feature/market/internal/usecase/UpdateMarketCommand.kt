@@ -18,7 +18,7 @@ class UpdateMarketCommand(
 ) {
     suspend fun execute(request: MarketForUpdate): MarketArcView {
         val existing = repository.findById(request.id)
-            ?: throw IllegalArgumentException("Market arc '${request.id}' not found")
+            ?: throw NoSuchElementException("Market arc '${request.id}' not found")
 
         require(request.name.isNotBlank()) { "name must not be blank" }
         require(request.weightGrams > 0) { "weightGrams must be > 0" }

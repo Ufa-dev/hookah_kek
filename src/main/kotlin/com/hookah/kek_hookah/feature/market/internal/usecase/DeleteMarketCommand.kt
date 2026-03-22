@@ -17,7 +17,7 @@ class DeleteMarketCommand(
 ) {
     suspend fun execute(id: MarketArcId) {
         val arc = repository.findById(id)
-            ?: throw IllegalArgumentException("Market arc '$id' not found")
+            ?: throw NoSuchElementException("Market arc '$id' not found")
         tx.executeAndAwait { repository.delete(id) }
         eventPublisher + MarketArcDeletedEvent(arc = arc, publishedAt = OffsetDateTime.now())
     }

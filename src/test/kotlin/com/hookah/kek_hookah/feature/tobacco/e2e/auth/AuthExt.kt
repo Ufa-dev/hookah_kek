@@ -7,6 +7,7 @@ import com.hookah.kek_hookah.feature.auth.api.dto.RegisterRequest
 import com.hookah.kek_hookah.feature.auth.api.dto.TokenToRefresh
 import org.springframework.http.MediaType
 import org.springframework.test.web.reactive.server.WebTestClient
+import org.springframework.test.web.reactive.server.expectBody
 import java.util.UUID
 
 const val AUTH_URL = "/api/v1/auth"

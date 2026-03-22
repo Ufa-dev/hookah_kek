@@ -44,13 +44,17 @@ fun AuthorizedWebTestClient.listMarkets(
     limit: Int = 20,
     brandName: String? = null,
     flavorName: String? = null,
-    name: String? = null
+    name: String? = null,
+    weightMin: Int? = null,
+    weightMax: Int? = null
 ): WebTestClient.ResponseSpec {
     val params = buildList {
         add("limit=$limit")
         if (brandName != null) add("brandName=$brandName")
         if (flavorName != null) add("flavorName=$flavorName")
         if (name != null) add("name=$name")
+        if (weightMin != null) add("weightMin=$weightMin")
+        if (weightMax != null) add("weightMax=$weightMax")
     }.joinToString("&")
     return get().uri("$MARKET_URL?$params").exchange()
 }

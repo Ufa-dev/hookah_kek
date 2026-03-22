@@ -55,6 +55,20 @@ class MarketUpdateTest {
     }
 
     @Test
+    fun `should return 404 when updating non-existent market id`() = runTest {
+        val client = unauthorizedClient.randomUser()
+        val brand = client.createMarketAndGet()
+
+        client.updateMarket(
+            id = UUID.randomUUID(),
+            brandId = brand.brandId.id,
+            flavorId = brand.flavorId.id,
+            name = "nonexistent",
+            weightGrams = 100
+        ).expectStatus().isNotFound
+    }
+
+    @Test
     fun `should return 400 when updating market with zero weight`() = runTest {
         val client = unauthorizedClient.randomUser()
         val market = client.createMarketAndGet()
