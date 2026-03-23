@@ -6,7 +6,6 @@ import { flavorApi, brandApi, tagApi } from '@/lib/api'
 import type { TabacoFlavor, TabacoBrand, Tag, FlavorCreateRequest, FlavorUpdateRequest } from '@/types'
 import { FlavorCard } from '@/components/cards'
 import { BrandSelector } from '@/components/ui/BrandSelector'
-import { AddButton } from '@/components/ui/AddButton'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { TagSelector } from '@/components/ui/TagSelector'
 
@@ -218,7 +217,7 @@ function FlavorFormDialog({ flavor, brand, allBrands, onClose }: {
 }
 
 // ── DeleteFlavorDialog ───────────────────────────────────────────────────────
-function DeleteFlavorDialog({ flavor, isOpen, onClose }: { flavor: TabacoFlavor; isOpen: boolean; onClose: () => void }) {
+function DeleteFlavorDialog({ flavor, onClose }: { flavor: TabacoFlavor; onClose: () => void }) {
   const qc = useQueryClient()
   const deleteMut = useMutation({
     mutationFn: () => flavorApi.delete(flavor.id),
@@ -416,7 +415,7 @@ export default function FlavorsPage() {
 
         {/* Delete dialog */}
         {deleteFlavor && (
-          <DeleteFlavorDialog flavor={deleteFlavor} isOpen={!!deleteFlavor} onClose={() => setDeleteFlavor(null)} />
+          <DeleteFlavorDialog flavor={deleteFlavor} onClose={() => setDeleteFlavor(null)} />
         )}
       </div>
     </div>

@@ -29,7 +29,7 @@ open class SecurityConfig(
         return http
             .csrf { it.disable() }
             .authorizeExchange {
-                it.pathMatchers("/api/v1/auth/**").permitAll()
+                it.pathMatchers("/api/v1/auth/**", "/actuator/health").permitAll()
                     .anyExchange().authenticated()
             }
             .oauth2ResourceServer { oauth2 ->

@@ -11,7 +11,6 @@ import {
 } from '@/components/ui/dialog'
 import { toast } from 'sonner'
 import { Plus, Pencil, Tag as TagIcon, Search, Hash, Check, X, Loader2 } from 'lucide-react'
-import { AddButton } from '@/components/ui/AddButton'
 import { PageHeader } from '@/components/ui/PageHeader'
 
 const PAGE_LIMIT = 30
@@ -170,7 +169,7 @@ function TagRow({ tag }: { tag: Tag }) {
 export default function TagsPage() {
   const [search, setSearch]     = useState('')
   const [createOpen, setCreateOpen] = useState(false)
-  const [exactResult, setExactResult] = useState<Tag | null | 'not-found' | 'idle'>('idle')
+  const [exactResult, setExactResult] = useState<Tag | 'not-found' | 'idle'>('idle')
   const [exactSearching, setExactSearching] = useState(false)
   const sentinelRef = useRef<HTMLDivElement>(null)
 

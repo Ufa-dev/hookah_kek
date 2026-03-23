@@ -6,7 +6,6 @@ import { WeightBar } from '@/components/cards/WeightBar'
 import type { FlavorPack, TabacoFlavor, TabacoBrand } from '@/types'
 import { BrandSelector } from '@/components/ui/BrandSelector'
 import { Button } from '@/components/ui/button'
-import { AddButton } from '@/components/ui/AddButton'
 import { PageHeader } from '@/components/ui/PageHeader'
 import { Input } from '@/components/ui/input'
 import { Label } from '@/components/ui/label'
@@ -155,7 +154,7 @@ function PackFormDialog({
   })
 
   const updateMut = useMutation({
-    mutationFn: ({ packId, ...body }: { packId: string; flavorId?: string; currentWeightGrams: number; totalWeightGrams: number }) =>
+    mutationFn: ({ packId, ...body }: { packId: string; name: string; flavorId?: string; currentWeightGrams: number; totalWeightGrams: number }) =>
       packApi.update(packId, body),
     onSuccess: () => { invalidate(); onClose(); toast.success('Контейнер обновлён') },
     onError: () => toast.error('Не удалось обновить контейнер'),
@@ -333,7 +332,6 @@ function DeletePackDialog({
 // ─── Main page ────────────────────────────────────────────────────────────────
 
 export default function PacksPage() {
-  const qc = useQueryClient()
   const [formOpen, setFormOpen]     = useState(false)
   const [editPack, setEditPack]     = useState<FlavorPack | undefined>()
   const [deletePack, setDeletePack] = useState<FlavorPack | undefined>()
