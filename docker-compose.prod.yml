@@ -9,7 +9,7 @@ services:
       POSTGRES_USER: hookah
       POSTGRES_PASSWORD: hookah_dev_password
     ports:
-      - "5432:5432"
+      - "6432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
     healthcheck:
@@ -27,6 +27,7 @@ services:
       postgres:
         condition: service_healthy
     environment:
+      SPRING_PROFILES_ACTIVE: local
       SPRING_R2DBC_URL: r2dbc:postgresql://postgres:5432/hookah
       SPRING_R2DBC_USERNAME: hookah
       SPRING_R2DBC_PASSWORD: hookah_dev_password
