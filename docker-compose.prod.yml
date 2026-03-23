@@ -1,0 +1,71 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:16-alpine
+    container_name: hookah-postgres
+    environment:
+      POSTGRES_DB: hookah
+      POSTGRES_USER: hookah
+      POSTGRES_PASSWORD: hookah_dev_password
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U hookah"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+    networks:
+      - hookah-network
+
+  backend:
+    image: sullssul/hookah-backend:latest
+    container_name: hookah-backend
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      SPRING_R2DBC_URL: r2dbc:postgresql://postgres:5432/hookah
+      SPRING_R2DBC_USERNAME: hookah
+      SPRING_R2DBC_PASSWORD: hookah_dev_password
+      SPRING_FLYWAY_URL: jdbc:postgresql://postgres:5432/hookah
+      SPRING_FLYWAY_USER: hookah
+      SPRING_FLYWAY_PASSWORD: hookah_dev_password
+      SPRING_FLYWAY_ENABLED: "true"
+      SPRING_FLYWAY_LOCATIONS: classpath:db/migration
+      SPRING_FLYWAY_BASELINE_ON_MIGRATE: "true"
+      APP_SECURITY_JWT_SECRET: "YWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkwYWJjZGVmZ2hpamtsbW5vcHFyc3R1dnd4eXoxMjM0NTY3ODkw"
+      APP_SECURITY_JWT_ACCESS_TOKEN_EXPIRATION_MS: "1800000"
+      APP_SECURITY_JWT_REFRESH_TOKEN_EXPIRATION_MS: "86400000"
+      SERVER_PORT: "8080"
+    ports:
+      - "8080:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "wget -qO- http://localhost:8080/actuator/health | grep -q '\"status\":\"UP\"'"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+    networks:
+      - hookah-network
+
+  frontend:
+    image: sullssul/hookah-frontend:latest
+    container_name: hookah-frontend
+    depends_on:
+      backend:
+        condition: service_healthy
+    ports:
+      - "80:80"
+    networks:
+      - hookah-network
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  hookah-network:
+    driver: bridge
