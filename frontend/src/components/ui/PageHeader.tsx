@@ -2,7 +2,7 @@ import { AddButton } from './AddButton'
 
 interface PageHeaderProps {
   title: string
-  onAdd: () => void
+  onAdd?: () => void
   addLabel?: string
 }
 
@@ -18,7 +18,7 @@ export function PageHeader({ title, onAdd, addLabel = 'Добавить' }: Page
         </h1>
         <div className="red-line w-20 mt-3" />
       </div>
-      <AddButton label={addLabel} onClick={onAdd} />
+      {onAdd && <AddButton label={addLabel} onClick={onAdd} />}
     </div>
   )
 }

@@ -211,3 +211,45 @@ export interface PackListParams {
   flavorId?: string
   brandId?: string
 }
+
+// ─── Audit ────────────────────────────────────────────────────────────────────
+
+export type AuditEventType = 'CREATED' | 'UPDATED' | 'DELETED'
+
+export interface BrandAuditRecord {
+  id: string
+  brandId: string
+  eventType: AuditEventType
+  name: string
+  description: string | null
+  updatedBy: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface FlavorAuditRecord {
+  id: string
+  flavorId: string
+  eventType: AuditEventType
+  brandId: string
+  name: string
+  description: string | null
+  strength: number | null
+  updatedBy: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface PackAuditRecord {
+  id: string
+  packId: string
+  eventType: AuditEventType
+  tagId: string
+  name: string
+  flavorId: string | null
+  currentWeightGrams: number
+  totalWeightGrams: number
+  updatedBy: string
+  createdAt: string
+  updatedAt: string
+}
