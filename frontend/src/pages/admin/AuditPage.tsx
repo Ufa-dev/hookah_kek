@@ -2,6 +2,7 @@ import { useState, useRef, useEffect } from 'react'
 import { useInfiniteQuery } from '@tanstack/react-query'
 import { auditApi } from '@/lib/api'
 import { Badge } from '@/components/ui/badge'
+import { PageHeader } from '@/components/ui/PageHeader'
 import type { AuditEventType, BrandAuditRecord, FlavorAuditRecord, PackAuditRecord } from '@/types'
 import { ChevronUp, ChevronDown } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
@@ -141,6 +142,24 @@ function PackHeader() {
   )
 }
 
+// ─── Skeleton ─────────────────────────────────────────────────────────────────
+
+function SkeletonRows({ cols }: { cols: number }) {
+  return (
+    <>
+      {Array.from({ length: 5 }).map((_, i) => (
+        <tr key={i} className="border-b border-border">
+          {Array.from({ length: cols }).map((_, j) => (
+            <td key={j} className="px-3 py-3">
+              <div className="h-4 rounded bg-surface animate-pulse" style={{ width: j === 0 ? '72px' : '100%' }} />
+            </td>
+          ))}
+        </tr>
+      ))}
+    </>
+  )
+}
+
 // ─── Page ─────────────────────────────────────────────────────────────────────
 
 export default function AuditPage() {
@@ -195,35 +214,51 @@ export default function AuditPage() {
   return (
     <div className="page-root">
       <div className="page-container page-enter">
+
         {/* Header */}
-        <div className="flex items-center justify-between mb-6">
-          <h1 className="font-display text-2xl text-ink">Аудит</h1>
+        <PageHeader title="Аудит" />
+
+        {/* Subdomain tab pills */}
+        <div className="flex gap-2 mb-4">
+          {SUBDOMAIN_OPTIONS.map(o => (
+            <button
+              key={o.value}
+              onClick={() => setSubdomain(o.value)}
+              className={
+                subdomain === o.value
+                  ? 'px-4 py-1.5 rounded-full text-sm font-body font-semibold bg-red text-white transition-colors'
+                  : 'px-4 py-1.5 rounded-full text-sm font-body border border-border text-ink-dim hover:bg-hover transition-colors'
+              }
+            >
+              {o.label}
+            </button>
+          ))}
         </div>
 
-        {/* Filters */}
-        <div className="flex flex-wrap gap-3 mb-6">
-          <div className="field">
-            <select
-              value={subdomain}
-              onChange={e => setSubdomain(e.target.value as Subdomain)}
-              className="field text-sm text-ink bg-surface border border-border rounded px-3 py-2 focus:outline-none focus:border-red-light"
-            >
-              {SUBDOMAIN_OPTIONS.map(o => (
-                <option key={o.value} value={o.value}>{o.label}</option>
-              ))}
-            </select>
+        {/* Event type filter pills + sort */}
+        <div className="flex flex-wrap items-center justify-between gap-3 mb-6">
+          <div className="flex flex-wrap gap-2 items-center">
+            <span className="text-xs text-ink-muted font-body">Событие:</span>
+            {EVENT_TYPE_OPTIONS.map(o => (
+              <button
+                key={o.value}
+                onClick={() => setEventTypeFilter(o.value)}
+                className={
+                  eventTypeFilter === o.value
+                    ? 'inline-flex items-center px-2 py-1 rounded-full bg-gold/10 border border-gold/30 text-xs text-gold transition-colors'
+                    : 'inline-flex items-center px-2 py-1 rounded-full border border-border text-xs text-ink-dim hover:border-gold/40 hover:text-gold transition-colors'
+                }
+              >
+                {o.label}
+              </button>
+            ))}
           </div>
-          <div className="field">
-            <select
-              value={eventTypeFilter}
-              onChange={e => setEventTypeFilter(e.target.value)}
-              className="field text-sm text-ink bg-surface border border-border rounded px-3 py-2 focus:outline-none focus:border-red-light"
-            >
-              {EVENT_TYPE_OPTIONS.map(o => (
-                <option key={o.value} value={o.value}>{o.label}</option>
-              ))}
-            </select>
-          </div>
+          <button
+            onClick={() => setSortDir(d => d === 'asc' ? 'desc' : 'asc')}
+            className="inline-flex items-center gap-1 text-xs font-body font-semibold text-ink-dim uppercase tracking-wider hover:text-red transition-colors"
+          >
+            Дата <SortIcon className="h-3.5 w-3.5" />
+          </button>
         </div>
 
         {/* Table */}
@@ -233,27 +268,9 @@ export default function AuditPage() {
               {subdomain === 'brand'  && <BrandHeader />}
               {subdomain === 'flavor' && <FlavorHeader />}
               {subdomain === 'pack'   && <PackHeader />}
-              <tr className="bg-elevated border-b border-border">
-                {/* Date header with sort — spans last column */}
-                <th
-                  colSpan={100}
-                  className="px-3 py-2.5 text-right"
-                >
-                  <button
-                    onClick={() => setSortDir(d => d === 'asc' ? 'desc' : 'asc')}
-                    className="inline-flex items-center gap-1 text-xs font-body font-semibold text-ink-dim uppercase tracking-wider hover:text-red transition-colors"
-                  >
-                    Дата <SortIcon className="h-3.5 w-3.5" />
-                  </button>
-                </th>
-              </tr>
             </thead>
             <tbody>
-              {isLoading && (
-                <tr>
-                  <td colSpan={8} className="px-3 py-6 text-center text-sm text-ink-muted">Загрузка…</td>
-                </tr>
-              )}
+              {isLoading && <SkeletonRows cols={subdomain === 'brand' ? 5 : 7} />}
               {!isLoading && sorted.length === 0 && (
                 <tr>
                   <td colSpan={8} className="px-3 py-6 text-center text-sm text-ink-muted">Нет записей</td>
@@ -267,10 +284,11 @@ export default function AuditPage() {
         </div>
 
         {isFetchingNextPage && (
-          <p className="mt-4 text-center text-sm text-ink-muted">Загрузка…</p>
+          <div className="mt-4 flex justify-center">
+            <div className="h-4 w-32 rounded bg-surface animate-pulse" />
+          </div>
         )}
 
-        {/* Sentinel for infinite scroll */}
         <div ref={sentinelRef} className="h-4" />
       </div>
     </div>
