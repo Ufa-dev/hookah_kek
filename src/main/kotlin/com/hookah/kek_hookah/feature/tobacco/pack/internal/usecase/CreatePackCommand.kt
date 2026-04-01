@@ -24,9 +24,6 @@ class CreatePackCommand(
 
         require(request.totalWeightGrams > 0) { "totalWeightGrams must be > 0" }
         require(request.currentWeightGrams >= 0) { "currentWeightGrams must be >= 0" }
-        require(request.currentWeightGrams <= request.totalWeightGrams) {
-            "currentWeightGrams must not exceed totalWeightGrams"
-        }
 
         val pack = FlavorPack(
             id = PackId(),
