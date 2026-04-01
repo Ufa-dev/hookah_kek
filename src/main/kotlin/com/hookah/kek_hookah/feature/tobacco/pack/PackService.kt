@@ -7,6 +7,7 @@ import com.hookah.kek_hookah.feature.tobacco.pack.model.PackForUpdate
 import com.hookah.kek_hookah.feature.tobacco.pack.model.PackId
 import com.hookah.kek_hookah.feature.tobacco.pack.model.PackTagId
 import com.hookah.kek_hookah.feature.tobacco.pack.internal.repository.PackRepository
+import com.hookah.kek_hookah.feature.tobacco.pack.model.PackWeigh
 import com.hookah.kek_hookah.utils.crud.Slice
 import org.springframework.stereotype.Component
 import java.util.*
@@ -18,7 +19,9 @@ class PackService(
     private val deletePackCommand: DeletePackCommand,
     private val findPackByIdQuery: FindPackByIdQuery,
     private val listPacksQuery: ListPacksQuery,
+    private val weighPackCommand: WeighPackCommand,
     private val repository: PackRepository,
+
 ) {
 
     suspend fun findById(id: PackId): FlavorPack? =
@@ -38,4 +41,7 @@ class PackService(
 
     suspend fun delete(id: PackId) =
         deletePackCommand.execute(id)
+
+    suspend fun weigh(request: PackWeigh): FlavorPack =
+        weighPackCommand.execute(request)
 }

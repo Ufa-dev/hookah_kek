@@ -5,10 +5,13 @@ import com.hookah.kek_hookah.feature.tobacco.flavor.model.FlavorId
 import com.hookah.kek_hookah.feature.tobacco.pack.PackService
 import com.hookah.kek_hookah.feature.tobacco.pack.api.dto.PackForCreateDto
 import com.hookah.kek_hookah.feature.tobacco.pack.api.dto.PackForUpdateDto
+import com.hookah.kek_hookah.feature.tobacco.pack.api.dto.PackWeighingDto
 import com.hookah.kek_hookah.feature.tobacco.pack.model.FlavorPack
 import com.hookah.kek_hookah.feature.tobacco.pack.model.PackForCreate
 import com.hookah.kek_hookah.feature.tobacco.pack.model.PackForUpdate
 import com.hookah.kek_hookah.feature.tobacco.pack.model.PackId
+import com.hookah.kek_hookah.feature.tobacco.pack.model.PackTagId
+import com.hookah.kek_hookah.feature.tobacco.pack.model.PackWeigh
 import com.hookah.kek_hookah.utils.crud.Slice
 import org.springframework.http.ResponseEntity
 import org.springframework.security.core.annotation.AuthenticationPrincipal
@@ -81,4 +84,19 @@ class PackController(
         service.delete(PackId(id))
         return ResponseEntity.noContent().build()
     }
+    @PostMapping("/weighing")
+    suspend fun weigh(
+        @RequestBody request: PackWeighingDto,
+        @AuthenticationPrincipal user: UserPrincipal,
+    ): ResponseEntity<FlavorPack> =
+        PackWeigh(
+            tagId = PackTagId(request.tagId),
+            currentWeightGrams = request.currentWeightGrams,
+            updatedAt = request.updatedAt,
+            updatedBy = user.id
+        ).let { service.weigh(it) }
+            .let { ResponseEntity.ok(it)
+            }
 }
+
+
