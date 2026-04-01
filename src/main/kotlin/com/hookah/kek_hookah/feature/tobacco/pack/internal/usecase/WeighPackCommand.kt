@@ -21,23 +21,40 @@ class WeighPackCommand(
             ?: throw IllegalArgumentException("Pack with tagId='${request.tagId.id}' not found")
 
         require(request.currentWeightGrams >= 0) { "currentWeightGrams must be >= 0" }
-        require(request.currentWeightGrams <= existing.totalWeightGrams) {
-            "currentWeightGrams must not exceed totalWeightGrams"
+
+        val delta = request.currentWeightGrams - existing.currentWeightGrams
+
+        val updatedTotalWeight = when {
+            delta < 0 -> existing.totalWeightGrams + delta
+            else -> existing.totalWeightGrams
+        }
+
+        require(updatedTotalWeight >= 0) {
+            "totalWeightGrams must not become negative"
         }
 
         val updated = existing.copy(
             currentWeightGrams = request.currentWeightGrams,
+            totalWeightGrams = updatedTotalWeight,
             updatedAt = request.updatedAt,
             updatedBy = request.updatedBy,
         )
 
-        return tx.executeAndAwait { repository.update(updated) }
-            .also { saved ->
-                eventPublisher + PackUpdatedEvent(
-                    before = existing,
-                    after = saved,
-                    publishedAt = OffsetDateTime.now(),
-                )
-            }
+        return tx.executeAndAwait {
+            val saved = repository.update(updated)
+
+            repository.insertHist(
+                pack = saved,
+                eventType = "weigh",
+            )
+
+            saved
+        }.also { saved ->
+            eventPublisher + PackUpdatedEvent(
+                before = existing,
+                after = saved,
+                publishedAt = OffsetDateTime.now(),
+            )
+        }
     }
 }
