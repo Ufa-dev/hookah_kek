@@ -42,12 +42,6 @@ class WeighPackCommand(
 
         return tx.executeAndAwait {
             val saved = repository.update(updated)
-
-            repository.insertHist(
-                pack = saved,
-                eventType = "weigh",
-            )
-
             saved
         }.also { saved ->
             eventPublisher + PackUpdatedEvent(
