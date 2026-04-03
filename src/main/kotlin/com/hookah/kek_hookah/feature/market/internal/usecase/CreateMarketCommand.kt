@@ -28,6 +28,7 @@ class CreateMarketCommand(
             flavorId = request.flavorId,
             name = request.name,
             weightGrams = request.weightGrams,
+            count = request.count,
             gtin = request.gtin?.takeIf { it.isNotBlank() },
             createdAt = OffsetDateTime.now(),
             updatedAt = OffsetDateTime.now(),

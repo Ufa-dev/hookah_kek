@@ -42,6 +42,7 @@ class MarketCreateTest {
             { assertEquals(flavor.name, market.flavorName) },
             { assertEquals(name, market.name) },
             { assertEquals(250, market.weightGrams) },
+            { assertEquals(0, market.count) },
             { assertNotNull(market.createdAt) },
             { assertNotNull(market.updatedBy) }
         )

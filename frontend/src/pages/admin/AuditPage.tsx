@@ -3,17 +3,18 @@ import { useInfiniteQuery } from '@tanstack/react-query'
 import { auditApi } from '@/lib/api'
 import { Badge } from '@/components/ui/badge'
 import { PageHeader } from '@/components/ui/PageHeader'
-import type { AuditEventType, BrandAuditRecord, FlavorAuditRecord, PackAuditRecord } from '@/types'
+import type { AuditEventType, BrandAuditRecord, FlavorAuditRecord, PackAuditRecord, MarketAuditRecord, Slice } from '@/types'
 import { ChevronUp, ChevronDown } from 'lucide-react'
 import { formatDate } from '@/lib/utils'
 
-type Subdomain = 'brand' | 'flavor' | 'pack'
+type Subdomain = 'brand' | 'flavor' | 'pack' | 'market'
 type SortDir = 'asc' | 'desc'
 
 const SUBDOMAIN_OPTIONS: { value: Subdomain; label: string }[] = [
   { value: 'brand',  label: 'Бренды' },
   { value: 'flavor', label: 'Вкусы' },
   { value: 'pack',   label: 'Контейнеры' },
+  { value: 'market', label: 'Склад' },
 ]
 
 const EVENT_TYPE_OPTIONS: { value: string; label: string }[] = [
@@ -142,6 +143,41 @@ function PackHeader() {
   )
 }
 
+// ─── Market table ─────────────────────────────────────────────────────────────
+
+function MarketTable({ rows }: { rows: MarketAuditRecord[] }) {
+  return (
+    <>
+      {rows.map(r => (
+        <tr key={r.id} className="border-b border-border hover:bg-hover transition-colors">
+          <td className="px-3 py-2.5"><EventBadge type={r.eventType} /></td>
+          <td className="px-3 py-2.5 text-sm text-ink font-medium">{r.name}</td>
+          <td className="px-3 py-2.5 text-xs text-ink-dim whitespace-nowrap">{r.weightGrams} г</td>
+          <td className="px-3 py-2.5 text-xs text-ink-dim">{r.count}</td>
+          <td className="px-3 py-2.5 font-mono text-xs text-ink-muted hidden sm:table-cell">
+            {r.gtin ?? <span className="text-ink-muted">—</span>}
+          </td>
+          <td className="px-3 py-2.5 text-xs text-ink-muted"><TruncatedId value={r.updatedBy} /></td>
+          <td className="px-3 py-2.5 text-xs text-ink-muted whitespace-nowrap">{formatDate(r.updatedAt)}</td>
+        </tr>
+      ))}
+    </>
+  )
+}
+
+function MarketHeader() {
+  return (
+    <tr className="bg-elevated border-b border-border">
+      <th className="px-3 py-2.5 text-left text-xs font-body font-semibold text-ink-dim uppercase tracking-wider w-[100px]">Тип</th>
+      <th className="px-3 py-2.5 text-left text-xs font-body font-semibold text-ink-dim uppercase tracking-wider">Название</th>
+      <th className="px-3 py-2.5 text-left text-xs font-body font-semibold text-ink-dim uppercase tracking-wider">Вес</th>
+      <th className="px-3 py-2.5 text-left text-xs font-body font-semibold text-ink-dim uppercase tracking-wider">Кол-во</th>
+      <th className="px-3 py-2.5 text-left text-xs font-body font-semibold text-ink-dim uppercase tracking-wider hidden sm:table-cell">GTIN</th>
+      <th className="px-3 py-2.5 text-left text-xs font-body font-semibold text-ink-dim uppercase tracking-wider">Автор</th>
+    </tr>
+  )
+}
+
 // ─── Skeleton ─────────────────────────────────────────────────────────────────
 
 function SkeletonRows({ cols }: { cols: number }) {
@@ -168,15 +204,17 @@ export default function AuditPage() {
   const [sortDir, setSortDir] = useState<SortDir>('desc')
   const sentinelRef = useRef<HTMLDivElement>(null)
 
-  const queryFn = ({ pageParam }: { pageParam: string }) => {
+  type AuditRecord = BrandAuditRecord | FlavorAuditRecord | PackAuditRecord
+
+  const queryFn = ({ pageParam }: { pageParam: string }): Promise<Slice<AuditRecord>> => {
     const params = {
       limit: 30,
       after: pageParam || undefined,
       eventType: (eventTypeFilter || undefined) as AuditEventType | undefined,
     }
-    if (subdomain === 'brand')  return auditApi.listBrand(params)
-    if (subdomain === 'flavor') return auditApi.listFlavor(params)
-    return auditApi.listPack(params)
+    if (subdomain === 'brand')  return auditApi.listBrand(params) as Promise<Slice<AuditRecord>>
+    if (subdomain === 'flavor') return auditApi.listFlavor(params) as Promise<Slice<AuditRecord>>
+    return auditApi.listPack(params) as Promise<Slice<AuditRecord>>
   }
 
   const { data, fetchNextPage, hasNextPage, isFetchingNextPage, isLoading } = useInfiniteQuery({
@@ -184,7 +222,22 @@ export default function AuditPage() {
     queryFn,
     initialPageParam: '',
     getNextPageParam: (last) => last.nextToken || undefined,
+    enabled: subdomain !== 'market',
   })
+
+  const marketAuditQuery = useInfiniteQuery({
+    queryKey: ['audit-market-infinite', eventTypeFilter],
+    queryFn: ({ pageParam }) =>
+      auditApi.listMarket({ after: pageParam || undefined, eventType: (eventTypeFilter || undefined) as AuditEventType | undefined }),
+    getNextPageParam: (last) => last.nextToken || undefined,
+    initialPageParam: '',
+    enabled: subdomain === 'market',
+  })
+  const marketItems = marketAuditQuery.data?.pages.flatMap(p => p.items) ?? []
+
+  const activeHasNextPage = subdomain === 'market' ? marketAuditQuery.hasNextPage : hasNextPage
+  const activeIsFetchingNextPage = subdomain === 'market' ? marketAuditQuery.isFetchingNextPage : isFetchingNextPage
+  const activeFetchNextPage = subdomain === 'market' ? marketAuditQuery.fetchNextPage : fetchNextPage
 
   // IntersectionObserver sentinel
   useEffect(() => {
@@ -192,15 +245,15 @@ export default function AuditPage() {
     if (!el) return
     const obs = new IntersectionObserver(
       (entries) => {
-        if (entries[0].isIntersecting && hasNextPage && !isFetchingNextPage) {
-          fetchNextPage()
+        if (entries[0].isIntersecting && activeHasNextPage && !activeIsFetchingNextPage) {
+          activeFetchNextPage()
         }
       },
       { threshold: 0.1 },
     )
     obs.observe(el)
     return () => obs.disconnect()
-  }, [hasNextPage, isFetchingNextPage, fetchNextPage])
+  }, [activeHasNextPage, activeIsFetchingNextPage, activeFetchNextPage])
 
   const allRows = data?.pages.flatMap(p => p.items) ?? []
 
@@ -208,6 +261,14 @@ export default function AuditPage() {
     const cmp = a.updatedAt.localeCompare(b.updatedAt)
     return sortDir === 'asc' ? cmp : -cmp
   })
+
+  const sortedMarket = [...marketItems].sort((a, b) => {
+    const cmp = a.updatedAt.localeCompare(b.updatedAt)
+    return sortDir === 'asc' ? cmp : -cmp
+  })
+
+  const activeIsLoading = subdomain === 'market' ? marketAuditQuery.isLoading : isLoading
+  const activeIsEmpty = subdomain === 'market' ? sortedMarket.length === 0 : sorted.length === 0
 
   const SortIcon = sortDir === 'asc' ? ChevronUp : ChevronDown
 
@@ -268,10 +329,11 @@ export default function AuditPage() {
               {subdomain === 'brand'  && <BrandHeader />}
               {subdomain === 'flavor' && <FlavorHeader />}
               {subdomain === 'pack'   && <PackHeader />}
+              {subdomain === 'market' && <MarketHeader />}
             </thead>
             <tbody>
-              {isLoading && <SkeletonRows cols={subdomain === 'brand' ? 5 : 7} />}
-              {!isLoading && sorted.length === 0 && (
+              {activeIsLoading && <SkeletonRows cols={subdomain === 'brand' ? 5 : 7} />}
+              {!activeIsLoading && activeIsEmpty && (
                 <tr>
                   <td colSpan={8} className="px-3 py-6 text-center text-sm text-ink-muted">Нет записей</td>
                 </tr>
@@ -279,11 +341,12 @@ export default function AuditPage() {
               {subdomain === 'brand'  && <BrandTable  rows={sorted as BrandAuditRecord[]} />}
               {subdomain === 'flavor' && <FlavorTable rows={sorted as FlavorAuditRecord[]} />}
               {subdomain === 'pack'   && <PackTable   rows={sorted as PackAuditRecord[]} />}
+              {subdomain === 'market' && <MarketTable rows={sortedMarket} />}
             </tbody>
           </table>
         </div>
 
-        {isFetchingNextPage && (
+        {activeIsFetchingNextPage && (
           <div className="mt-4 flex justify-center">
             <div className="h-4 w-32 rounded bg-surface animate-pulse" />
           </div>

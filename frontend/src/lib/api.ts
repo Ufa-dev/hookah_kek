@@ -5,7 +5,7 @@ import type {
   Tag, TagCreateRequest, TagUpdateRequest,
   TabacoBrand, BrandCreateRequest, BrandUpdateRequest, UpdateTagForBrandRequest,
   TabacoFlavor, FlavorCreateRequest, FlavorUpdateRequest, UpdateTagForFlavorRequest,
-  MarketArcView, MarketCreateRequest, MarketUpdateRequest, MarketListParams,
+  MarketArcView, MarketCreateRequest, MarketUpdateRequest, MarketListParams, MarketUpdateCountRequest, MarketTotalWeightView, MarketAuditRecord,
   FlavorPack, PackCreateRequest, PackUpdateRequest,
   Slice, CursorParams, PackListParams,
   AuditEventType, BrandAuditRecord, FlavorAuditRecord, PackAuditRecord,
@@ -193,17 +193,25 @@ export const marketApi = {
 
   delete: (id: string) =>
     http.delete(`/market/${id}`),
+
+  updateCount: (id: string, body: MarketUpdateCountRequest) =>
+    http.patch<MarketArcView>(`/market/${id}/count`, body),
+
+  totalWeightByFlavor: (flavorId: string) =>
+    http.get<MarketTotalWeightView>(`/market/total-weight/${flavorId}`).then(r => r.data),
 }
 
 // ─── Audit ────────────────────────────────────────────────────────────────────
 
 export const auditApi = {
-  listBrand:  (params: CursorParams & { eventType?: AuditEventType } = {}) =>
+  listBrand:  (params: CursorParams & { eventType?: AuditEventType; entityId?: string } = {}) =>
     http.get<Slice<BrandAuditRecord>>('/audit/brand', { params }).then(r => r.data),
-  listFlavor: (params: CursorParams & { eventType?: AuditEventType } = {}) =>
+  listFlavor: (params: CursorParams & { eventType?: AuditEventType; entityId?: string } = {}) =>
     http.get<Slice<FlavorAuditRecord>>('/audit/flavor', { params }).then(r => r.data),
-  listPack:   (params: CursorParams & { eventType?: AuditEventType } = {}) =>
+  listPack:   (params: CursorParams & { eventType?: AuditEventType; entityId?: string } = {}) =>
     http.get<Slice<PackAuditRecord>>('/audit/pack', { params }).then(r => r.data),
+  listMarket: (params: CursorParams & { eventType?: AuditEventType; entityId?: string } = {}) =>
+    http.get<Slice<MarketAuditRecord>>('/audit/market', { params }).then(r => r.data),
 }
 
 // ─── Packs ────────────────────────────────────────────────────────────────────
