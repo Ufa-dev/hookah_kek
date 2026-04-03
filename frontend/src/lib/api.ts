@@ -8,6 +8,7 @@ import type {
   MarketArcView, MarketCreateRequest, MarketUpdateRequest, MarketListParams,
   FlavorPack, PackCreateRequest, PackUpdateRequest,
   Slice, CursorParams, PackListParams,
+  AuditEventType, BrandAuditRecord, FlavorAuditRecord, PackAuditRecord,
 } from '@/types'
 
 // ─── Token storage ─────────────────────────────────────────────────────────────
@@ -192,6 +193,17 @@ export const marketApi = {
 
   delete: (id: string) =>
     http.delete(`/market/${id}`),
+}
+
+// ─── Audit ────────────────────────────────────────────────────────────────────
+
+export const auditApi = {
+  listBrand:  (params: CursorParams & { eventType?: AuditEventType } = {}) =>
+    http.get<Slice<BrandAuditRecord>>('/audit/brand', { params }).then(r => r.data),
+  listFlavor: (params: CursorParams & { eventType?: AuditEventType } = {}) =>
+    http.get<Slice<FlavorAuditRecord>>('/audit/flavor', { params }).then(r => r.data),
+  listPack:   (params: CursorParams & { eventType?: AuditEventType } = {}) =>
+    http.get<Slice<PackAuditRecord>>('/audit/pack', { params }).then(r => r.data),
 }
 
 // ─── Packs ────────────────────────────────────────────────────────────────────
