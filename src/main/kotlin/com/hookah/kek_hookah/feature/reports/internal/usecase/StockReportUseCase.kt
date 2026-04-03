@@ -4,7 +4,7 @@ import com.hookah.kek_hookah.feature.reports.internal.repository.ReportsReposito
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.toList
 import kotlinx.coroutines.withContext
-import org.apache.poi.xssf.usermodel.XSSFWorkbook
+import org.dhatim.fastexcel.Workbook
 import org.springframework.stereotype.Component
 import java.io.ByteArrayOutputStream
 
@@ -17,25 +17,16 @@ class StockReportUseCase(
         val rows = repository.stockReport().toList()
 
         return withContext(Dispatchers.IO) {
-            val workbook = XSSFWorkbook()
-            val sheet = workbook.createSheet("Остатки")
-
-            val headerRow = sheet.createRow(0)
-            headerRow.createCell(0).setCellValue("Название")
-            headerRow.createCell(1).setCellValue("Вес (г)")
-
-            rows.forEachIndexed { index, row ->
-                val dataRow = sheet.createRow(index + 1)
-                dataRow.createCell(0).setCellValue("${row.brandName} ${row.flavorName}")
-                dataRow.createCell(1).setCellValue(row.weightGrams.toDouble())
-            }
-
-            sheet.setColumnWidth(0, 10000)
-            sheet.setColumnWidth(1, 4000)
-
             val out = ByteArrayOutputStream()
-            workbook.write(out)
-            workbook.close()
+            Workbook(out, "hookah-stock", "1.0").use { wb ->
+                val ws = wb.newWorksheet("Остатки")
+                ws.value(0, 0, "Название")
+                ws.value(0, 1, "Вес (г)")
+                rows.forEachIndexed { i, row ->
+                    ws.value(i + 1, 0, "${row.brandName} ${row.flavorName}")
+                    ws.value(i + 1, 1, row.weightGrams)
+                }
+            }
             out.toByteArray()
         }
     }
