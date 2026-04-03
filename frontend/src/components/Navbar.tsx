@@ -2,17 +2,18 @@ import { useState } from 'react'
 import { Link, NavLink, useNavigate } from 'react-router-dom'
 import { useAuth } from '@/contexts/AuthContext'
 import { toast } from 'sonner'
-import { LayoutDashboard, User, Package, Tag, LogOut, Menu, X, Flame, Archive, ShoppingBag, ClipboardList } from 'lucide-react'
+import { LayoutDashboard, User, Package, Tag, LogOut, Menu, X, Flame, Archive, ShoppingBag, ClipboardList, FileBarChart2 } from 'lucide-react'
 
 const NAV_ITEMS = [
-  { to: '/dashboard',    label: 'Главная',    icon: LayoutDashboard },
-  { to: '/admin/brands', label: 'Бренды',     icon: Package },
-  { to: '/admin/flavors', label: 'Вкусы',     icon: Flame },
-  { to: '/admin/market',  label: 'Склад',     icon: ShoppingBag },
-  { to: '/admin/tags',   label: 'Теги',       icon: Tag },
-  { to: '/admin/packs',  label: 'Контейнеры', icon: Archive },
-  { to: '/admin/audit',  label: 'Аудит',      icon: ClipboardList },
-  { to: '/profile',      label: 'Профиль',    icon: User },
+  { to: '/dashboard',      label: 'Главная',    icon: LayoutDashboard },
+  { to: '/admin/brands',   label: 'Бренды',     icon: Package },
+  { to: '/admin/flavors',  label: 'Вкусы',      icon: Flame },
+  { to: '/admin/market',   label: 'Склад',      icon: ShoppingBag },
+  { to: '/admin/tags',     label: 'Теги',        icon: Tag },
+  { to: '/admin/packs',    label: 'Контейнеры', icon: Archive },
+  { to: '/admin/audit',    label: 'Аудит',       icon: ClipboardList },
+  { to: '/admin/reports',  label: 'Отчёты',     icon: FileBarChart2 },
+  { to: '/profile',        label: 'Профиль',    icon: User },
 ] as const
 
 export function Navbar() {
