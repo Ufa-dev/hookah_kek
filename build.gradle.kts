@@ -70,8 +70,6 @@ dependencies {
     implementation("org.springframework.security:spring-security-oauth2-resource-server")
     implementation("org.springframework.security:spring-security-oauth2-jose")
 
-    implementation("org.dhatim:fastexcel:0.18.4")
-
     //opensearch
     implementation("org.opensearch.client:spring-data-opensearch:3.0.0")
     implementation("org.opensearch.client:opensearch-java:3.4.0")
