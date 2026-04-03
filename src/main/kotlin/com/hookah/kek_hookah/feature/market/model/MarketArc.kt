@@ -11,6 +11,7 @@ data class MarketArc(
     val flavorId: FlavorId,
     val name: String,
     val weightGrams: Int,
+    val count: Int,
     val gtin: String?,
     val createdAt: OffsetDateTime,
     val updatedAt: OffsetDateTime,

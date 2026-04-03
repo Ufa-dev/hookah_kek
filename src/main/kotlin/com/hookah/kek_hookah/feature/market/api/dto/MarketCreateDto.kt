@@ -10,5 +10,6 @@ data class MarketCreateDto(
     @NotNull val flavorId: UUID,
     @NotBlank val name: String,
     @NotNull @Min(1) val weightGrams: Int,
+    @Min(0) val count: Int = 0,
     val gtin: String? = null,
 )

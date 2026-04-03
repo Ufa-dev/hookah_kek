@@ -157,6 +157,7 @@ export interface MarketArcView {
   flavorName: string
   name: string
   weightGrams: number
+  count: number
   gtin?: string
   createdAt: string
   updatedAt: string
@@ -168,6 +169,7 @@ export interface MarketCreateRequest {
   flavorId: string
   name: string
   weightGrams: number
+  count: number
   gtin?: string
 }
 
@@ -176,6 +178,7 @@ export interface MarketUpdateRequest {
   flavorId: string
   name: string
   weightGrams: number
+  count: number
   gtin?: string
 }
 
@@ -189,6 +192,15 @@ export interface MarketListParams {
   weightMax?: number
   sortBy?: string
   sortDir?: 'asc' | 'desc'
+}
+
+export interface MarketUpdateCountRequest {
+  count: number
+}
+
+export interface MarketTotalWeightView {
+  flavorId: string
+  totalWeightGrams: number
 }
 
 // ─── Pagination ───────────────────────────────────────────────────────────────
@@ -249,6 +261,21 @@ export interface PackAuditRecord {
   flavorId: string | null
   currentWeightGrams: number
   totalWeightGrams: number
+  updatedBy: string
+  createdAt: string
+  updatedAt: string
+}
+
+export interface MarketAuditRecord {
+  id: string
+  marketArcId: string
+  eventType: AuditEventType
+  brandId: string
+  flavorId: string
+  name: string
+  weightGrams: number
+  count: number
+  gtin: string | null
   updatedBy: string
   createdAt: string
   updatedAt: string

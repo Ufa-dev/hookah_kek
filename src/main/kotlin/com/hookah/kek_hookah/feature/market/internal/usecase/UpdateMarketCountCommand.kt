@@ -3,7 +3,7 @@ package com.hookah.kek_hookah.feature.market.internal.usecase
 import com.hookah.kek_hookah.feature.market.internal.repository.MarketRepository
 import com.hookah.kek_hookah.feature.market.model.MarketArcUpdatedEvent
 import com.hookah.kek_hookah.feature.market.model.MarketArcView
-import com.hookah.kek_hookah.feature.market.model.MarketForUpdate
+import com.hookah.kek_hookah.feature.market.model.MarketForUpdateCount
 import com.hookah.kek_hookah.infrastructure.event.EventPublisher
 import org.springframework.stereotype.Component
 import org.springframework.transaction.reactive.TransactionalOperator
@@ -11,25 +11,19 @@ import org.springframework.transaction.reactive.executeAndAwait
 import java.time.OffsetDateTime
 
 @Component
-class UpdateMarketCommand(
+class UpdateMarketCountCommand(
     private val repository: MarketRepository,
     private val eventPublisher: EventPublisher,
     private val tx: TransactionalOperator,
 ) {
-    suspend fun execute(request: MarketForUpdate): MarketArcView {
+    suspend fun execute(request: MarketForUpdateCount): MarketArcView {
         val existing = repository.findById(request.id)
             ?: throw NoSuchElementException("Market arc '${request.id}' not found")
 
-        require(request.name.isNotBlank()) { "name must not be blank" }
-        require(request.weightGrams > 0) { "weightGrams must be > 0" }
+        require(request.count >= 0) { "count must be >= 0" }
 
         val updated = existing.copy(
-            brandId = request.brandId,
-            flavorId = request.flavorId,
-            name = request.name,
-            weightGrams = request.weightGrams,
             count = request.count,
-            gtin = request.gtin?.takeIf { it.isNotBlank() },
             updatedAt = OffsetDateTime.now(),
             updatedBy = request.updatedBy,
         )

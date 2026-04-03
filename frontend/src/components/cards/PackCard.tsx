@@ -5,11 +5,12 @@ import { WeightBar } from '@/components/cards/WeightBar'
 
 interface PackCardProps {
   pack: FlavorPack
+  warehouseWeightGrams?: number
   onEdit: () => void
   onDelete: () => void
 }
 
-export function PackCard({ pack, onEdit, onDelete }: PackCardProps) {
+export function PackCard({ pack, warehouseWeightGrams, onEdit, onDelete }: PackCardProps) {
   return (
     <div className="card group flex flex-col hover:border-red-light transition-colors duration-150">
       <div className="p-4 sm:p-5 flex-1">
@@ -32,6 +33,14 @@ export function PackCard({ pack, onEdit, onDelete }: PackCardProps) {
           </button>
         </div>
         <WeightBar current={pack.currentWeightGrams} total={pack.totalWeightGrams} />
+        {warehouseWeightGrams !== undefined && (
+          <div className="mt-2 text-xs text-ink-dim flex items-center gap-1">
+            <span>Склад:</span>
+            <span className="font-semibold text-gold">{warehouseWeightGrams} г</span>
+            <span className="text-ink-muted">→ итого</span>
+            <span className="font-semibold text-ink">{pack.currentWeightGrams + warehouseWeightGrams} г</span>
+          </div>
+        )}
       </div>
       <div className="border-t border-border px-4 sm:px-5 py-3 flex items-center justify-between gap-2">
         <div className="flex items-center gap-1.5 text-xs text-ink-muted min-w-0">

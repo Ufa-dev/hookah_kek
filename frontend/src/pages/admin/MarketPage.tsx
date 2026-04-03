@@ -157,6 +157,7 @@ function MarketFormDialog({ item, onClose }: { item: MarketArcView | null; onClo
   const qc = useQueryClient()
   const [brand, setBrand] = useState<TabacoBrand | null>(null)
   const [flavor, setFlavor] = useState<TabacoFlavor | null>(null)
+  const [count, setCount] = useState(item?.count ?? 0)
   const [form, setForm] = useState({
     name: item?.name ?? '',
     weightGrams: item?.weightGrams ?? 25,
@@ -171,13 +172,14 @@ function MarketFormDialog({ item, onClose }: { item: MarketArcView | null; onClo
         flavorId: flavor.id,
         name: form.name.trim(),
         weightGrams: form.weightGrams,
+        count,
         gtin: form.gtin.trim() || undefined,
       }
       return item ? marketApi.update(item.id, body) : marketApi.create(body)
     },
     onSuccess: () => {
       toast.success(item ? 'SKU обновлён' : 'SKU создан')
-      qc.invalidateQueries({ queryKey: ['market'] })
+      qc.invalidateQueries({ queryKey: ['market-infinite'] })
       onClose()
     },
     onError: (e: Error) => toast.error(e.message || 'Ошибка при сохранении'),
@@ -218,6 +220,16 @@ function MarketFormDialog({ item, onClose }: { item: MarketArcView | null; onClo
             />
           </div>
           <div>
+            <label className="block text-xs font-body text-ink-muted mb-1">Количество</label>
+            <input
+              type="number"
+              min={0}
+              value={count}
+              onChange={e => setCount(Math.max(0, parseInt(e.target.value) || 0))}
+              className="w-full px-3 py-2 rounded-lg border border-border bg-elevated text-sm font-body text-ink outline-none focus:border-red transition-colors"
+            />
+          </div>
+          <div>
             <label className="block text-xs font-body text-ink-muted mb-1">GTIN / Штрих-код</label>
             <input
               className="w-full px-3 py-2 rounded-lg border border-border bg-elevated text-sm font-body text-ink placeholder:text-ink-muted outline-none focus:border-red transition-colors"
@@ -251,7 +263,7 @@ function DeleteMarketDialog({ item, onClose }: { item: MarketArcView; onClose: (
     mutationFn: () => marketApi.delete(item.id),
     onSuccess: () => {
       toast.success('SKU удалён')
-      qc.invalidateQueries({ queryKey: ['market'] })
+      qc.invalidateQueries({ queryKey: ['market-infinite'] })
       onClose()
     },
     onError: () => toast.error('Не удалось удалить'),
@@ -288,8 +300,17 @@ export default function MarketPage() {
   const [editItem, setEditItem] = useState<MarketArcView | null | 'new'>(null)
   const [deleteItem, setDeleteItem] = useState<MarketArcView | null>(null)
 
+  const qc = useQueryClient()
+
+  const countMutation = useMutation({
+    mutationFn: ({ id, count }: { id: string; count: number }) =>
+      marketApi.updateCount(id, { count }),
+    onSuccess: () => qc.invalidateQueries({ queryKey: ['market-infinite'] }),
+    onError: () => toast.error('Не удалось обновить количество'),
+  })
+
   const query = useInfiniteQuery({
-    queryKey: ['market', filters, sortBy, sortDir],
+    queryKey: ['market-infinite', filters, sortBy, sortDir],
     queryFn: async ({ pageParam }) => {
       const res = await marketApi.list({
         after: pageParam || undefined,
@@ -395,6 +416,7 @@ export default function MarketPage() {
                     item={item}
                     onEdit={() => setEditItem(item)}
                     onDelete={() => setDeleteItem(item)}
+                    onCountChange={(newCount) => countMutation.mutate({ id: item.id, count: newCount })}
                   />
                 ))
           }
