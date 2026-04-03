@@ -1,9 +1,9 @@
 import { useState, useRef, useEffect, type FormEvent } from 'react'
-import { useInfiniteQuery, useMutation, useQueryClient } from '@tanstack/react-query'
-import { packApi, flavorApi } from '@/lib/api'
+import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
+import { packApi, flavorApi, marketApi } from '@/lib/api'
 import { PackCard } from '@/components/cards'
 import { WeightBar } from '@/components/cards/WeightBar'
-import type { FlavorPack, TabacoFlavor, TabacoBrand } from '@/types'
+import type { FlavorPack, TabacoFlavor, TabacoBrand, MarketTotalWeightView } from '@/types'
 import { BrandSelector } from '@/components/ui/BrandSelector'
 import { Button } from '@/components/ui/button'
 import { PageHeader } from '@/components/ui/PageHeader'
@@ -329,6 +329,24 @@ function DeletePackDialog({
   )
 }
 
+// ─── Pack card with warehouse weight ─────────────────────────────────────────
+
+function PackCardWithWarehouse({ pack, onEdit, onDelete }: { pack: FlavorPack; onEdit: () => void; onDelete: () => void }) {
+  const { data } = useQuery<MarketTotalWeightView>({
+    queryKey: ['market-total-weight', pack.flavorId],
+    queryFn: () => marketApi.totalWeightByFlavor(pack.flavorId!),
+    enabled: !!pack.flavorId,
+  })
+  return (
+    <PackCard
+      pack={pack}
+      warehouseWeightGrams={data?.totalWeightGrams}
+      onEdit={onEdit}
+      onDelete={onDelete}
+    />
+  )
+}
+
 // ─── Main page ────────────────────────────────────────────────────────────────
 
 export default function PacksPage() {
@@ -404,7 +422,7 @@ export default function PacksPage() {
           <>
             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
               {packs.map((pack) => (
-                <PackCard
+                <PackCardWithWarehouse
                   key={pack.id}
                   pack={pack}
                   onEdit={() => openEdit(pack)}

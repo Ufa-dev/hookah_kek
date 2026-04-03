@@ -31,7 +31,8 @@ class MarketUpdateTest {
             brandId = market.brandId.id,
             flavorId = market.flavorId.id,
             name = newName,
-            weightGrams = 500
+            weightGrams = 500,
+            count = 5,
         ).expectStatus().isOk
             .expectBody<MarketArcView>()
             .returnResult().responseBody!!
@@ -40,6 +41,7 @@ class MarketUpdateTest {
             { assertEquals(market.id, updated.id) },
             { assertEquals(newName, updated.name) },
             { assertEquals(500, updated.weightGrams) },
+            { assertEquals(5, updated.count) },
             { assertTrue(updated.updatedAt >= market.updatedAt) }
         )
     }

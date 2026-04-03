@@ -9,6 +9,7 @@ data class MarketForCreate(
     val flavorId: FlavorId,
     val name: String,
     val weightGrams: Int,
+    val count: Int,
     val gtin: String?,
     val updatedBy: UserId,
 )

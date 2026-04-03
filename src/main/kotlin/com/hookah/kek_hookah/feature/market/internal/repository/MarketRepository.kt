@@ -47,6 +47,7 @@ class MarketRepository(
         nameContains: String? = null,
         weightMin: Int? = null,
         weightMax: Int? = null,
+        countMin: Int? = null,
         sortBy: String = "updated_at",
         sortDir: String = "desc",
     ): List<MarketArcView> {
@@ -61,6 +62,7 @@ class MarketRepository(
         if (!nameContains.isNullOrBlank()) conditions += "LOWER(m.name) LIKE :nameContains"
         if (weightMin != null)           conditions += "m.weight_grams >= :weightMin"
         if (weightMax != null)           conditions += "m.weight_grams <= :weightMax"
+        if (countMin != null)            conditions += "m.count >= :countMin"
 
         val where = if (conditions.isNotEmpty()) " WHERE " + conditions.joinToString(" AND ") else ""
         val sql = VIEW_QUERY + where + " ORDER BY $col $dir, m.id $dir LIMIT :limit"
@@ -72,6 +74,7 @@ class MarketRepository(
         if (!nameContains.isNullOrBlank()) spec = spec.bind("nameContains", "%${nameContains.lowercase()}%")
         if (weightMin != null)           spec = spec.bind("weightMin", weightMin)
         if (weightMax != null)           spec = spec.bind("weightMax", weightMax)
+        if (countMin != null)            spec = spec.bind("countMin", countMin)
 
         return spec
             .map { row, _ -> row.toView() }
@@ -93,6 +96,13 @@ class MarketRepository(
             .awaitSingle()
     }
 
+    suspend fun totalWeightByFlavor(flavorId: UUID): Long =
+        db.sql("SELECT COALESCE(SUM(weight_grams::BIGINT * count), 0) AS total FROM market_arc WHERE tabacoo_flavor_id = :flavorId")
+            .bind("flavorId", flavorId)
+            .map { row, _ -> (row.get("total", Number::class.java) ?: 0).toLong() }
+            .one()
+            .awaitSingle()
+
     // ─── Mapping ──────────────────────────────────────────────────────────────
 
     private fun io.r2dbc.spi.Row.toView() = MarketArcView(
@@ -103,6 +113,7 @@ class MarketRepository(
         flavorName = get("flavor_name", String::class.java)!!,
         name = get("name", String::class.java)!!,
         weightGrams = get("weight_grams", Integer::class.java)!!.toInt(),
+        count = get("count", Integer::class.java)!!.toInt(),
         gtin = get("gtin", String::class.java),
         createdAt = get("created_at", OffsetDateTime::class.java)!!,
         updatedAt = get("updated_at", OffsetDateTime::class.java)!!,
@@ -115,6 +126,7 @@ class MarketRepository(
         flavorId = FlavorId(flavorId),
         name = name,
         weightGrams = weightGrams,
+        count = count,
         gtin = gtin,
         createdAt = createdAt,
         updatedAt = updatedAt,
@@ -127,6 +139,7 @@ class MarketRepository(
         flavorId = flavorId.id,
         name = name,
         weightGrams = weightGrams,
+        count = count,
         gtin = gtin,
         createdAt = createdAt,
         updatedAt = updatedAt,
@@ -140,6 +153,7 @@ class MarketRepository(
         @Column("tabacoo_flavor_id") val flavorId: UUID,
         @Column("name") val name: String,
         @Column("weight_grams") val weightGrams: Int,
+        @Column("count") val count: Int,
         @Column("gtin") val gtin: String?,
         @Column("created_at") val createdAt: OffsetDateTime,
         @Column("updated_at") val updatedAt: OffsetDateTime,
@@ -150,7 +164,7 @@ class MarketRepository(
         private const val VIEW_QUERY = """
             SELECT m.id, m.brand_id, b.name AS brand_name,
                    m.tabacoo_flavor_id AS flavor_id, f.name AS flavor_name,
-                   m.name, m.weight_grams, m.gtin,
+                   m.name, m.weight_grams, m.count, m.gtin,
                    m.created_at, m.updated_at, m.updated_by
             FROM market_arc m
             JOIN tabacoo_brand b ON b.id = m.brand_id

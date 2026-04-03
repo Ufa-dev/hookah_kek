@@ -3,11 +3,14 @@ package com.hookah.kek_hookah.feature.market.api
 import com.hookah.kek_hookah.feature.auth.model.UserPrincipal
 import com.hookah.kek_hookah.feature.market.MarketService
 import com.hookah.kek_hookah.feature.market.api.dto.MarketCreateDto
+import com.hookah.kek_hookah.feature.market.api.dto.MarketUpdateCountDto
 import com.hookah.kek_hookah.feature.market.api.dto.MarketUpdateDto
 import com.hookah.kek_hookah.feature.market.model.MarketArcId
 import com.hookah.kek_hookah.feature.market.model.MarketArcView
 import com.hookah.kek_hookah.feature.market.model.MarketForCreate
 import com.hookah.kek_hookah.feature.market.model.MarketForUpdate
+import com.hookah.kek_hookah.feature.market.model.MarketForUpdateCount
+import com.hookah.kek_hookah.feature.market.model.MarketTotalWeightView
 import com.hookah.kek_hookah.feature.tobacco.brand.model.BrandId
 import com.hookah.kek_hookah.feature.tobacco.flavor.model.FlavorId
 import org.springframework.http.ResponseEntity
@@ -33,6 +36,7 @@ class MarketController(
                 flavorId = FlavorId(body.flavorId),
                 name = body.name,
                 weightGrams = body.weightGrams,
+                count = body.count,
                 gtin = body.gtin,
                 updatedBy = user.id,
             )
@@ -53,12 +57,35 @@ class MarketController(
                 flavorId = FlavorId(body.flavorId),
                 name = body.name,
                 weightGrams = body.weightGrams,
+                count = body.count,
                 gtin = body.gtin,
                 updatedBy = user.id,
             )
         )
         return ResponseEntity.ok(result)
     }
+
+    @PatchMapping("/{id}/count")
+    suspend fun updateCount(
+        @PathVariable id: UUID,
+        @AuthenticationPrincipal user: UserPrincipal,
+        @RequestBody @Validated body: MarketUpdateCountDto
+    ): ResponseEntity<MarketArcView> {
+        val result = service.updateCount(
+            MarketForUpdateCount(
+                id = MarketArcId(id),
+                count = body.count,
+                updatedBy = user.id,
+            )
+        )
+        return ResponseEntity.ok(result)
+    }
+
+    @GetMapping("/total-weight/{flavorId}")
+    suspend fun totalWeightByFlavor(
+        @PathVariable flavorId: UUID
+    ): ResponseEntity<MarketTotalWeightView> =
+        ResponseEntity.ok(service.totalWeightByFlavor(flavorId))
 
     @DeleteMapping("/{id}")
     suspend fun delete(@PathVariable id: UUID): ResponseEntity<Void> {
@@ -81,6 +108,7 @@ class MarketController(
         @RequestParam(required = false) name: String?,
         @RequestParam(required = false) weightMin: Int?,
         @RequestParam(required = false) weightMax: Int?,
+        @RequestParam(required = false) countMin: Int?,
         @RequestParam(defaultValue = "updated_at") sortBy: String,
         @RequestParam(defaultValue = "desc") sortDir: String,
     ): ResponseEntity<List<MarketArcView>> {
@@ -93,6 +121,7 @@ class MarketController(
             nameContains = name,
             weightMin = weightMin,
             weightMax = weightMax,
+            countMin = countMin,
             sortBy = sortBy,
             sortDir = sortDir,
         )
