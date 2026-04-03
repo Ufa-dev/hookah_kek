@@ -78,60 +78,6 @@ class PackRepository(
             .all()
             .awaitSingle()
     }
-
-    suspend fun insertHist(pack: FlavorPack, eventType: String): UUID {
-        val id = UUID.randomUUID()
-
-        val sql = """
-            INSERT INTO flavor_pack_hist (
-                id,
-                flavor_pack_id,
-                event_type,
-                tag_id,
-                "name",
-                flavor_id,
-                current_weight_grams,
-                total_weight_grams,
-                created_at,
-                updated_at,
-                updated_by
-            ) VALUES (
-                :id,
-                :flavorPackId,
-                :eventType,
-                :tagId,
-                :name,
-                :flavorId,
-                :currentWeightGrams,
-                :totalWeightGrams,
-                :createdAt,
-                :updatedAt,
-                :updatedBy
-            )
-        """.trimIndent()
-
-        var spec = db.sql(sql)
-            .bind("id", id)
-            .bind("flavorPackId", pack.id.id)
-            .bind("eventType", eventType)
-            .bind("tagId", pack.tagId.id)
-            .bind("name", pack.name)
-            .bind("currentWeightGrams", pack.currentWeightGrams)
-            .bind("totalWeightGrams", pack.totalWeightGrams)
-            .bind("createdAt", pack.updatedAt)
-            .bind("updatedAt", pack.updatedAt)
-            .bind("updatedBy", pack.updatedBy.id)
-
-        spec = if (pack.flavorId != null) {
-            spec.bind("flavorId", pack.flavorId.id)
-        } else {
-            spec.bindNull("flavorId", UUID::class.java)
-        }
-
-        spec.then().awaitSingleOrNull()
-        return id
-    }
-
     private fun PackEntity.toPack() = FlavorPack(
         id = PackId(id),
         tagId = PackTagId(tagId),
