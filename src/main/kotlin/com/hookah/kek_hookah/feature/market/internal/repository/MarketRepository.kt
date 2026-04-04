@@ -48,6 +48,7 @@ class MarketRepository(
         weightMin: Int? = null,
         weightMax: Int? = null,
         countMin: Int? = null,
+        flavorId: UUID? = null,
         sortBy: String = "updated_at",
         sortDir: String = "desc",
     ): List<MarketArcView> {
@@ -63,6 +64,7 @@ class MarketRepository(
         if (weightMin != null)           conditions += "m.weight_grams >= :weightMin"
         if (weightMax != null)           conditions += "m.weight_grams <= :weightMax"
         if (countMin != null)            conditions += "m.count >= :countMin"
+        if (flavorId != null)            conditions += "m.tabacoo_flavor_id = :flavorId"
 
         val where = if (conditions.isNotEmpty()) " WHERE " + conditions.joinToString(" AND ") else ""
         val sql = VIEW_QUERY + where + " ORDER BY $col $dir, m.id $dir LIMIT :limit"
@@ -75,6 +77,7 @@ class MarketRepository(
         if (weightMin != null)           spec = spec.bind("weightMin", weightMin)
         if (weightMax != null)           spec = spec.bind("weightMax", weightMax)
         if (countMin != null)            spec = spec.bind("countMin", countMin)
+        if (flavorId != null)            spec = spec.bind("flavorId", flavorId)
 
         return spec
             .map { row, _ -> row.toView() }

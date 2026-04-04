@@ -53,6 +53,7 @@ class MarketService(
         weightMin: Int? = null,
         weightMax: Int? = null,
         countMin: Int? = null,
+        flavorId: UUID? = null,
         sortBy: String = "updated_at",
         sortDir: String = "desc",
     ): List<MarketArcView> = repository.findAllViews(
@@ -64,6 +65,7 @@ class MarketService(
         weightMin = weightMin,
         weightMax = weightMax,
         countMin = countMin,
+        flavorId = flavorId,
         sortBy = sortBy,
         sortDir = sortDir,
     )

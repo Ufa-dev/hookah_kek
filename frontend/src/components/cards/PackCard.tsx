@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { Pencil, Clock, Trash2, ChevronDown, ChevronUp } from 'lucide-react'
+import { Pencil, Clock, Trash2, ChevronDown, ChevronUp, PackagePlus } from 'lucide-react'
 import type { FlavorPack } from '@/types'
 import { formatDate } from '@/lib/utils'
 import { WeightBar } from '@/components/cards/WeightBar'
@@ -9,9 +9,10 @@ interface PackCardProps {
   warehouseWeightGrams?: number
   onEdit: () => void
   onDelete: () => void
+  onReplenish: () => void
 }
 
-export function PackCard({ pack, warehouseWeightGrams, onEdit, onDelete }: PackCardProps) {
+export function PackCard({ pack, warehouseWeightGrams, onEdit, onDelete, onReplenish }: PackCardProps) {
   const [expanded, setExpanded] = useState(false)
 
   return (
@@ -48,9 +49,17 @@ export function PackCard({ pack, warehouseWeightGrams, onEdit, onDelete }: PackC
         )}
       </div>
       <div className="border-t border-border px-4 sm:px-5 py-3 flex items-center justify-between gap-2">
-        <div className="flex items-center gap-1.5 text-xs text-ink-muted min-w-0">
-          <Clock className="h-3 w-3 flex-shrink-0" />
-          <span className="truncate">{formatDate(pack.updatedAt)}</span>
+        <div className="flex items-center gap-2 min-w-0">
+          <div className="flex items-center gap-1.5 text-xs text-ink-muted min-w-0">
+            <Clock className="h-3 w-3 flex-shrink-0" />
+            <span className="truncate">{formatDate(pack.updatedAt)}</span>
+          </div>
+          <button
+            onClick={onReplenish}
+            className="flex items-center gap-1 text-xs font-body font-medium text-gold hover:text-gold/80 transition-colors touch-target flex-shrink-0"
+          >
+            <PackagePlus className="h-3.5 w-3.5" /> Пополнить
+          </button>
         </div>
         <div className="flex items-center gap-1 flex-shrink-0">
           <button

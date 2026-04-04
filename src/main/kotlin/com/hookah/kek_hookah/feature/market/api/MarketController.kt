@@ -109,6 +109,7 @@ class MarketController(
         @RequestParam(required = false) weightMin: Int?,
         @RequestParam(required = false) weightMax: Int?,
         @RequestParam(required = false) countMin: Int?,
+        @RequestParam(required = false) flavorId: UUID?,
         @RequestParam(defaultValue = "updated_at") sortBy: String,
         @RequestParam(defaultValue = "desc") sortDir: String,
     ): ResponseEntity<List<MarketArcView>> {
@@ -122,6 +123,7 @@ class MarketController(
             weightMin = weightMin,
             weightMax = weightMax,
             countMin = countMin,
+            flavorId = flavorId,
             sortBy = sortBy,
             sortDir = sortDir,
         )

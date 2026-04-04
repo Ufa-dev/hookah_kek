@@ -2,6 +2,7 @@ import { useState, useRef, useEffect, type FormEvent } from 'react'
 import { useInfiniteQuery, useQuery, useMutation, useQueryClient } from '@tanstack/react-query'
 import { packApi, flavorApi, marketApi } from '@/lib/api'
 import { PackCard } from '@/components/cards'
+import { ReplenishPackDialog } from '@/components/cards/ReplenishPackDialog'
 import { WeightBar } from '@/components/cards/WeightBar'
 import type { FlavorPack, TabacoFlavor, TabacoBrand, MarketTotalWeightView } from '@/types'
 import { BrandSelector } from '@/components/ui/BrandSelector'
@@ -331,7 +332,7 @@ function DeletePackDialog({
 
 // ─── Pack card with warehouse weight ─────────────────────────────────────────
 
-function PackCardWithWarehouse({ pack, onEdit, onDelete }: { pack: FlavorPack; onEdit: () => void; onDelete: () => void }) {
+function PackCardWithWarehouse({ pack, onEdit, onDelete, onReplenish }: { pack: FlavorPack; onEdit: () => void; onDelete: () => void; onReplenish: () => void }) {
   const { data } = useQuery<MarketTotalWeightView>({
     queryKey: ['market-total-weight', pack.flavorId],
     queryFn: () => marketApi.totalWeightByFlavor(pack.flavorId!),
@@ -343,6 +344,7 @@ function PackCardWithWarehouse({ pack, onEdit, onDelete }: { pack: FlavorPack; o
       warehouseWeightGrams={data?.totalWeightGrams}
       onEdit={onEdit}
       onDelete={onDelete}
+      onReplenish={onReplenish}
     />
   )
 }
@@ -350,9 +352,10 @@ function PackCardWithWarehouse({ pack, onEdit, onDelete }: { pack: FlavorPack; o
 // ─── Main page ────────────────────────────────────────────────────────────────
 
 export default function PacksPage() {
-  const [formOpen, setFormOpen]     = useState(false)
-  const [editPack, setEditPack]     = useState<FlavorPack | undefined>()
-  const [deletePack, setDeletePack] = useState<FlavorPack | undefined>()
+  const [formOpen, setFormOpen]         = useState(false)
+  const [editPack, setEditPack]         = useState<FlavorPack | undefined>()
+  const [deletePack, setDeletePack]     = useState<FlavorPack | undefined>()
+  const [replenishPack, setReplenishPack] = useState<FlavorPack | undefined>()
   const [filters, setFilters] = useState({ name: '', brandId: '', flavorId: '' })
   const [filterBrand, setFilterBrand] = useState<TabacoBrand | null>(null)
 
@@ -427,6 +430,7 @@ export default function PacksPage() {
                   pack={pack}
                   onEdit={() => openEdit(pack)}
                   onDelete={() => setDeletePack(pack)}
+                  onReplenish={() => setReplenishPack(pack)}
                 />
               ))}
             </div>
@@ -459,6 +463,13 @@ export default function PacksPage() {
           pack={deletePack}
           isOpen={!!deletePack}
           onClose={() => setDeletePack(undefined)}
+        />
+      )}
+      {replenishPack && (
+        <ReplenishPackDialog
+          pack={replenishPack}
+          isOpen={!!replenishPack}
+          onClose={() => setReplenishPack(undefined)}
         />
       )}
     </div>

@@ -214,6 +214,13 @@ export const auditApi = {
     http.get<Slice<MarketAuditRecord>>('/audit/market', { params }).then(r => r.data),
 }
 
+// ─── Reports ──────────────────────────────────────────────────────────────────
+
+export const reportsApi = {
+  downloadStock: () =>
+    http.get('/reports/stock', { responseType: 'blob' }),
+}
+
 // ─── Packs ────────────────────────────────────────────────────────────────────
 
 export const packApi = {

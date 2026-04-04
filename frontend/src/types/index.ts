@@ -190,6 +190,8 @@ export interface MarketListParams {
   name?: string
   weightMin?: number
   weightMax?: number
+  countMin?: number
+  flavorId?: string
   sortBy?: string
   sortDir?: 'asc' | 'desc'
 }
