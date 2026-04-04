@@ -9,7 +9,6 @@ import org.springframework.stereotype.Component
 import org.springframework.transaction.reactive.TransactionalOperator
 import org.springframework.transaction.reactive.executeAndAwait
 import java.time.OffsetDateTime
-
 @Component
 class UpdatePackCommand(
     private val repository: PackRepository,
@@ -22,9 +21,6 @@ class UpdatePackCommand(
 
         require(request.totalWeightGrams > 0) { "totalWeightGrams must be > 0" }
         require(request.currentWeightGrams >= 0) { "currentWeightGrams must be >= 0" }
-        require(request.currentWeightGrams <= request.totalWeightGrams) {
-            "currentWeightGrams must not exceed totalWeightGrams"
-        }
 
         val updated = existing.copy(
             name = request.name,

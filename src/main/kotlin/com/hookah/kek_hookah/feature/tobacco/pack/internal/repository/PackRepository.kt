@@ -6,6 +6,7 @@ import com.hookah.kek_hookah.feature.tobacco.pack.model.PackId
 import com.hookah.kek_hookah.feature.tobacco.pack.model.PackTagId
 import com.hookah.kek_hookah.feature.user.model.UserId
 import kotlinx.coroutines.reactive.awaitSingle
+import kotlinx.coroutines.reactor.awaitSingleOrNull
 import org.springframework.data.annotation.Id
 import org.springframework.data.r2dbc.core.R2dbcEntityTemplate
 import org.springframework.data.r2dbc.core.awaitOneOrNull
@@ -77,7 +78,6 @@ class PackRepository(
             .all()
             .awaitSingle()
     }
-
     private fun PackEntity.toPack() = FlavorPack(
         id = PackId(id),
         tagId = PackTagId(tagId),
