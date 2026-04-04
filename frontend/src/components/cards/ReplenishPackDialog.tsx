@@ -50,6 +50,13 @@ export function ReplenishPackDialog({
     enabled: isOpen && step === 'select-item' && !!pack.flavorId,
   })
 
+  const invalidateAll = () => {
+    qc.invalidateQueries({ queryKey: ['packs-infinite'] })
+    if (pack.flavorId) {
+      qc.invalidateQueries({ queryKey: ['market-total-weight', pack.flavorId] })
+    }
+  }
+
   const deductMut = useMutation({
     mutationFn: () => marketApi.updateCount(selectedItem!.id, { count: selectedItem!.count - quantity }),
     onSuccess: () => {
@@ -57,6 +64,22 @@ export function ReplenishPackDialog({
       setStep('post-weigh')
     },
     onError: () => toast.error('Не удалось списать со склада'),
+  })
+
+  const savePreWeighMut = useMutation({
+    mutationFn: () =>
+      packApi.update(pack.id, {
+        name: pack.name,
+        flavorId: pack.flavorId ?? undefined,
+        currentWeightGrams: parseInt(preWeighGrams, 10),
+        totalWeightGrams: pack.totalWeightGrams,
+      }),
+    onSuccess: () => {
+      invalidateAll()
+      toast.success('Вес контейнера сохранён')
+      onClose()
+    },
+    onError: () => toast.error('Не удалось сохранить вес'),
   })
 
   const updatePackMut = useMutation({
@@ -68,7 +91,7 @@ export function ReplenishPackDialog({
         totalWeightGrams: grams,
       }),
     onSuccess: () => {
-      qc.invalidateQueries({ queryKey: ['packs-infinite'] })
+      invalidateAll()
       toast.success('Контейнер обновлён')
       onClose()
     },
@@ -130,9 +153,19 @@ export function ReplenishPackDialog({
             ) : items.length === 0 ? (
               <div className="space-y-4">
                 <p className="text-sm text-ink-muted">Табака с таким вкусом на складе нет</p>
-                <DialogClose asChild>
-                  <Button variant="outline" onClick={onClose}>Закрыть</Button>
-                </DialogClose>
+                <p className="text-xs text-ink-muted">
+                  Введённый вес {preWeighGrams} г будет сохранён как текущий вес контейнера.
+                </p>
+                <div className="flex gap-2">
+                  <Button onClick={() => savePreWeighMut.mutate()} disabled={savePreWeighMut.isPending}>
+                    {savePreWeighMut.isPending
+                      ? <><Loader2 className="h-4 w-4 mr-2 animate-spin" />Сохранение…</>
+                      : 'Сохранить вес и закрыть'}
+                  </Button>
+                  <Button variant="outline" onClick={onClose} disabled={savePreWeighMut.isPending}>
+                    Закрыть без сохранения
+                  </Button>
+                </div>
               </div>
             ) : (
               <div className="space-y-4">
